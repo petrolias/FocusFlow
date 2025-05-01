@@ -1,9 +1,9 @@
 ﻿using FocusFlow.Core.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-namespace FocusFlow.Core.Context
+namespace FocusFlow.Core
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options) :
+    public class Context(DbContextOptions<Context> options) :
         IdentityDbContext<AppUser>(options)
     {
         public DbSet<Project> Projects => Set<Project>();
@@ -12,11 +12,16 @@ namespace FocusFlow.Core.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder
-                .Entity<Project>()
-                .HasMany(p => p.TaskItems)
+
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Tasks)
                 .WithOne(t => t.Project)
                 .HasForeignKey(t => t.ProjectId);
+
+            modelBuilder.Entity<AppUser>()
+                .HasMany(u => u.Tasks)
+                .WithOne(t => t.AssignedUser)
+                .HasForeignKey(t => t.AssignedUserId);
         }
     }
 }

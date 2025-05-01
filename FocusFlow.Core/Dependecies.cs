@@ -1,0 +1,28 @@
+﻿using FocusFlow.Core.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace FocusFlow.Core
+{
+    public static class Dependecies
+    {
+        public static IServiceCollection AddDepencecies(this IServiceCollection self, string connectionString)
+        {
+            self.AddDbContext<Context>(options =>options.UseSqlite(connectionString))
+                .AddIdentity<AppUser, IdentityRole>()
+                .AddEntityFrameworkStores<Context>();
+
+            return self;
+        }
+
+        public static void ContextMigrate(this IServiceProvider self)
+        {
+            using (var scope = self.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<Context>();
+                dbContext.Database.Migrate(); // Applies existing migrations
+            }
+        }
+    }
+}

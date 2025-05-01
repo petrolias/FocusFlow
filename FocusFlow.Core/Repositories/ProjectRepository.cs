@@ -1,5 +1,4 @@
 ﻿using FocusFlow.Abstractions.Repositories;
-using FocusFlow.Core.Context;
 using FocusFlow.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,21 +6,21 @@ namespace FocusFlow.Core.Repositories
 {
     internal class ProjectRepository : IBaseRepository<Project>
     {
-        private readonly AppDbContext _context;
+        private readonly Context _context;
 
-        public ProjectRepository(AppDbContext context)
+        public ProjectRepository(Context context)
         {
             _context = context;
         }
 
         public async Task<Project?> GetByIdAsync(Guid id)
         {
-            return await _context.Projects.Include(p => p.TaskItems).FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Projects.Include(p => p.Tasks).FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<IEnumerable<Project>> GetAllAsync()
         {
-            return await _context.Projects.Include(p => p.TaskItems).ToListAsync();
+            return await _context.Projects.Include(p => p.Tasks).ToListAsync();
         }
 
         public async Task AddAsync(Project project, bool saveChanges)

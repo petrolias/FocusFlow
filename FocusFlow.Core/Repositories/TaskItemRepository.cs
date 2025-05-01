@@ -1,5 +1,4 @@
 ﻿using FocusFlow.Abstractions.Repositories;
-using FocusFlow.Core.Context;
 using FocusFlow.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,9 +6,9 @@ namespace FocusFlow.Core.Repositories
 {
     public class TaskItemRepository : IBaseRepository<TaskItem>
     {
-        private readonly AppDbContext _context;
+        private readonly Context _context;
 
-        public TaskItemRepository(AppDbContext context)
+        public TaskItemRepository(Context context)
         {
             _context = context;
         }

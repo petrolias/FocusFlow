@@ -9,6 +9,6 @@ namespace FocusFlow.Core.Models
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
 
-        public ICollection<TaskItem> TaskItems { get; set; } = [];
+        public ICollection<TaskItem> Tasks { get; set; } = [];
     }
 }
