@@ -1,4 +1,5 @@
-﻿using FocusFlow.Core.Models;
+﻿using FocusFlow.Core.Identity;
+using FocusFlow.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,10 +10,10 @@ namespace FocusFlow.Core
     {
         public static IServiceCollection AddDepencecies(this IServiceCollection self, string connectionString)
         {
-            self.AddDbContext<Context>(options =>options.UseSqlite(connectionString))
+            self.AddDbContext<Context>(options => options.UseSqlite(connectionString))
                 .AddIdentity<AppUser, IdentityRole>()
+                .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<Context>();
-
             return self;
         }
 
@@ -21,7 +22,22 @@ namespace FocusFlow.Core
             using (var scope = self.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<Context>();
-                dbContext.Database.Migrate(); // Applies existing migrations
+                dbContext.Database.Migrate();
+            }
+        }
+
+        public static async Task SeedDataAsync(this IServiceProvider self)
+        {
+            try
+            {
+                using (var scope = self.CreateScope())
+                {
+                    await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

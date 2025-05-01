@@ -13,7 +13,10 @@ builder.Services
     .AddDepencecies(builder.Configuration.GetConnectionString("SqliteConnection"));
     
 var app = builder.Build();
+
 app.Services.ContextMigrate();
+await app.Services.SeedDataAsync();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

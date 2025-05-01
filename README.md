@@ -15,8 +15,8 @@ dotnet ef --version
 Create the Migration
 ``
 
-dotnet ef migrations add InitialCreate --context FocusFlowContext --project ./FocusFlow.Core --startup-project ./FocusFlow.WebApi
-dotnet ef migrations add InitialCreate --context FocusFlowContext
+dotnet ef migrations add InitialCreate --context Context --project ./FocusFlow.Core --startup-project ./FocusFlow.WebApi
+dotnet ef migrations add InitialCreate --context Context
 ``
 
 Apply the Migration

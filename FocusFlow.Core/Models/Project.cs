@@ -1,5 +1,4 @@
 ﻿using FocusFlow.Abstractions.Models;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace FocusFlow.Core.Models
 {
