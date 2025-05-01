@@ -1,6 +1,6 @@
 ﻿namespace FocusFlow.Core.Constants
 {
-    public enum TaskItemPriority
+    public enum TaskItemPriorityEnum
     {
         Low,
         Medium,

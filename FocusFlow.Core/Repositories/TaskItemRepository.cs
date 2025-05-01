@@ -15,28 +15,28 @@ namespace FocusFlow.Core.Repositories
 
         public async Task<TaskItem?> GetByIdAsync(Guid id)
         {
-            return await _context.TaskItems.FirstOrDefaultAsync(t => t.Id == id);
+            return await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<IEnumerable<TaskItem>> GetAllAsync()
         {
-            return await _context.TaskItems.ToListAsync();
+            return await _context.Tasks.ToListAsync();
         }
 
         public async Task<IEnumerable<TaskItem>> GetAllByProjectIdAsync(Guid projectId)
         {
-            return await _context.TaskItems.Where(t => t.ProjectId == projectId).ToListAsync();
+            return await _context.Tasks.Where(t => t.ProjectId == projectId).ToListAsync();
         }
 
         public async Task AddAsync(TaskItem taskItem, bool saveChanges)
         {
-            await _context.TaskItems.AddAsync(taskItem);
+            await _context.Tasks.AddAsync(taskItem);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(TaskItem taskItem, bool saveChanges)
         {
-            _context.TaskItems.Update(taskItem);
+            _context.Tasks.Update(taskItem);
             await _context.SaveChangesAsync();
         }
 
@@ -45,7 +45,7 @@ namespace FocusFlow.Core.Repositories
             var task = await GetByIdAsync(id);
             if (task != null)
             {
-                _context.TaskItems.Remove(task);
+                _context.Tasks.Remove(task);
                 await _context.SaveChangesAsync();
             }
         }

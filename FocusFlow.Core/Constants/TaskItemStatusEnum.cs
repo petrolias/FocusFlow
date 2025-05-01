@@ -1,6 +1,6 @@
 ﻿namespace FocusFlow.Core.Constants
 {
-    public enum TaskItemStatus
+    public enum TaskItemStatusEnum
     { 
         Todo, 
         InProgress, 
