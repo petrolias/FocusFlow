@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Core", "FocusFlow.Core\FocusFlow.Core.csproj", "{066DCDF0-BF2D-4EB4-AC8B-22BB7FEADAF8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{066DCDF0-BF2D-4EB4-AC8B-22BB7FEADAF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{066DCDF0-BF2D-4EB4-AC8B-22BB7FEADAF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{066DCDF0-BF2D-4EB4-AC8B-22BB7FEADAF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{066DCDF0-BF2D-4EB4-AC8B-22BB7FEADAF8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ABF210F6-4491-43A0-8105-17C37FDA1E5B}
+	EndGlobalSection
+EndGlobal
