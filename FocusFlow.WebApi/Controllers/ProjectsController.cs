@@ -1,7 +1,6 @@
-﻿using FocusFlow.Core;
-using FocusFlow.Core.Models;
+﻿using FocusFlow.WebApi.DTOs;
+using FocusFlow.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FocusFlow.WebApi.Controllers
 {
@@ -9,49 +8,91 @@ namespace FocusFlow.WebApi.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    public class ProjectsController(Context _context) : ControllerBase
-    {        
-
+    public class ProjectsController(IProjectService projectService) : ControllerBase
+    {
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
-            => await _context.Projects.Include(p => p.Tasks).ToListAsync();
+        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects()
+        {
+            try
+            {
+                var result = await projectService.GetAllAsync();
+                if (result.IsSuccess)
+                    return Ok(result.Data);
+
+                return StatusCode(result.StatusCode, result.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(Guid id)
+        public async Task<ActionResult<ProjectDto>> GetProject(Guid id)
         {
-            var project = await _context.Projects.Include(p => p.Tasks).FirstOrDefaultAsync(p => p.Id == id);
-            return project is null ? NotFound() : project;
+            try
+            {
+                var result = await projectService.GetByIdAsync(id);
+                if (result.IsSuccess)
+                    return Ok(result.Data);
+
+                return StatusCode(result.StatusCode, result.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(Project project)
+        public async Task<ActionResult> Create(ProjectCreateDto project)
         {
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetProject), new { id = project.Id }, project);
+            try
+            {
+                var result = await projectService.AddAsync(project);
+                if (result.IsSuccess)
+                    return Ok(result.Data);
+
+                return StatusCode(result.StatusCode, result.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, Project updated)
+        public async Task<IActionResult> Update(Guid id, ProjecUpdatetDto project)
         {
-            var project = await _context.Projects.FindAsync(id);
-            if (project is null) return NotFound();
+            try
+            {
+                var result = await projectService.UpdateProjectAsync(project);
+                if (result.IsSuccess)
+                    return Ok(result.Data);
 
-            project.Name = updated.Name;
-            project.Description = updated.Description;
-            await _context.SaveChangesAsync();
-            return NoContent();
+                return StatusCode(result.StatusCode, result.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var project = await _context.Projects.FindAsync(id);
-            if (project is null) return NotFound();
+            try
+            {
+                var result = await projectService.DeleteProjectAsync(id);
+                if (result.IsSuccess)
+                    return Ok(result.Data);
 
-            _context.Projects.Remove(project);
-            await _context.SaveChangesAsync();
-            return NoContent();
+                return StatusCode(result.StatusCode, result.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
         }
     }
 }

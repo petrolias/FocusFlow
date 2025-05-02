@@ -4,40 +4,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FocusFlow.Core.Repositories
 {
-    public class TaskItemRepository : IBaseRepository<TaskItem>
+    public class TaskItemRepository(Context _context) : IBaseRepository<TaskItem>
     {
-        private readonly Context _context;
-
-        public TaskItemRepository(Context context)
-        {
-            _context = context;
-        }
-
+    
         public async Task<TaskItem?> GetByIdAsync(Guid id)
         {
-            return await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            return await _context.TaskItems.FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<IEnumerable<TaskItem>> GetAllAsync()
         {
-            return await _context.Tasks.ToListAsync();
+            return await _context.TaskItems.ToListAsync();
         }
 
         public async Task<IEnumerable<TaskItem>> GetAllByProjectIdAsync(Guid projectId)
         {
-            return await _context.Tasks.Where(t => t.ProjectId == projectId).ToListAsync();
+            return await _context.TaskItems.Where(t => t.ProjectId == projectId).ToListAsync();
         }
 
-        public async Task AddAsync(TaskItem taskItem, bool saveChanges)
+        public async Task<TaskItem> AddAsync(TaskItem taskItem, bool saveChanges)
         {
-            await _context.Tasks.AddAsync(taskItem);
+            await _context.TaskItems.AddAsync(taskItem);
             await _context.SaveChangesAsync();
+            return taskItem;
         }
 
-        public async Task UpdateAsync(TaskItem taskItem, bool saveChanges)
+        public async Task<TaskItem> UpdateAsync(TaskItem taskItem, bool saveChanges)
         {
-            _context.Tasks.Update(taskItem);
+            _context.TaskItems.Update(taskItem);
             await _context.SaveChangesAsync();
+            return taskItem;
         }
 
         public async Task DeleteAsync(Guid id, bool saveChanges)
@@ -45,7 +41,7 @@ namespace FocusFlow.Core.Repositories
             var task = await GetByIdAsync(id);
             if (task != null)
             {
-                _context.Tasks.Remove(task);
+                _context.TaskItems.Remove(task);
                 await _context.SaveChangesAsync();
             }
         }

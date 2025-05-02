@@ -1,7 +1,7 @@
 ﻿using FocusFlow.Core;
+using FocusFlow.Core.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FocusFlow.Core.Constants;
 
 namespace FocusFlow.WebApi.Controllers
 {
@@ -9,7 +9,6 @@ namespace FocusFlow.WebApi.Controllers
     [Route("api/[controller]")]
     public class DashboardController(Context _context) : ControllerBase
     {
-
         // GET: api/dashboard/project/{projectId}
         [HttpGet("project/{projectId}")]
         public async Task<IActionResult> GetProjectStats(Guid projectId)
@@ -136,5 +135,4 @@ namespace FocusFlow.WebApi.Controllers
             return Ok(new { UserId = userId, TaskCount = tasks.Count, Tasks = tasks });
         }
     }
-
 }

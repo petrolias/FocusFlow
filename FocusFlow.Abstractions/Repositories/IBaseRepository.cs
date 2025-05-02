@@ -13,9 +13,9 @@ namespace FocusFlow.Abstractions.Repositories
 
         Task<IEnumerable<TEntityModel>> GetAllAsync();
 
-        Task AddAsync(TEntityModel entity, bool saveChanges);
+        Task<TEntityModel> AddAsync(TEntityModel entity, bool saveChanges);
 
-        Task UpdateAsync(TEntityModel entity, bool saveChanges);
+        Task<TEntityModel> UpdateAsync(TEntityModel entity, bool saveChanges);
 
         Task DeleteAsync(Guid id, bool saveChanges);
     }

@@ -8,14 +8,15 @@ namespace FocusFlow.Core
 {
     public static class Dependecies
     {
-        public static IServiceCollection AddDepencecies(this IServiceCollection self, string connectionString)
+        public static IServiceCollection AddDependencies(this IServiceCollection self, string connectionString)
         {
             self.AddDbContext<Context>(options => options.UseSqlite(connectionString))
                 .AddIdentity<AppUser, IdentityRole>()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<Context>();
+
             return self;
-        }
+        }        
 
         public static void ContextMigrate(this IServiceProvider self)
         {

@@ -1,28 +1,54 @@
 using Microsoft.EntityFrameworkCore;
 using FocusFlow.Core;
+using FocusFlow.WebApi.Services;
+using FocusFlow.WebApi.Mappings;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services
-    .AddEndpointsApiExplorer()
-    .AddSwaggerGen()
-    .AddDepencecies(builder.Configuration.GetConnectionString("SqliteConnection"));
-    
-var app = builder.Build();
-
-app.Services.ContextMigrate();
-await app.Services.SeedDataAsync();
-
-if (app.Environment.IsDevelopment())
+namespace FocusFlow.WebApi
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    public class Program
+    {
+        public static async Task Main(string[] args)
+        {
+            var builder = CreateHostBuilder(args).Build();
+
+            builder.Services.ContextMigrate();
+            await builder.Services.SeedDataAsync();
+
+            builder.Run();
+        }
+
+        public static WebApplicationBuilder CreateHostBuilder(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+
+            builder.Logging
+                .ClearProviders()
+                .AddConsole()
+                .AddDebug();
+
+            // Add services to the container.
+            builder.Services.AddControllers();
+            builder.Services
+                .AddEndpointsApiExplorer()
+                .AddSwaggerGen()
+                .AddDependencies(builder.Configuration.GetConnectionString("SqliteConnection"))
+                .AddScoped<IProjectService, ProjectService>()
+                .AddScoped<ITaskItemService, TaskItemService>()
+                .AddAutoMapper(typeof(ProjectDtosMappingProfile),typeof(TaskItemDtosMappingProfile));
+
+            var app = builder.Build();
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseAuthorization();
+            app.MapControllers();
+
+            return builder;
+        }
+    }
 }
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
-app.Run();

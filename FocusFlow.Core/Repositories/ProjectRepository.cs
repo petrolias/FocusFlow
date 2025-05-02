@@ -4,14 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FocusFlow.Core.Repositories
 {
-    internal class ProjectRepository : IBaseRepository<Project>
+    public class ProjectRepository(Context _context) : IBaseRepository<Project>
     {
-        private readonly Context _context;
-
-        public ProjectRepository(Context context)
-        {
-            _context = context;
-        }
 
         public async Task<Project?> GetByIdAsync(Guid id)
         {
@@ -23,16 +17,18 @@ namespace FocusFlow.Core.Repositories
             return await _context.Projects.Include(p => p.Tasks).ToListAsync();
         }
 
-        public async Task AddAsync(Project project, bool saveChanges)
+        public async Task<Project> AddAsync(Project project, bool saveChanges)
         {
             await _context.Projects.AddAsync(project);
             await _context.SaveChangesAsync();
+            return project;
         }
 
-        public async Task UpdateAsync(Project project, bool saveChanges)
+        public async Task<Project> UpdateAsync(Project project, bool saveChanges)
         {
             _context.Projects.Update(project);
             await _context.SaveChangesAsync();
+            return project;
         }
 
         public async Task DeleteAsync(Guid id, bool saveChanges)
@@ -43,6 +39,6 @@ namespace FocusFlow.Core.Repositories
                 _context.Projects.Remove(project);
                 await _context.SaveChangesAsync();
             }
-        }
+        }    
     }
 }
