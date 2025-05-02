@@ -17,7 +17,7 @@ namespace FocusFlow.WebApi.Controllers
             {
                 var result = await projectService.GetAllAsync();
                 if (result.IsSuccess)
-                    return Ok(result.Data);
+                    return Ok(result.Value);
 
                 return StatusCode(result.StatusCode, result.Message);
             }
@@ -34,7 +34,7 @@ namespace FocusFlow.WebApi.Controllers
             {
                 var result = await projectService.GetByIdAsync(id);
                 if (result.IsSuccess)
-                    return Ok(result.Data);
+                    return Ok(result.Value);
 
                 return StatusCode(result.StatusCode, result.Message);
             }
@@ -51,7 +51,7 @@ namespace FocusFlow.WebApi.Controllers
             {
                 var result = await projectService.AddAsync(project);
                 if (result.IsSuccess)
-                    return Ok(result.Data);
+                    return Ok(result.Value);
 
                 return StatusCode(result.StatusCode, result.Message);
             }
@@ -68,7 +68,7 @@ namespace FocusFlow.WebApi.Controllers
             {
                 var result = await projectService.UpdateProjectAsync(project);
                 if (result.IsSuccess)
-                    return Ok(result.Data);
+                    return Ok(result.Value);
 
                 return StatusCode(result.StatusCode, result.Message);
             }
@@ -85,7 +85,7 @@ namespace FocusFlow.WebApi.Controllers
             {
                 var result = await projectService.DeleteProjectAsync(id);
                 if (result.IsSuccess)
-                    return Ok(result.Data);
+                    return Ok(result.Value);
 
                 return StatusCode(result.StatusCode, result.Message);
             }
