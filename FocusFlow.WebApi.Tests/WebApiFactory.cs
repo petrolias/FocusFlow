@@ -21,8 +21,8 @@ namespace FocusFlow.WebApi.Tests
         protected virtual void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<ProjectsController>();
-            services.AddTransient<TasksController>();
-            services.AddTransient<DashboardController>();
+            //services.AddTransient<TasksController>();
+            //services.AddTransient<DashboardController>();
             services.AddTransient<AuthController>();
         }
     }

@@ -6,7 +6,7 @@
         public string? Description { get; set; }
     };
 
-    public record ProjecUpdatetDto : ProjectDto
+    public record ProjecUpdateDto : ProjectDto
     {
     }
 

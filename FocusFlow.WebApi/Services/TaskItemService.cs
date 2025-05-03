@@ -10,7 +10,7 @@ namespace FocusFlow.WebApi.Services
     public class TaskItemService(
         ILogger<ProjectService> _logger,
         IMapper _mapper,
-        TaskItemRepository _taskItemRepository) : ITaskItemService
+        ITaskItemRepository _taskItemRepository) : ITaskItemService
     {
         public async Task<Result<IEnumerable<TaskItemDto>>> GetAllAsync()
         {

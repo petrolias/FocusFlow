@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FocusFlow.Core.Repositories
 {
-    public class TaskItemRepository(Context _context) : IBaseRepository<TaskItem>
+    public class TaskItemRepository(Context _context) : IBaseRepository<TaskItem>, ITaskItemRepository
     {
-    
+
         public async Task<TaskItem?> GetByIdAsync(Guid id)
         {
             return await _context.TaskItems.FirstOrDefaultAsync(t => t.Id == id);
@@ -24,6 +24,9 @@ namespace FocusFlow.Core.Repositories
 
         public async Task<TaskItem> AddAsync(TaskItem taskItem, bool saveChanges)
         {
+            if (taskItem.Id == Guid.Empty)
+                taskItem.Id = Guid.NewGuid();
+
             await _context.TaskItems.AddAsync(taskItem);
             await _context.SaveChangesAsync();
             return taskItem;

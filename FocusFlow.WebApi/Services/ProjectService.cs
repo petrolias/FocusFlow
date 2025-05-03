@@ -10,7 +10,7 @@ namespace FocusFlow.WebApi.Services
     public class ProjectService(
         ILogger<ProjectService> _logger,
         IMapper _mapper,
-        ProjectRepository _projectRepository) : IProjectService
+        IProjectRepository _projectRepository) : IProjectService
     {
         public async Task<Result<IEnumerable<ProjectDto>>> GetAllAsync()
         {
@@ -51,9 +51,22 @@ namespace FocusFlow.WebApi.Services
             try
             {
                 var model = _mapper.Map<Project>(project);
+                if (await _projectRepository.GetByIdAsync(model.Id) != null)
+                {
+                    var msg = this.Caller($"Trying to insert duplicate item with {nameof(model.Id)} : {model.Id}");
+                    throw new Exception(msg);
+                }
+
+                if (await _projectRepository.GetByProjectNameAsync(model.Name) != null)
+                {
+                    var msg = this.Caller($"Project with {nameof(model.Name)} : {model.Name} already exists");
+                    _logger.LogError(msg);
+                    return Result<ProjectDto>.Failure(msg, statusCode: StatusCodes.Status400BadRequest);
+                }
+
                 await _projectRepository.AddAsync(model, true);
 
-                var result = _mapper.Map<ProjectDto>(project);
+                var result = _mapper.Map<ProjectDto>(model);
                 return Result<ProjectDto>.Success(result);
             }
             catch (Exception ex)
@@ -62,11 +75,20 @@ namespace FocusFlow.WebApi.Services
             }
         }
 
-        public async Task<Result<ProjectDto>> UpdateProjectAsync(ProjecUpdatetDto project)
+        public async Task<Result<ProjectDto>> UpdateProjectAsync(ProjecUpdateDto project)
         {
             try
             {
                 var model = _mapper.Map<Project>(project);
+
+                var sameNameProject = await _projectRepository.GetByProjectNameAsync(model.Name);
+                if (sameNameProject != null && sameNameProject.Id != model.Id)
+                {
+                    var msg = this.Caller($"Project with {nameof(model.Name)} : {model.Name} already exists");
+                    _logger.LogError(msg);
+                    return Result<ProjectDto>.Failure(msg, statusCode: StatusCodes.Status400BadRequest);
+
+                }
                 await _projectRepository.UpdateAsync(model, true);
 
                 var result = _mapper.Map<ProjectDto>(project);

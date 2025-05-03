@@ -1,5 +1,6 @@
 ﻿using FocusFlow.Core.Identity;
 using FocusFlow.Core.Models;
+using FocusFlow.Core.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,9 +12,11 @@ namespace FocusFlow.Core
         public static IServiceCollection AddDependencies(this IServiceCollection self, string connectionString)
         {
             self.AddDbContext<Context>(options => options.UseSqlite(connectionString))
+                .AddScoped<IProjectRepository, ProjectRepository>()
+                .AddScoped<ITaskItemRepository, TaskItemRepository>()
                 .AddIdentity<AppUser, IdentityRole>()
                 .AddDefaultTokenProviders()
-                .AddEntityFrameworkStores<Context>();
+                .AddEntityFrameworkStores<Context>();                
 
             return self;
         }        

@@ -9,6 +9,6 @@ namespace FocusFlow.WebApi.Services
         Task<Result<bool>> DeleteProjectAsync(Guid id);
         Task<Result<IEnumerable<ProjectDto>>> GetAllAsync();
         Task<Result<ProjectDto?>> GetByIdAsync(Guid id);
-        Task<Result<ProjectDto>> UpdateProjectAsync(ProjecUpdatetDto project);
+        Task<Result<ProjectDto>> UpdateProjectAsync(ProjecUpdateDto project);
     }
 }

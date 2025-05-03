@@ -5,26 +5,26 @@ using FocusFlow.Core.Models;
 using FocusFlow.Core.Repositories;
 using FocusFlow.WebApi.DTOs;
 using FocusFlow.WebApi.Services;
-using TStartup = FocusFlow.WebApi.Program;
 using Microsoft.Extensions.DependencyInjection;
+using TStartup = FocusFlow.WebApi.Program;
+using FocusFlow.Core;
 
 namespace FocusFlow.WebApi.Tests.Services
 {
     public class ProjectServiceTests : IClassFixture<WebApiFactory<TStartup>>
     {
-        private readonly Mock<ProjectRepository> _mockRepository;
-        private readonly Mock<IMapper> _mockMapper;
-        private readonly Mock<ILogger<ProjectService>> _mockLogger;
-        private readonly ProjectService _service;
-
-
+        private readonly Mock<IProjectRepository> _mockRepository;
+        private readonly IProjectService _service;
+      
         public ProjectServiceTests(WebApiFactory<TStartup> factory)
-        {            
-            _client = factory.CreateClient();        
-            _mockRepository = new Mock<ProjectRepository>();
-            _mockMapper = new Mock<IMapper>();
-            _mockLogger = new Mock<ILogger<ProjectService>>();
-            _service = new ProjectService(_mockLogger.Object, _mockMapper.Object, _mockRepository.Object);
+        {
+            var scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
+            using var scope = scopeFactory.CreateScope();
+            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<ProjectService>>();
+            
+            _mockRepository = new Mock<IProjectRepository>();
+            _service = new ProjectService(logger, mapper, _mockRepository.Object);
         }
 
         [Fact]
@@ -33,7 +33,6 @@ namespace FocusFlow.WebApi.Tests.Services
             // Arrange
             var projects = new List<Project> { new Project { Id = Guid.NewGuid(), Name = "Test Project" } };
             _mockRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(projects);
-            _mockMapper.Setup(mapper => mapper.Map<IEnumerable<ProjectDto>>(projects)).Returns(new List<ProjectDto> { new ProjectDto { Name = "Test Project" } });
 
             // Act
             var result = await _service.GetAllAsync();
@@ -51,7 +50,6 @@ namespace FocusFlow.WebApi.Tests.Services
             var projectId = Guid.NewGuid();
             var project = new Project { Id = projectId, Name = "Test Project" };
             _mockRepository.Setup(repo => repo.GetByIdAsync(projectId)).ReturnsAsync(project);
-            _mockMapper.Setup(mapper => mapper.Map<ProjectDto>(project)).Returns(new ProjectDto { Name = "Test Project" });
 
             // Act
             var result = await _service.GetByIdAsync(projectId);
@@ -68,9 +66,7 @@ namespace FocusFlow.WebApi.Tests.Services
             // Arrange
             var projectCreateDto = new ProjectCreateDto { Name = "New Project" };
             var project = new Project { Id = Guid.NewGuid(), Name = "New Project" };
-            _mockMapper.Setup(mapper => mapper.Map<Project>(projectCreateDto)).Returns(project);
-            _mockMapper.Setup(mapper => mapper.Map<ProjectDto>(project)).Returns(new ProjectDto { Name = "New Project" });
-
+            
             // Act
             var result = await _service.AddAsync(projectCreateDto);
 
@@ -84,10 +80,8 @@ namespace FocusFlow.WebApi.Tests.Services
         public async Task UpdateProjectAsync_UpdatesProject()
         {
             // Arrange
-            var projectUpdateDto = new ProjecUpdatetDto { Name = "Updated Project" };
-            var project = new Project { Id = Guid.NewGuid(), Name = "Updated Project" };
-            _mockMapper.Setup(mapper => mapper.Map<Project>(projectUpdateDto)).Returns(project);
-            _mockMapper.Setup(mapper => mapper.Map<ProjectDto>(project)).Returns(new ProjectDto { Name = "Updated Project" });
+            var projectUpdateDto = new ProjecUpdateDto { Name = "Updated Project" };
+            var project = new Project { Id = Guid.NewGuid(), Name = "Updated Project" };            
 
             // Act
             var result = await _service.UpdateProjectAsync(projectUpdateDto);

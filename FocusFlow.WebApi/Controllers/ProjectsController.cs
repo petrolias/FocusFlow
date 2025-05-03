@@ -1,4 +1,5 @@
-﻿using FocusFlow.WebApi.DTOs;
+﻿using FocusFlow.Abstractions.Common;
+using FocusFlow.WebApi.DTOs;
 using FocusFlow.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,7 +9,7 @@ namespace FocusFlow.WebApi.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    public class ProjectsController(IProjectService projectService) : ControllerBase
+    public class ProjectsController(ILogger<ProjectsController> _logger, IProjectService projectService) : ControllerBase
     {
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects()
@@ -23,7 +24,9 @@ namespace FocusFlow.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                var message = "An unexpected error occurred.";
+                _logger.LogError(ex, this.Caller(message));
+                return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
 
@@ -40,7 +43,9 @@ namespace FocusFlow.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                var message = "An unexpected error occurred.";
+                _logger.LogError(ex, this.Caller(message));
+                return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
 
@@ -57,12 +62,14 @@ namespace FocusFlow.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                var message = "An unexpected error occurred.";
+                _logger.LogError(ex, this.Caller(message));
+                return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, ProjecUpdatetDto project)
+        public async Task<IActionResult> Update(Guid id, ProjecUpdateDto project)
         {
             try
             {
@@ -74,7 +81,9 @@ namespace FocusFlow.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                var message = "An unexpected error occurred.";
+                _logger.LogError(ex, this.Caller(message));
+                return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
 
@@ -91,7 +100,9 @@ namespace FocusFlow.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                var message = "An unexpected error occurred.";
+                _logger.LogError(ex, this.Caller(message));
+                return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
     }

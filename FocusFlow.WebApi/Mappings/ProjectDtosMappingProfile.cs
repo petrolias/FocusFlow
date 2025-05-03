@@ -10,7 +10,7 @@ namespace FocusFlow.WebApi.Mappings
         {           
             CreateMap<ProjectDto, Project>();
             CreateMap<ProjectCreateDto, Project>();
-            CreateMap<ProjecUpdatetDto, Project>();
+            CreateMap<ProjecUpdateDto, Project>();
             CreateMap<Project, ProjectDto>();
         }
     }

@@ -1,15 +1,21 @@
-﻿using FocusFlow.Abstractions.Repositories;
+﻿using System.Xml.Linq;
+using FocusFlow.Abstractions.Repositories;
 using FocusFlow.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FocusFlow.Core.Repositories
 {
-    public class ProjectRepository(Context _context) : IBaseRepository<Project>
+    public class ProjectRepository(Context _context) : IBaseRepository<Project>, IProjectRepository
     {
 
         public async Task<Project?> GetByIdAsync(Guid id)
         {
             return await _context.Projects.Include(p => p.Tasks).FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<Project?> GetByProjectNameAsync(string projectName)
+        {
+            return await _context.Projects.Include(p => p.Tasks).FirstOrDefaultAsync(p => p.Name.Equals(Name, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task<IEnumerable<Project>> GetAllAsync()
@@ -19,6 +25,9 @@ namespace FocusFlow.Core.Repositories
 
         public async Task<Project> AddAsync(Project project, bool saveChanges)
         {
+            if (project.Id == Guid.Empty)
+                project.Id = Guid.NewGuid();
+
             await _context.Projects.AddAsync(project);
             await _context.SaveChangesAsync();
             return project;
@@ -39,6 +48,6 @@ namespace FocusFlow.Core.Repositories
                 _context.Projects.Remove(project);
                 await _context.SaveChangesAsync();
             }
-        }    
+        }
     }
 }
