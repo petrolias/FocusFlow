@@ -1,20 +1,21 @@
 ﻿using FocusFlow.Abstractions.Common;
+using FocusFlow.Abstractions.DTOs;
 using FocusFlow.Core.Models;
 
 namespace FocusFlow.Core.Repositories
 {
     public interface IProjectRepository
     {
-        Task<Result<Project>> AddAsync(Project project);
+        Task<Result<bool>> AddAsync(Project project);
 
         Task<Result<bool>> DeleteAsync(Guid id);
 
-        Task<Result<IEnumerable<Project>>> GetAllAsync();
+        Task<Result<IEnumerable<Project>>> GetAllAsync(bool includeTask = false);
 
-        Task<Result<Project?>> GetByIdAsync(Guid id);
+        Task<Result<IEnumerable<Project>>> GetFilteredAsync(ProjectFilter filter, bool includeTask = false);
 
-        Task<Result<Project?>> GetByNameAsync(string projectName);
+        Task<Result<Project?>> GetByIdAsync(Guid id, bool includeTask = false);
 
-        Task<Result<Project>> UpdateAsync(Project project);
+        Task<Result<bool>> UpdateAsync(Project project);
     }
 }

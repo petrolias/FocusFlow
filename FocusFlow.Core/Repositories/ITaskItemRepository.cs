@@ -1,14 +1,21 @@
-﻿using FocusFlow.Core.Models;
+﻿using FocusFlow.Abstractions.Common;
+using FocusFlow.Abstractions.DTOs;
+using FocusFlow.Core.Models;
 
 namespace FocusFlow.Core.Repositories
 {
     public interface ITaskItemRepository
     {
-        Task<TaskItem> AddAsync(TaskItem taskItem, bool saveChanges);
-        Task DeleteAsync(Guid id, bool saveChanges);
-        Task<IEnumerable<TaskItem>> GetAllAsync();
-        Task<IEnumerable<TaskItem>> GetAllByProjectIdAsync(Guid projectId);
-        Task<TaskItem?> GetByIdAsync(Guid id);
-        Task<TaskItem> UpdateAsync(TaskItem taskItem, bool saveChanges);
+        Task<Result<bool>> AddAsync(TaskItem taskItem);
+
+        Task<Result<bool>> DeleteAsync(Guid id);
+
+        Task<Result<IEnumerable<TaskItem>>> GetAllAsync(bool includeProject = false);
+
+        Task<Result<TaskItem?>> GetByIdAsync(Guid id, bool includeProject = false);
+
+        Task<Result<IEnumerable<TaskItem>>> GetFilteredAsync(TaskItemFilter filter, bool includeProject = false);
+
+        Task<Result<bool>> UpdateAsync(TaskItem taskItem);
     }
 }

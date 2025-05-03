@@ -19,6 +19,7 @@ namespace FocusFlow.Core
                 .AddScoped<ITaskItemRepository, TaskItemRepository>()
                 .AddScoped<IProjectService, ProjectService>()
                 .AddScoped<ITaskItemService, TaskItemService>()
+                .AddScoped<IIdentityService, IdentityService>()
                 .AddAutoMapper(typeof(ProjectDtosMappingProfile), typeof(TaskItemDtosMappingProfile))
                 .AddIdentity<AppUser, IdentityRole>()
                 .AddDefaultTokenProviders()

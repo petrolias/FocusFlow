@@ -1,7 +1,6 @@
 using AutoMapper;
 using FocusFlow.Abstractions.Common;
 using FocusFlow.Abstractions.DTOs;
-using FocusFlow.Abstractions.Services;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -12,17 +11,20 @@ namespace FocusFlow.Core.Services
     public class TaskItemService(
         ILogger<ProjectService> _logger,
         IMapper _mapper,
-        ITaskItemRepository _taskItemRepository) : ITaskItemService
+        ITaskItemRepository _taskItemRepository)
     {
-        public async Task<Result<IEnumerable<TaskItemDto>>> GetAllAsync()
+        public async Task<Result<IEnumerable<TaskItemDto>>> GetAllAsync(bool includeProject = false)
         {
             try
             {
-                var taskItems = await _taskItemRepository.GetAllAsync();
-                if (!taskItems.Any())
+                var getAllResult = await _taskItemRepository.GetAllAsync(includeProject);
+                if (!getAllResult.IsSuccess)
+                    return Result<IEnumerable<TaskItemDto>>.From(getAllResult);
+
+                if (!getAllResult.Value.Any())
                     return Result<IEnumerable<TaskItemDto>>.Failure(statusCode: StatusCodes.Status404NotFound);
 
-                var result = _mapper.Map<IEnumerable<TaskItemDto>>(taskItems);
+                var result = _mapper.Map<IEnumerable<TaskItemDto>>(getAllResult.Value);
                 return Result<IEnumerable<TaskItemDto>>.Success(result);
             }
             catch (Exception ex)
@@ -31,15 +33,18 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<TaskItemDto?>> GetByIdAsync(Guid id)
+        public async Task<Result<TaskItemDto?>> GetByIdAsync(Guid id, bool includeProject = false)
         {
             try
             {
-                var taskItem = await _taskItemRepository.GetByIdAsync(id);
-                if (taskItem is null)
+                var getByIdResult = await _taskItemRepository.GetByIdAsync(id, includeProject);
+                if (!getByIdResult.IsSuccess)
+                    return Result<TaskItemDto?>.From(getByIdResult);
+
+                if (getByIdResult.Value is null)
                     return Result<TaskItemDto?>.Failure(statusCode: StatusCodes.Status404NotFound);
 
-                var result = _mapper.Map<TaskItemDto>(taskItem);
+                var result = _mapper.Map<TaskItemDto>(getByIdResult.Value);
                 return Result<TaskItemDto?>.Success(result);
             }
             catch (Exception ex)
@@ -48,12 +53,15 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<IEnumerable<TaskItemDto>>> GetAllByProjectIdAsync(Guid projectId)
+        public async Task<Result<IEnumerable<TaskItemDto>>> GetFilteredAsync(TaskItemFilter filter, bool includeProject = false)
         {
             try
             {
-                var taskItems = await _taskItemRepository.GetAllByProjectIdAsync(projectId);
-                var result = _mapper.Map<IEnumerable<TaskItemDto>>(taskItems);
+                var getFilteredResult = await _taskItemRepository.GetFilteredAsync(filter, includeProject);
+                if (!getFilteredResult.IsSuccess)
+                    return Result<IEnumerable<TaskItemDto>>.From(getFilteredResult);
+
+                var result = _mapper.Map<IEnumerable<TaskItemDto>>(getFilteredResult.Value);
                 return Result<IEnumerable<TaskItemDto>>.Success(result);
             }
             catch (Exception ex)
@@ -62,13 +70,19 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<TaskItemDto>> AddAsync(TaskItemCreateDto taskItemCreateDto)
+        public async Task<Result<TaskItemDto>> AddAsync(TaskItemDtoBase project, string userId)
         {
             try
             {
-                var taskItem = _mapper.Map<TaskItem>(taskItemCreateDto);
-                await _taskItemRepository.AddAsync(taskItem, true);
-                var result = _mapper.Map<TaskItemDto>(taskItem);
+                var model = _mapper.Map<TaskItem>(project);
+                model.CreatedAt = DateTimeOffset.UtcNow;
+                model.CreatedBy = userId;
+
+                var addResult = await _taskItemRepository.AddAsync(model);
+                if (!addResult.IsSuccess)
+                    return Result<TaskItemDto>.From(addResult);
+
+                var result = _mapper.Map<TaskItemDto>(model);
                 return Result<TaskItemDto>.Success(result);
             }
             catch (Exception ex)
@@ -77,13 +91,29 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<TaskItemDto>> UpdateTaskItemAsync(TaskItemUpdateDto taskItemUpdateDto)
+        public async Task<Result<TaskItemDto>> UpdateAsync(Guid id, TaskItemDtoBase taskItem, string userId)
         {
             try
             {
-                var taskItem = _mapper.Map<TaskItem>(taskItemUpdateDto);
-                await _taskItemRepository.UpdateAsync(taskItem, true);
-                var result = _mapper.Map<TaskItemDto>(taskItem);
+                var existingModelResult = await _taskItemRepository.GetByIdAsync(id);
+                if (!existingModelResult.IsSuccess)
+                    return Result<TaskItemDto>.From(existingModelResult);
+
+                var model = existingModelResult.Value;
+                model.UpdatedAt = DateTimeOffset.UtcNow;
+                model.UpdatedBy = userId;
+                model.Title = taskItem.Title;
+                model.Description = taskItem.Description;
+                model.DueDate = taskItem.DueDate;
+                model.Status = taskItem.Status;
+                model.Priority = taskItem.Priority;
+                model.AssignedUserId = taskItem.AssignedUserId;
+
+                var updateResult = await _taskItemRepository.UpdateAsync(model);
+                if (!updateResult.IsSuccess)
+                    return Result<TaskItemDto>.From(updateResult);
+
+                var result = _mapper.Map<TaskItemDto>(model);
                 return Result<TaskItemDto>.Success(result);
             }
             catch (Exception ex)
@@ -92,17 +122,20 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<bool>> DeleteTaskItemAsync(Guid id)
+        public async Task<Result<bool>> DeleteTaskItemAsync(Guid id, string userId)
         {
             try
             {
-                await _taskItemRepository.DeleteAsync(id, true);
+                var deleteResult = await _taskItemRepository.DeleteAsync(id);
+                if (!deleteResult.IsSuccess)
+                    return Result<bool>.From(deleteResult);
+
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
                 return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
-        }      
+        }
     }
 }

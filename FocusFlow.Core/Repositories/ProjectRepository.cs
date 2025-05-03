@@ -1,4 +1,5 @@
 ﻿using FocusFlow.Abstractions.Common;
+using FocusFlow.Abstractions.DTOs;
 using FocusFlow.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,12 +9,19 @@ namespace FocusFlow.Core.Repositories
     public partial class ProjectRepository(ILogger<ProjectRepository> _logger, Context _context)
         : IProjectRepository
     {
-        public async Task<Result<Project?>> GetByIdAsync(Guid id)
+        private IQueryable<Project> Projects(bool includeTask = false)
+        {
+            var query = _context.Projects.AsQueryable();
+            if (includeTask)
+                query = query.Include(p => p.Tasks);
+            return query;
+        }
+
+        public async Task<Result<Project?>> GetByIdAsync(Guid id, bool includeTask = false)
         {
             try
             {
-                var result = await _context.Projects.Include(p => p.Tasks).FirstOrDefaultAsync(p => p.Id == id);
-
+                Project? result = await Projects(includeTask).FirstOrDefaultAsync(p => p.Id == id);
                 return Result<Project?>.Success(result);
             }
             catch (Exception ex)
@@ -22,26 +30,11 @@ namespace FocusFlow.Core.Repositories
             }
         }
 
-        public async Task<Result<Project?>> GetByNameAsync(string projectName)
+        public async Task<Result<IEnumerable<Project>>> GetAllAsync(bool includeTask = false)
         {
             try
             {
-                var result = await _context.Projects
-                 .Include(p => p.Tasks)
-                 .FirstOrDefaultAsync(p => p.Name.Equals(projectName, StringComparison.OrdinalIgnoreCase));
-
-                return Result<Project?>.Success(result);
-            }
-            catch (Exception ex)
-            {
-                return _logger.FailureLog<Project?>(LogLevel.Error, exception: ex);
-            }
-        }
-
-        public async Task<Result<IEnumerable<Project>>> GetAllAsync() {
-            try
-            {
-                var result = await _context.Projects.Include(p => p.Tasks).ToListAsync();
+                var result = await Projects(includeTask).ToListAsync();
 
                 return Result<IEnumerable<Project>>.Success(result);
             }
@@ -49,10 +42,34 @@ namespace FocusFlow.Core.Repositories
             {
                 return _logger.FailureLog<IEnumerable<Project>>(LogLevel.Error, exception: ex);
             }
-          
-        } 
+        }
 
-        public async Task<Result<Project>> AddAsync(Project project)
+        public async Task<Result<IEnumerable<Project>>> GetFilteredAsync(ProjectFilter filter, bool includeProject = false)
+        {
+            try
+            {
+                var query = Projects(includeProject);
+
+                if (!string.IsNullOrWhiteSpace(filter.Name))
+                    query = query.Where(t => t.Name.Equals(filter.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (!string.IsNullOrWhiteSpace(filter.Description))
+                {
+                    query = query
+                        .Where(t => t.Description != null)
+                        .Where(t => t.Description.Contains(filter.Description, StringComparison.OrdinalIgnoreCase));
+                }
+
+                var result = await query.ToListAsync();
+                return Result<IEnumerable<Project>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                return _logger.FailureLog<IEnumerable<Project>>(LogLevel.Error, exception: ex);
+            }
+        }
+
+        public async Task<Result<bool>> AddAsync(Project project)
         {
             try
             {
@@ -61,33 +78,33 @@ namespace FocusFlow.Core.Repositories
 
                 var validationResult = await this.IsValidCreateAsync(project);
                 if (!validationResult.IsSuccess)
-                    return Result<Project>.From(validationResult);
+                    return Result<bool>.From(validationResult);
 
                 await _context.Projects.AddAsync(project);
                 await _context.SaveChangesAsync();
-                return Result<Project>.Success(project);
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<Project>(LogLevel.Error, exception: ex);
+                return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
         }
 
-        public async Task<Result<Project>> UpdateAsync(Project project)
+        public async Task<Result<bool>> UpdateAsync(Project project)
         {
             try
             {
                 var validationResult = await this.IsValidUpdateAsync(project);
                 if (!validationResult.IsSuccess)
-                    return Result<Project>.From(validationResult);
+                    return Result<bool>.From(validationResult);
 
                 _context.Projects.Update(project);
                 await _context.SaveChangesAsync();
-                return Result<Project>.Success(project);
+                return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<Project>(LogLevel.Error, exception: ex);
+                return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
         }
 

@@ -14,21 +14,27 @@ namespace FocusFlow.Core.Repositories
                 return Result<bool>.From(getByIdResult);
 
             if (getByIdResult.Value != null)
-                return _logger.FailureLog<bool>(
-                   LogLevel.Error,
-                   StatusCodes.Status400BadRequest,
-                   $"Trying to insert duplicate item with {nameof(project.Id)} : {project.Id}");
+                return _logger.FailureLog<bool>(LogLevel.Error, StatusCodes.Status400BadRequest,
+                   $"Trying to insert duplicate with {nameof(project.Id)} : {project.Id}");
+
+            var getFilteredResult = await this.GetFilteredAsync(new() { Name = project.Name });
+            if (!getFilteredResult.IsSuccess)
+                return Result<bool>.From(getFilteredResult);
+
+            if (getFilteredResult.Value.Where(x => x.Id != x.Id).Any())
+                return _logger.FailureLog<bool>(LogLevel.Error, StatusCodes.Status400BadRequest,
+                   $"Trying to insert duplicate with {nameof(project.Name)} : {project.Name}");
 
             return Result<bool>.Success(true);
         }
 
         private async Task<Result<bool>> IsValidUpdateAsync(Project project)
         {
-            var getByProjectNameResult = await this.GetByNameAsync(project.Name);
-            if (!getByProjectNameResult.IsSuccess)
-                return Result<bool>.From(getByProjectNameResult);
+            var getFilteredResult = await this.GetFilteredAsync(new() { Name = project.Name });
+            if (!getFilteredResult.IsSuccess)
+                return Result<bool>.From(getFilteredResult);
 
-            if (getByProjectNameResult.Value != null && getByProjectNameResult.Value.Id != project.Id)
+            if (getFilteredResult.Value.Any(x => x.Id != project.Id))
                 return _logger.FailureLog<bool>(
                     LogLevel.Error,
                     StatusCodes.Status400BadRequest,

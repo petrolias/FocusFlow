@@ -72,7 +72,7 @@ namespace FocusFlow.WebApi.Controllers
         {
             try
             {
-                var result = await projectService.UpdateProjectAsync(id, project, Guid.NewGuid().ToString());
+                var result = await projectService.UpdateAsync(id, project, Guid.NewGuid().ToString());
                 if (result.IsSuccess)
                     return Ok(result.Value);
 

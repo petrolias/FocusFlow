@@ -94,18 +94,23 @@ namespace FocusFlow.Tests.Services
         {            
             var projectDto = new ProjectDtoBase { Name = "New Project", Description = "Description", CreatedBy = Guid.NewGuid().ToString() };            
             using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<Context>();
             var service = scope.ServiceProvider.GetRequiredService<IProjectService>();
-            var addResult = await service.AddAsync(projectDto, projectDto.CreatedBy);
+            var result = await service.AddAsync(projectDto, projectDto.CreatedBy);
 
-            Assert.True(addResult.IsSuccess);
-            Assert.NotNull(addResult.Value);
-
-            var result = await service.GetByIdAsync(addResult.Value.Id);
-
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+                        
             Assert.Equal(projectDto.Name, result.Value.Name);
             Assert.Equal(projectDto.Description, result.Value.Description);
             Assert.Equal(projectDto.CreatedBy, result.Value.CreatedBy);
             Assert.NotNull(result.Value.CreatedAt);
+
+            var actual = context.Projects.FirstOrDefault();
+            Assert.Equal(projectDto.Name, actual.Name);
+            Assert.Equal(projectDto.Description, actual.Description);
+            Assert.Equal(projectDto.CreatedBy, actual.UpdatedBy);
+            Assert.NotNull(result.Value.UpdatedAt);
         }
 
         [Fact]
@@ -119,29 +124,35 @@ namespace FocusFlow.Tests.Services
             await context.SaveChangesAsync();
 
             var service = scope.ServiceProvider.GetRequiredService<IProjectService>();
-            var result = await service.UpdateProjectAsync(project.Id, projectDto, project.CreatedBy);
+            var result = await service.UpdateAsync(project.Id, projectDto, project.CreatedBy);
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
-
+           
             Assert.Equal(projectDto.Name, result.Value.Name);
             Assert.Equal(projectDto.Description, result.Value.Description);            
             Assert.Equal(project.CreatedBy, result.Value.UpdatedBy);
+
+            var actual = context.Projects.FirstOrDefault();
+            Assert.Equal(projectDto.Name, actual.Name);
+            Assert.Equal(projectDto.Description, actual.Description);
+            Assert.Equal(project.CreatedBy, actual.UpdatedBy);
             Assert.NotNull(result.Value.UpdatedAt);
         }
 
-        //[Fact]
-        //public async Task DeleteProjectAsync_DeletesProject()
-        //{
-        //    // Arrange
-        //    var projectId = Guid.NewGuid();
-        //    _mockRepository.Setup(repo => repo.DeleteAsync(projectId, true)).Returns(Task.CompletedTask);
+        [Fact]
+        public async Task DeleteProjectAsync_DeletesProject()
+        {
+            var project = new Project { Id = Guid.NewGuid(), Name = "New Project", CreatedBy = Guid.NewGuid().ToString() };
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<Context>();
+            context.Projects.Add(project);
+            await context.SaveChangesAsync();
 
-        //    // Act
-        //    var result = await _service.DeleteProjectAsync(projectId);
-
-        //    // Assert
-        //    Assert.True(result.IsSuccess);
-        //    Assert.True(result.Value);
-        //}
+            var service = scope.ServiceProvider.GetRequiredService<IProjectService>();
+            var result = await service.DeleteProjectAsync(project.Id, project.CreatedBy);
+            Assert.True(result.IsSuccess);
+            Assert.True(result.Value);            
+            Assert.Empty(context.Projects);
+        }
     }
 }

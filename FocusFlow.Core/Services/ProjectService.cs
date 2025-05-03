@@ -14,11 +14,11 @@ namespace FocusFlow.Core.Services
         IMapper _mapper,
         IProjectRepository _projectRepository) : IProjectService
     {
-        public async Task<Result<IEnumerable<ProjectDto>>> GetAllAsync()
+        public async Task<Result<IEnumerable<ProjectDto>>> GetAllAsync(bool includeTask = false)
         {
             try
             {
-                var getAllResult = await _projectRepository.GetAllAsync();
+                var getAllResult = await _projectRepository.GetAllAsync(includeTask);
                 if (!getAllResult.IsSuccess)
                     return Result<IEnumerable<ProjectDto>>.From(getAllResult);
 
@@ -31,12 +31,15 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<ProjectDto?>> GetByIdAsync(Guid id)
+        public async Task<Result<ProjectDto?>> GetByIdAsync(Guid id, bool includeTask = false)
         {
             try
             {
-                var getByIdResult = await _projectRepository.GetByIdAsync(id);
-                if (getByIdResult is null)
+                var getByIdResult = await _projectRepository.GetByIdAsync(id, includeTask);
+                if (!getByIdResult.IsSuccess)
+                    return Result<ProjectDto?>.From(getByIdResult);
+
+                if (getByIdResult.Value is null)
                     return Result<ProjectDto?>.Failure(statusCode: StatusCodes.Status404NotFound);
 
                 var result = _mapper.Map<ProjectDto>(getByIdResult.Value);
@@ -45,6 +48,23 @@ namespace FocusFlow.Core.Services
             catch (Exception ex)
             {
                 return _logger.FailureLog<ProjectDto?>(LogLevel.Error, exception: ex);
+            }
+        }
+
+        public async Task<Result<IEnumerable<ProjectDto>>> GetFilteredAsync(ProjectFilter filter, bool includeProject = false)
+        {
+            try
+            {
+                var getFilteredResult = await _projectRepository.GetFilteredAsync(filter, includeProject);
+                if (!getFilteredResult.IsSuccess)
+                    return Result<IEnumerable<ProjectDto>>.From(getFilteredResult);
+
+                var result = _mapper.Map<IEnumerable<ProjectDto>>(getFilteredResult.Value);
+                return Result<IEnumerable<ProjectDto>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                return _logger.FailureLog<IEnumerable<ProjectDto>>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -69,7 +89,7 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<ProjectDto>> UpdateProjectAsync(Guid id, ProjectDtoBase project, string userId)
+        public async Task<Result<ProjectDto>> UpdateAsync(Guid id, ProjectDtoBase project, string userId)
         {
             try
             {
@@ -100,7 +120,9 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                await _projectRepository.DeleteAsync(id);
+                var deleteResult = await _projectRepository.DeleteAsync(id);
+                if (!deleteResult.IsSuccess)
+                    return Result<bool>.From(deleteResult);
 
                 return Result<bool>.Success(true);
             }
