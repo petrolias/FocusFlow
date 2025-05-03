@@ -1,4 +1,4 @@
-﻿using FocusFlow.Core.Constants;
+﻿using FocusFlow.Abstractions.Constants;
 
 namespace FocusFlow.Abstractions.DTOs
 {

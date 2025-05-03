@@ -1,5 +1,4 @@
-﻿using FocusFlow.Abstractions.Repositories;
-using FocusFlow.Core.Models;
+﻿using FocusFlow.Core.Models;
 using FocusFlow.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -7,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace FocusFlow.Core.Repositories
 {
     public class TaskItemRepository(ILogger<TaskItemRepository> _logger, Context _context) 
-        : IBaseRepository<TaskItem>, ITaskItemRepository
+        : ITaskItemRepository
     {
 
         public async Task<TaskItem?> GetByIdAsync(Guid id)

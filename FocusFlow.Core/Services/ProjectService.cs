@@ -2,7 +2,6 @@
 using FocusFlow.Abstractions.Common;
 using FocusFlow.Abstractions.DTOs;
 using FocusFlow.Abstractions.Services;
-using FocusFlow.Core.Common;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -19,11 +18,11 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                var projects = await _projectRepository.GetAllAsync();
-                if (!projects.Any())
-                    return Result<IEnumerable<ProjectDto>>.Failure(statusCode: StatusCodes.Status404NotFound);
+                var getAllResult = await _projectRepository.GetAllAsync();
+                if (!getAllResult.IsSuccess)
+                    return Result<IEnumerable<ProjectDto>>.From(getAllResult);
 
-                var result = _mapper.Map<IEnumerable<ProjectDto>>(projects);
+                var result = _mapper.Map<IEnumerable<ProjectDto>>(getAllResult.Value);
                 return Result<IEnumerable<ProjectDto>>.Success(result);
             }
             catch (Exception ex)
@@ -49,12 +48,12 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<ProjectDto>> AddAsync(ProjectCreateDto project)
+        public async Task<Result<ProjectDto>> AddAsync(ProjectCreateDto project, string userId)
         {
             try
             {
                 var model = _mapper.Map<Project>(project);
-                var addResult = await _projectRepository.AddAsync(model, true);
+                var addResult = await _projectRepository.AddAsync(model, userId);
                 if (!addResult.IsSuccess)
                     return Result<ProjectDto>.From(addResult);
 
@@ -67,12 +66,12 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<ProjectDto>> UpdateProjectAsync(ProjecUpdateDto project)
+        public async Task<Result<ProjectDto>> UpdateProjectAsync(ProjecUpdateDto project, string userId)
         {
             try
             {
                 var model = _mapper.Map<Project>(project);              
-                var updateResult = await _projectRepository.UpdateAsync(model, true);
+                var updateResult = await _projectRepository.UpdateAsync(model, userId);
                 if (!updateResult.IsSuccess)
                     return Result<ProjectDto>.From(updateResult);
 
@@ -85,11 +84,11 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<bool>> DeleteProjectAsync(Guid id)
+        public async Task<Result<bool>> DeleteProjectAsync(Guid id, string userId)
         {
             try
             {
-                await _projectRepository.DeleteAsync(id, true);
+                await _projectRepository.DeleteAsync(id);
 
                 return Result<bool>.Success(true);
             }

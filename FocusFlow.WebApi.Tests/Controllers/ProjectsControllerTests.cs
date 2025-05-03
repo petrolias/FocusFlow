@@ -1,10 +1,11 @@
+using FocusFlow.WebApi.Tests;
 using Newtonsoft.Json;
 using System.Text;
 using TStartup = FocusFlow.WebApi.Program;
 
-namespace FocusFlow.WebApi.Tests.Controllers
+namespace FocusFlow.Tests.Controllers
 {
-    public class ProjectsControllerTests : IClassFixture<WebApiFactory<FocusFlow.WebApi.Program>>
+    public class ProjectsControllerTests : IClassFixture<WebApiFactory<TStartup>>
     {
         private readonly HttpClient _client;
 

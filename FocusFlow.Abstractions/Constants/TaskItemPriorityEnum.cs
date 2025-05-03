@@ -1,4 +1,4 @@
-﻿namespace FocusFlow.Core.Constants
+﻿namespace FocusFlow.Abstractions.Constants
 {
     public enum TaskItemPriorityEnum
     {

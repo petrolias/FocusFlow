@@ -1,9 +1,9 @@
-﻿using FocusFlow.Abstractions.Models;
-using FocusFlow.Core.Constants;
+﻿using FocusFlow.Abstractions.Constants;
+using FocusFlow.Abstractions.Models;
 
 namespace FocusFlow.Core.Models
 {
-    public class TaskItem : IEntityModel
+    public class TaskItem : Entry, IEntityModel, IEntry
     {
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;

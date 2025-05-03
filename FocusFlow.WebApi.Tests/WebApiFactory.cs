@@ -1,6 +1,8 @@
-﻿using FocusFlow.WebApi.Controllers;
+﻿using FocusFlow.Core;
+using FocusFlow.WebApi.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FocusFlow.WebApi.Tests
@@ -10,22 +12,14 @@ namespace FocusFlow.WebApi.Tests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.UseEnvironment("Testing");
-            base.ConfigureWebHost(builder);            
+            //builder.UseEnvironment("Testing");
+            base.ConfigureWebHost(builder);
             builder.ConfigureServices(services =>
             {
-                // Configure additional test services here
+                services.AddDbContext<Context>(options => options.UseInMemoryDatabase("TestDb"));
+                services.AddTransient<ProjectsController>();
+                services.AddTransient<AuthController>();
             });
         }
-
-        protected virtual void ConfigureServices(IServiceCollection services)
-        {
-            services.AddTransient<ProjectsController>();
-            //services.AddTransient<TasksController>();
-            //services.AddTransient<DashboardController>();
-            services.AddTransient<AuthController>();
-        }
     }
-
-   
 }

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using FocusFlow.Abstractions.DTOs;
 using FocusFlow.Core.Models;
-using FocusFlow.WebApi.DTOs;
 
 namespace FocusFlow.Core.Mappings
 {

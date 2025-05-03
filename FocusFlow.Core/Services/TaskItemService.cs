@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using AutoMapper;
 using FocusFlow.Abstractions.Common;
 using FocusFlow.Abstractions.DTOs;
@@ -28,7 +27,7 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return LogError<IEnumerable<TaskItemDto>>(ex);
+                return _logger.FailureLog<IEnumerable<TaskItemDto>>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -45,7 +44,7 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return LogError<TaskItemDto?>(ex);
+                return _logger.FailureLog<TaskItemDto?>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -59,7 +58,7 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return LogError<IEnumerable<TaskItemDto>>(ex);
+                return _logger.FailureLog<IEnumerable<TaskItemDto>>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -74,7 +73,7 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return LogError<TaskItemDto>(ex);
+                return _logger.FailureLog<TaskItemDto>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -89,7 +88,7 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return LogError<TaskItemDto>(ex);
+                return _logger.FailureLog<TaskItemDto>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -102,15 +101,8 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return LogError<bool>(ex);
+                return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
-        }
-
-        private Result<T> LogError<T>(Exception ex, string message = "Service call failed", [CallerMemberName] string callerMemberName = "")
-        {
-            var msg = this.Caller(message, callerMemberName);
-            _logger.LogError(ex, msg);
-            return Result<T>.Failure(msg, ex);
-        }
+        }      
     }
 }

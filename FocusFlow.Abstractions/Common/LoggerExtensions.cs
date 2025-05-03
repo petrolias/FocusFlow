@@ -1,11 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
-using FocusFlow.Abstractions.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace FocusFlow.Core.Common
+namespace FocusFlow.Abstractions.Common
 {
-    internal static class LoggerExtensions
+    public static class LoggerExtensions
     {
         public static Result<T> FailureLog<T>(this ILogger logger, LogLevel logLevel = LogLevel.Error,  EventId? eventId = null,
             string? message = "", Exception? exception = null,

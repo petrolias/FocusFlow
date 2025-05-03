@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Core", "FocusFlow
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.WebApi", "FocusFlow.WebApi\FocusFlow.WebApi.csproj", "{09FFE641-883A-41ED-BF09-2F490B0DBD60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.WebApi.Tests", "FocusFlow.WebApi.Tests\FocusFlow.WebApi.Tests.csproj", "{E33C3112-A090-41A2-A6BF-F97FA435A9CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Tests", "FocusFlow.WebApi.Tests\FocusFlow.Tests.csproj", "{E33C3112-A090-41A2-A6BF-F97FA435A9CE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject

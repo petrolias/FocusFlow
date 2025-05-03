@@ -1,5 +1,4 @@
 ﻿using FocusFlow.Abstractions.Common;
-using FocusFlow.Core.Common;
 using FocusFlow.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -25,7 +24,7 @@ namespace FocusFlow.Core.Repositories
 
         private async Task<Result<bool>> IsValidUpdateAsync(Project project)
         {
-            var getByProjectNameResult = await this.GetByProjectNameAsync(project.Name);
+            var getByProjectNameResult = await this.GetByNameAsync(project.Name);
             if (!getByProjectNameResult.IsSuccess)
                 return Result<bool>.From(getByProjectNameResult);
 
