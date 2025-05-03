@@ -35,11 +35,11 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                var project = await _projectRepository.GetByIdAsync(id);
-                if (project is null)
+                var getByIdResult = await _projectRepository.GetByIdAsync(id);
+                if (getByIdResult is null)
                     return Result<ProjectDto?>.Failure(statusCode: StatusCodes.Status404NotFound);
 
-                var result = _mapper.Map<ProjectDto>(project);
+                var result = _mapper.Map<ProjectDto>(getByIdResult.Value);
                 return Result<ProjectDto?>.Success(result);
             }
             catch (Exception ex)
@@ -48,12 +48,15 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<ProjectDto>> AddAsync(ProjectCreateDto project, string userId)
+        public async Task<Result<ProjectDto>> AddAsync(ProjectDtoBase project, string userId)
         {
             try
             {
                 var model = _mapper.Map<Project>(project);
-                var addResult = await _projectRepository.AddAsync(model, userId);
+                model.CreatedAt = DateTimeOffset.UtcNow;
+                model.CreatedBy = userId;
+
+                var addResult = await _projectRepository.AddAsync(model);
                 if (!addResult.IsSuccess)
                     return Result<ProjectDto>.From(addResult);
 
@@ -66,12 +69,21 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<ProjectDto>> UpdateProjectAsync(ProjecUpdateDto project, string userId)
+        public async Task<Result<ProjectDto>> UpdateProjectAsync(Guid id, ProjectDtoBase project, string userId)
         {
             try
             {
-                var model = _mapper.Map<Project>(project);              
-                var updateResult = await _projectRepository.UpdateAsync(model, userId);
+                var existingModelResult = await _projectRepository.GetByIdAsync(id);
+                if (!existingModelResult.IsSuccess)
+                    return Result<ProjectDto>.From(existingModelResult);
+
+                var model = existingModelResult.Value;
+                model.UpdatedAt = DateTimeOffset.UtcNow;
+                model.UpdatedBy = userId;
+                model.Name = project.Name;
+                model.Description = project.Description;
+
+                var updateResult = await _projectRepository.UpdateAsync(model);
                 if (!updateResult.IsSuccess)
                     return Result<ProjectDto>.From(updateResult);
 
@@ -95,8 +107,7 @@ namespace FocusFlow.Core.Services
             catch (Exception ex)
             {
                 return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
-
             }
-        }      
+        }
     }
 }

@@ -12,10 +12,13 @@ namespace FocusFlow.WebApi.Tests
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            //builder.UseEnvironment("Testing");
+            builder.UseEnvironment("Testing");
             base.ConfigureWebHost(builder);
             builder.ConfigureServices(services =>
             {
+                var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<Context>));
+                if (descriptor != null)
+                    services.Remove(descriptor);
                 services.AddDbContext<Context>(options => options.UseInMemoryDatabase("TestDb"));
                 services.AddTransient<ProjectsController>();
                 services.AddTransient<AuthController>();

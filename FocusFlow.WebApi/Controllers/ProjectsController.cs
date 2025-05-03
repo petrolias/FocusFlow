@@ -1,6 +1,5 @@
-﻿using FocusFlow.Abstractions.Common;
-using FocusFlow.Abstractions.DTOs;
-using FocusFlow.WebApi.Services;
+﻿using FocusFlow.Abstractions.DTOs;
+using FocusFlow.Abstractions.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FocusFlow.WebApi.Controllers
@@ -25,7 +24,7 @@ namespace FocusFlow.WebApi.Controllers
             catch (Exception ex)
             {
                 var message = "An unexpected error occurred.";
-                _logger.LogError(ex, this.Caller(message));
+                _logger.LogError(ex, message);
                 return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
@@ -44,17 +43,17 @@ namespace FocusFlow.WebApi.Controllers
             catch (Exception ex)
             {
                 var message = "An unexpected error occurred.";
-                _logger.LogError(ex, this.Caller(message));
+                _logger.LogError(ex, message);
                 return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(ProjectCreateDto project)
+        public async Task<ActionResult> Create(ProjectDtoBase project)
         {
             try
             {
-                var result = await projectService.AddAsync(project);
+                var result = await projectService.AddAsync(project, Guid.NewGuid().ToString());
                 if (result.IsSuccess)
                     return Ok(result.Value);
 
@@ -63,17 +62,17 @@ namespace FocusFlow.WebApi.Controllers
             catch (Exception ex)
             {
                 var message = "An unexpected error occurred.";
-                _logger.LogError(ex, this.Caller(message));
+                _logger.LogError(ex, message);
                 return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, ProjecUpdateDto project)
+        public async Task<IActionResult> Update(Guid id, ProjectDtoBase project)
         {
             try
             {
-                var result = await projectService.UpdateProjectAsync(project);
+                var result = await projectService.UpdateProjectAsync(id, project, Guid.NewGuid().ToString());
                 if (result.IsSuccess)
                     return Ok(result.Value);
 
@@ -82,7 +81,7 @@ namespace FocusFlow.WebApi.Controllers
             catch (Exception ex)
             {
                 var message = "An unexpected error occurred.";
-                _logger.LogError(ex, this.Caller(message));
+                _logger.LogError(ex, message);
                 return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }
@@ -92,7 +91,7 @@ namespace FocusFlow.WebApi.Controllers
         {
             try
             {
-                var result = await projectService.DeleteProjectAsync(id);
+                var result = await projectService.DeleteProjectAsync(id, Guid.NewGuid().ToString());
                 if (result.IsSuccess)
                     return Ok(result.Value);
 
@@ -101,7 +100,7 @@ namespace FocusFlow.WebApi.Controllers
             catch (Exception ex)
             {
                 var message = "An unexpected error occurred.";
-                _logger.LogError(ex, this.Caller(message));
+                _logger.LogError(ex, message);
                 return StatusCode(StatusCodes.Status500InternalServerError, message);
             }
         }

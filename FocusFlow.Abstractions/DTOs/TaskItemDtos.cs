@@ -1,8 +1,9 @@
 ﻿using FocusFlow.Abstractions.Constants;
+using FocusFlow.Abstractions.Models;
 
 namespace FocusFlow.Abstractions.DTOs
 {
-    public record TaskItemCreateDto
+    public record TaskItemCreateDto : EntryRecordBase
     {
         public string Title { get; set; }
         public string? Description { get; set; }

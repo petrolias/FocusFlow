@@ -8,91 +8,113 @@ using TStartup = FocusFlow.WebApi.Program;
 using FocusFlow.Core.Services;
 using FocusFlow.Abstractions.Services;
 using FocusFlow.WebApi.Tests;
-using Microsoft.EntityFrameworkCore;
 using FocusFlow.Core;
 using FocusFlow.Abstractions.Common;
+using FocusFlow.Abstractions.DTOs;
 
 namespace FocusFlow.Tests.Services
 {
     public class ProjectServiceTests : IClassFixture<WebApiFactory<TStartup>>
     {
-        private readonly Mock<IProjectRepository> _mockRepository;
-        private readonly IProjectService _service;
-        private readonly string UserId = Guid.NewGuid().ToString();
-      
+        private readonly IServiceScopeFactory _serviceScopeFactory;
+
         public ProjectServiceTests(WebApiFactory<TStartup> factory)
         {
-            var scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
-            using var scope = scopeFactory.CreateScope();
+            _serviceScopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
+        }
+
+        public (Mock<IProjectRepository> projectRepository, IProjectService projectService, IMapper mapper) GetMoqServices()
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var mockRepository = new Mock<IProjectRepository>();
             var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<ProjectService>>();
-
-            //var options = new DbContextOptionsBuilder<Context>()
-            //    .UseInMemoryDatabase("TestDb")
-            //    .Options;
-            //var mockSet = new Mock<DbSet<Project>>();
-            //var mockContext = new Mock<Context>();
-            //mockContext.Setup(m => m.Projects).Returns(mockSet.Object);
-
-            _mockRepository = new Mock<IProjectRepository>();
-            _service = new ProjectService(logger, mapper, _mockRepository.Object);
+            var service = new ProjectService(logger, mapper, mockRepository.Object);
+            return (mockRepository, service, mapper);
         }
 
         [Fact]
         public async Task GetAllAsync_ReturnsProjects()
         {
-            // Arrange
-            var projects = new List<Project> { new Project { Id = Guid.NewGuid(), Name = "Test Project" } };            
-            _mockRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(Result<IEnumerable<Project>>.Success(projects));
+            var userId = Guid.NewGuid().ToString();
+            var projects = new List<Project> { new Project {
+                Id = Guid.NewGuid(),
+                Name = "Project",
+                Description = "Description",
+                CreatedBy = userId,
+                UpdatedBy = userId,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+                }
+            };
+            var services = GetMoqServices();
+            services.projectRepository
+                .Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(Result<IEnumerable<Project>>.Success(projects));
 
-            // Act
-            var result = await _service.GetAllAsync();
+            var result = await services.projectService.GetAllAsync();
 
-            // Assert
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
             Assert.Single(result.Value);
+            var expected = services.mapper.Map<ProjectDto>(projects.First());
+            Assert.Equivalent(expected, result.Value.First());
         }
 
-        //[Fact]
-        //public async Task GetByIdAsync_ReturnsProject()
-        //{
-        //    // Arrange
-        //    var projectId = Guid.NewGuid();
-        //    var project = new Project { Id = projectId, Name = "Test Project" };
-        //    _mockRepository.Setup(repo => repo.GetByIdAsync(projectId)).ReturnsAsync(project);
+        [Fact]
+        public async Task GetByIdAsync_ReturnsProject()
+        {
+            var userId = Guid.NewGuid().ToString();
+            var projectId = Guid.NewGuid();
+            var project = new Project
+            {
+                Id = Guid.NewGuid(),
+                Name = "Project",
+                Description = "Description",
+                CreatedBy = userId,
+                UpdatedBy = userId,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+            var services = GetMoqServices();
+            services.projectRepository
+                .Setup(repo => repo.GetByIdAsync(projectId))
+                .ReturnsAsync(Result<Project>.Success(project));
 
-        //    // Act
-        //    var result = await _service.GetByIdAsync(projectId);
+            var result = await services.projectService.GetByIdAsync(projectId);
 
-        //    // Assert
-        //    Assert.True(result.IsSuccess);
-        //    Assert.NotNull(result.Value);
-        //    Assert.Equal("Test Project", result.Value.Name);
-        //}
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            var expected = services.mapper.Map<ProjectDto>(project);
+            Assert.Equivalent(expected, result.Value);
+        }
 
-        //[Fact]
-        //public async Task AddAsync_AddsProject()
-        //{
-        //    // Arrange
-        //    var projectCreateDto = new ProjectCreateDto { Name = "New Project" };
-        //    var project = new Project { Id = Guid.NewGuid(), Name = "New Project" };
-            
-        //    // Act
-        //    var result = await _service.AddAsync(projectCreateDto);
+        [Fact]
+        public async Task AddAsync_AddsProject()
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<IProjectService>();
 
-        //    // Assert
-        //    Assert.True(result.IsSuccess);
-        //    Assert.NotNull(result.Value);
-        //    Assert.Equal("New Project", result.Value.Name);
-        //}
+            var projectCreateDto = new ProjectDtoBase { Name = "New Project", Description = "Description" };
+            var userId = Guid.NewGuid().ToString();
+            var addResult = await service.AddAsync(projectCreateDto, userId);
+
+            Assert.True(addResult.IsSuccess);
+            Assert.NotNull(addResult.Value);
+
+            var result = await service.GetByIdAsync(addResult.Value.Id);
+
+            Assert.Equal(projectCreateDto.Name, result.Value.Name);
+            Assert.Equal(projectCreateDto.Description, result.Value.Description);
+            Assert.Equal(userId, result.Value.CreatedBy);
+            Assert.NotNull(result.Value.CreatedAt);
+        }
 
         //[Fact]
         //public async Task UpdateProjectAsync_UpdatesProject()
         //{
-        //    // Arrange
-        //    var projectUpdateDto = new ProjecUpdateDto { Name = "Updated Project" };
-        //    var project = new Project { Id = Guid.NewGuid(), Name = "Updated Project" };            
+        //    var projectCreateDto = new ProjectDtoBase { Name = "New Project", Description = "Description" };
+        //    var project = new Project { Id = Guid.NewGuid(), Name = "Updated Project" };
 
         //    // Act
         //    var result = await _service.UpdateProjectAsync(projectUpdateDto);

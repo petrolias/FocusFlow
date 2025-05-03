@@ -1,16 +1,14 @@
-﻿namespace FocusFlow.Abstractions.DTOs
+﻿using FocusFlow.Abstractions.Models;
+
+namespace FocusFlow.Abstractions.DTOs
 {
-    public record ProjectCreateDto
+    public record ProjectDtoBase : EntryRecordBase
     {
         public string Name { get; set; }
         public string? Description { get; set; }
     };
 
-    public record ProjecUpdateDto : ProjectDto
-    {
-    }
-
-    public record ProjectDto : ProjectCreateDto
+    public record ProjectDto : ProjectDtoBase
     {
         public Guid Id { get; set; }
     }

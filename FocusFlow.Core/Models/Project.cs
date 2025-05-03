@@ -2,7 +2,7 @@
 
 namespace FocusFlow.Core.Models
 {
-    public class Project : Entry, IEntityModel, IEntry
+    public class Project : EntryBase, IEntityModel, IEntryBase
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;

@@ -53,15 +53,12 @@ namespace FocusFlow.Core.Repositories
           
         } 
 
-        public async Task<Result<Project>> AddAsync(Project project, string userId)
+        public async Task<Result<Project>> AddAsync(Project project)
         {
             try
             {
                 if (project.Id == Guid.Empty)
                     project.Id = Guid.NewGuid();
-
-                project.CreatedAt = DateTimeOffset.UtcNow;
-                project.CreatedBy = userId;     
 
                 var validationResult = await this.IsValidCreateAsync(project);
                 if (!validationResult.IsSuccess)
@@ -77,7 +74,7 @@ namespace FocusFlow.Core.Repositories
             }
         }
 
-        public async Task<Result<Project>> UpdateAsync(Project project, string userId)
+        public async Task<Result<Project>> UpdateAsync(Project project)
         {
             try
             {
@@ -85,16 +82,9 @@ namespace FocusFlow.Core.Repositories
                 if (!validationResult.IsSuccess)
                     return Result<Project>.From(validationResult);
 
-                var projectToUpdate = await _context.Projects.FirstAsync(p => p.Id == project.Id);
-
-                projectToUpdate.UpdatedAt = DateTimeOffset.UtcNow;
-                projectToUpdate.UpdatedBy = userId;
-                projectToUpdate.Name = project.Name;
-                projectToUpdate.Description = project.Description;                
-
-                _context.Projects.Update(projectToUpdate);
+                _context.Projects.Update(project);
                 await _context.SaveChangesAsync();
-                return Result<Project>.Success(projectToUpdate);
+                return Result<Project>.Success(project);
             }
             catch (Exception ex)
             {

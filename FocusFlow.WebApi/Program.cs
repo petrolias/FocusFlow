@@ -1,10 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using FocusFlow.Core;
-using FocusFlow.WebApi.Services;
-using FocusFlow.Core.Mappings;
-using FocusFlow.Core.Services;
-using FocusFlow.Abstractions.Services;
-
 namespace FocusFlow.WebApi
 {
     public class Program
@@ -25,7 +20,9 @@ namespace FocusFlow.WebApi
             app.UseAuthorization();
             app.MapControllers();
 
-            app.Services.ContextMigrate();
+            if (!app.Environment.IsEnvironment("Testing"))
+                app.Services.ContextMigrate();
+           
             await app.Services.SeedDataAsync();
 
             app.Run();         

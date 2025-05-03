@@ -1,6 +1,6 @@
 ﻿namespace FocusFlow.Abstractions.Models
 {
-    public interface IEntry
+    public interface IEntryBase
     {
         string CreatedBy { get; set; }
         DateTimeOffset CreatedAt { get; set; }

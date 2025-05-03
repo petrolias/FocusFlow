@@ -3,7 +3,7 @@ using FocusFlow.Abstractions.Models;
 
 namespace FocusFlow.Core.Models
 {
-    public class TaskItem : Entry, IEntityModel, IEntry
+    public class TaskItem : EntryBase, IEntityModel, IEntryBase
     {
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;

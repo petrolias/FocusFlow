@@ -9,9 +9,9 @@ namespace FocusFlow.Core.Mappings
         public ProjectDtosMappingProfile()
         {           
             CreateMap<ProjectDto, Project>();
-            CreateMap<ProjectCreateDto, Project>();
-            CreateMap<ProjecUpdateDto, Project>();
+            CreateMap<ProjectDtoBase, Project>();            
             CreateMap<Project, ProjectDto>();
+            CreateMap<Project, ProjectDtoBase>();
         }
     }
 }

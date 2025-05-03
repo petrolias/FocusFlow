@@ -5,7 +5,7 @@ namespace FocusFlow.Core.Repositories
 {
     public interface IProjectRepository
     {
-        Task<Result<Project>> AddAsync(Project project, string userId);
+        Task<Result<Project>> AddAsync(Project project);
 
         Task<Result<bool>> DeleteAsync(Guid id);
 
@@ -15,6 +15,6 @@ namespace FocusFlow.Core.Repositories
 
         Task<Result<Project?>> GetByNameAsync(string projectName);
 
-        Task<Result<Project>> UpdateAsync(Project project, string userId);
+        Task<Result<Project>> UpdateAsync(Project project);
     }
 }
