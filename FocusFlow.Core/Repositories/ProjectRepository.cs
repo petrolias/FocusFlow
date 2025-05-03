@@ -49,7 +49,6 @@ namespace FocusFlow.Core.Repositories
             {
                 return _logger.FailureLog<IEnumerable<Project>>(LogLevel.Error, exception: ex);
             }
-
           
         } 
 
@@ -78,7 +77,7 @@ namespace FocusFlow.Core.Repositories
         {
             try
             {
-                var validationResult = await this.IsValidCreateAsync(project);
+                var validationResult = await this.IsValidUpdateAsync(project);
                 if (!validationResult.IsSuccess)
                     return Result<Project>.From(validationResult);
 

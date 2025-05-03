@@ -91,39 +91,43 @@ namespace FocusFlow.Tests.Services
 
         [Fact]
         public async Task AddAsync_AddsProject()
-        {
+        {            
+            var projectDto = new ProjectDtoBase { Name = "New Project", Description = "Description", CreatedBy = Guid.NewGuid().ToString() };            
             using var scope = _serviceScopeFactory.CreateScope();
             var service = scope.ServiceProvider.GetRequiredService<IProjectService>();
-
-            var projectCreateDto = new ProjectDtoBase { Name = "New Project", Description = "Description" };
-            var userId = Guid.NewGuid().ToString();
-            var addResult = await service.AddAsync(projectCreateDto, userId);
+            var addResult = await service.AddAsync(projectDto, projectDto.CreatedBy);
 
             Assert.True(addResult.IsSuccess);
             Assert.NotNull(addResult.Value);
 
             var result = await service.GetByIdAsync(addResult.Value.Id);
 
-            Assert.Equal(projectCreateDto.Name, result.Value.Name);
-            Assert.Equal(projectCreateDto.Description, result.Value.Description);
-            Assert.Equal(userId, result.Value.CreatedBy);
+            Assert.Equal(projectDto.Name, result.Value.Name);
+            Assert.Equal(projectDto.Description, result.Value.Description);
+            Assert.Equal(projectDto.CreatedBy, result.Value.CreatedBy);
             Assert.NotNull(result.Value.CreatedAt);
         }
 
-        //[Fact]
-        //public async Task UpdateProjectAsync_UpdatesProject()
-        //{
-        //    var projectCreateDto = new ProjectDtoBase { Name = "New Project", Description = "Description" };
-        //    var project = new Project { Id = Guid.NewGuid(), Name = "Updated Project" };
+        [Fact]
+        public async Task UpdateProjectAsync_UpdatesProject()
+        {
+            var projectDto = new ProjectDtoBase { Name = "Updated Project", Description = "Updated Description" };            
+            var project = new Project { Id = Guid.NewGuid(), Name = "New Project", CreatedBy = Guid.NewGuid().ToString() };
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<Context>();
+            context.Projects.Add(project);
+            await context.SaveChangesAsync();
 
-        //    // Act
-        //    var result = await _service.UpdateProjectAsync(projectUpdateDto);
+            var service = scope.ServiceProvider.GetRequiredService<IProjectService>();
+            var result = await service.UpdateProjectAsync(project.Id, projectDto, project.CreatedBy);
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
 
-        //    // Assert
-        //    Assert.True(result.IsSuccess);
-        //    Assert.NotNull(result.Value);
-        //    Assert.Equal("Updated Project", result.Value.Name);
-        //}
+            Assert.Equal(projectDto.Name, result.Value.Name);
+            Assert.Equal(projectDto.Description, result.Value.Description);            
+            Assert.Equal(project.CreatedBy, result.Value.UpdatedBy);
+            Assert.NotNull(result.Value.UpdatedAt);
+        }
 
         //[Fact]
         //public async Task DeleteProjectAsync_DeletesProject()

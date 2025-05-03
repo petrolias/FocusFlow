@@ -87,7 +87,7 @@ namespace FocusFlow.Core.Services
                 if (!updateResult.IsSuccess)
                     return Result<ProjectDto>.From(updateResult);
 
-                var result = _mapper.Map<ProjectDto>(project);
+                var result = _mapper.Map<ProjectDto>(model);
                 return Result<ProjectDto>.Success(result);
             }
             catch (Exception ex)
