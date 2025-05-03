@@ -1,5 +1,5 @@
 ﻿using FocusFlow.Abstractions.Common;
-using FocusFlow.WebApi.DTOs;
+using FocusFlow.Abstractions.DTOs;
 using FocusFlow.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 

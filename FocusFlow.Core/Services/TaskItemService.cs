@@ -1,11 +1,14 @@
 using System.Runtime.CompilerServices;
 using AutoMapper;
 using FocusFlow.Abstractions.Common;
+using FocusFlow.Abstractions.DTOs;
+using FocusFlow.Abstractions.Services;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Repositories;
-using FocusFlow.WebApi.DTOs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
-namespace FocusFlow.WebApi.Services
+namespace FocusFlow.Core.Services
 {
     public class TaskItemService(
         ILogger<ProjectService> _logger,

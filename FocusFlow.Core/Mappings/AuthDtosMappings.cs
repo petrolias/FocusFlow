@@ -1,7 +1,7 @@
-﻿using FocusFlow.Core.Models;
-using FocusFlow.WebApi.DTOs;
+﻿using FocusFlow.Abstractions.DTOs;
+using FocusFlow.Core.Models;
 
-namespace FocusFlow.WebApi.Mappings
+namespace FocusFlow.Core.Mappings
 {
     public static class AuthDtosMappings
     {

@@ -1,4 +1,4 @@
-﻿namespace FocusFlow.WebApi.DTOs
+﻿namespace FocusFlow.Abstractions.DTOs
 {
     public record ProjectCreateDto
     {

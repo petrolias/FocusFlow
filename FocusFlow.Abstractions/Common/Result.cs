@@ -2,7 +2,7 @@
 
 namespace FocusFlow.Abstractions.Common
 {
-    public class Result<T>
+    public class Result<T> : IResult
     {
         public bool IsSuccess { get; private set; }
         public T? Value { get; private set; }
@@ -14,11 +14,13 @@ namespace FocusFlow.Abstractions.Common
             => new Result<T> { IsSuccess = true, Value = data, Message = message, StatusCode = statusCode };
 
         public static Result<T> Failure(string message, Exception? exception = null, int statusCode = 500)
-            => new Result<T> { 
-                IsSuccess = false, 
-                Message = message, 
-                Exception = exception, 
-                StatusCode = statusCode };
+            => new Result<T>
+            {
+                IsSuccess = false,
+                Message = message,
+                Exception = exception,
+                StatusCode = statusCode
+            };
 
         public static Result<T> Failure(Exception? exception = null, int statusCode = 500)
             => new Result<T>
@@ -28,5 +30,14 @@ namespace FocusFlow.Abstractions.Common
                 Exception = exception,
                 StatusCode = statusCode
             };
+
+        public static Result<T> From(IResult result)
+           => new()
+           {
+               IsSuccess = result.IsSuccess,
+               Message = result.Message,
+               Exception = result.Exception,
+               StatusCode = result.StatusCode
+           };    
     }
 }

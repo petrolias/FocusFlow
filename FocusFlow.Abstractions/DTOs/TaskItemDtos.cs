@@ -1,6 +1,6 @@
 ﻿using FocusFlow.Core.Constants;
 
-namespace FocusFlow.WebApi.DTOs
+namespace FocusFlow.Abstractions.DTOs
 {
     public record TaskItemCreateDto
     {

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
+using FocusFlow.Abstractions.DTOs;
 using FocusFlow.Core.Models;
-using FocusFlow.WebApi.DTOs;
 
-namespace FocusFlow.WebApi.Mappings
+namespace FocusFlow.Core.Mappings
 {
     public class ProjectDtosMappingProfile : Profile
     {

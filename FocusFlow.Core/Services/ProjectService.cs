@@ -1,11 +1,14 @@
-﻿using System.Runtime.CompilerServices;
-using AutoMapper;
+﻿using AutoMapper;
 using FocusFlow.Abstractions.Common;
+using FocusFlow.Abstractions.DTOs;
+using FocusFlow.Abstractions.Services;
+using FocusFlow.Core.Common;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Repositories;
-using FocusFlow.WebApi.DTOs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
-namespace FocusFlow.WebApi.Services
+namespace FocusFlow.Core.Services
 {
     public class ProjectService(
         ILogger<ProjectService> _logger,
@@ -25,7 +28,7 @@ namespace FocusFlow.WebApi.Services
             }
             catch (Exception ex)
             {
-                return LogError<IEnumerable<ProjectDto>>(ex);
+                return _logger.FailureLog<IEnumerable<ProjectDto>>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -42,7 +45,7 @@ namespace FocusFlow.WebApi.Services
             }
             catch (Exception ex)
             {
-                return LogError<ProjectDto?>(ex);
+                return _logger.FailureLog<ProjectDto?>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -51,27 +54,16 @@ namespace FocusFlow.WebApi.Services
             try
             {
                 var model = _mapper.Map<Project>(project);
-                if (await _projectRepository.GetByIdAsync(model.Id) != null)
-                {
-                    var msg = this.Caller($"Trying to insert duplicate item with {nameof(model.Id)} : {model.Id}");
-                    throw new Exception(msg);
-                }
-
-                if (await _projectRepository.GetByProjectNameAsync(model.Name) != null)
-                {
-                    var msg = this.Caller($"Project with {nameof(model.Name)} : {model.Name} already exists");
-                    _logger.LogError(msg);
-                    return Result<ProjectDto>.Failure(msg, statusCode: StatusCodes.Status400BadRequest);
-                }
-
-                await _projectRepository.AddAsync(model, true);
+                var addResult = await _projectRepository.AddAsync(model, true);
+                if (!addResult.IsSuccess)
+                    return Result<ProjectDto>.From(addResult);
 
                 var result = _mapper.Map<ProjectDto>(model);
                 return Result<ProjectDto>.Success(result);
             }
             catch (Exception ex)
             {
-                return LogError<ProjectDto>(ex);
+                return _logger.FailureLog<ProjectDto>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -79,24 +71,17 @@ namespace FocusFlow.WebApi.Services
         {
             try
             {
-                var model = _mapper.Map<Project>(project);
-
-                var sameNameProject = await _projectRepository.GetByProjectNameAsync(model.Name);
-                if (sameNameProject != null && sameNameProject.Id != model.Id)
-                {
-                    var msg = this.Caller($"Project with {nameof(model.Name)} : {model.Name} already exists");
-                    _logger.LogError(msg);
-                    return Result<ProjectDto>.Failure(msg, statusCode: StatusCodes.Status400BadRequest);
-
-                }
-                await _projectRepository.UpdateAsync(model, true);
+                var model = _mapper.Map<Project>(project);              
+                var updateResult = await _projectRepository.UpdateAsync(model, true);
+                if (!updateResult.IsSuccess)
+                    return Result<ProjectDto>.From(updateResult);
 
                 var result = _mapper.Map<ProjectDto>(project);
                 return Result<ProjectDto>.Success(result);
             }
             catch (Exception ex)
             {
-                return LogError<ProjectDto>(ex);
+                return _logger.FailureLog<ProjectDto>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -105,19 +90,14 @@ namespace FocusFlow.WebApi.Services
             try
             {
                 await _projectRepository.DeleteAsync(id, true);
+
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return LogError<bool>(ex);
-            }
-        }
+                return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
 
-        private Result<T> LogError<T>(Exception ex, string message = "Service call failed", [CallerMemberName] string callerMemberName = "")
-        {
-            var msg = this.Caller(message, callerMemberName);
-            _logger.LogError(ex, msg);
-            return Result<T>.Failure(msg, ex);
-        }
+            }
+        }      
     }
 }

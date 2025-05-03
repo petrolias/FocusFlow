@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using FocusFlow.Core;
 using FocusFlow.WebApi.Services;
-using FocusFlow.WebApi.Mappings;
+using FocusFlow.Core.Mappings;
+using FocusFlow.Core.Services;
+using FocusFlow.Abstractions.Services;
 
 namespace FocusFlow.WebApi
 {
@@ -39,10 +41,7 @@ namespace FocusFlow.WebApi
             builder.Services
                 .AddEndpointsApiExplorer()
                 .AddSwaggerGen()
-                .AddDependencies(builder.Configuration.GetConnectionString("SqliteConnection") ?? string.Empty)
-                .AddScoped<IProjectService, ProjectService>()
-                .AddScoped<ITaskItemService, TaskItemService>()
-                .AddAutoMapper(typeof(ProjectDtosMappingProfile));//,typeof(TaskItemDtosMappingProfile));
+                .AddDependencies(builder.Configuration.GetConnectionString("SqliteConnection") ?? string.Empty);  
 
             return builder;
         }

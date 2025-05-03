@@ -1,7 +1,7 @@
 ﻿using FocusFlow.Abstractions.Common;
-using FocusFlow.WebApi.DTOs;
+using FocusFlow.Abstractions.DTOs;
 
-namespace FocusFlow.WebApi.Services
+namespace FocusFlow.Abstractions.Services
 {
     public interface IProjectService
     {

@@ -1,6 +1,6 @@
-﻿using FocusFlow.Core.Models;
-using FocusFlow.WebApi.DTOs;
-using FocusFlow.WebApi.Mappings;
+﻿using FocusFlow.Abstractions.DTOs;
+using FocusFlow.Core.Mappings;
+using FocusFlow.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 

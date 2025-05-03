@@ -1,6 +1,9 @@
-﻿using FocusFlow.Core.Identity;
+﻿using FocusFlow.Abstractions.Services;
+using FocusFlow.Core.Identity;
+using FocusFlow.Core.Mappings;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Repositories;
+using FocusFlow.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +17,9 @@ namespace FocusFlow.Core
             self.AddDbContext<Context>(options => options.UseSqlite(connectionString))
                 .AddScoped<IProjectRepository, ProjectRepository>()
                 .AddScoped<ITaskItemRepository, TaskItemRepository>()
+                .AddScoped<IProjectService, ProjectService>()
+                .AddScoped<ITaskItemService, TaskItemService>()
+                .AddAutoMapper(typeof(ProjectDtosMappingProfile), typeof(TaskItemDtosMappingProfile))
                 .AddIdentity<AppUser, IdentityRole>()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<Context>();                
