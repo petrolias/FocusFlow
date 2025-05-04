@@ -51,13 +51,13 @@ namespace FocusFlow.Core.Repositories
                 var query = Projects(includeTask);
 
                 if (!string.IsNullOrWhiteSpace(filter.Name))
-                    query = query.Where(t => t.Name.Contains(filter.Name, StringComparison.OrdinalIgnoreCase));
+                    query = query.Where(t => t.Name.ToLower().Contains(filter.Name.ToLower()));
 
                 if (!string.IsNullOrWhiteSpace(filter.Description))
                 {
                     query = query
                         .Where(t => t.Description != null)
-                        .Where(t => t.Description.Contains(filter.Description, StringComparison.OrdinalIgnoreCase));
+                        .Where(t => t.Description.ToLower().Contains(filter.Description.ToLower()));
                 }
 
                 var result = await query.ToListAsync();

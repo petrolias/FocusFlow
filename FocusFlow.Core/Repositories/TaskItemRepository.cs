@@ -53,13 +53,13 @@ namespace FocusFlow.Core.Repositories
                     query = query.Where(t => t.ProjectId == filter.ProjectId.Value);
 
                 if (!string.IsNullOrWhiteSpace(filter.Title))
-                    query = query.Where(t => t.Title.Contains(filter.Title, StringComparison.OrdinalIgnoreCase));
+                    query = query.Where(t => t.Title.ToLower().Contains(filter.Title.ToLower()));
 
                 if (!string.IsNullOrWhiteSpace(filter.Description))
                 {
                     query = query
                         .Where(t => t.Description != null)
-                        .Where(t => t.Description.Contains(filter.Description, StringComparison.OrdinalIgnoreCase));
+                        .Where(t => t.Description.ToLower().Contains(filter.Description.ToLower()));
                 }
 
                 if (filter.Status != null)
@@ -71,7 +71,7 @@ namespace FocusFlow.Core.Repositories
                 if (filter.AssignedUserId != null)
                     query = query
                         .Where(t => t.AssignedUserId != null)
-                        .Where(t => t.AssignedUserId.Contains(filter.AssignedUserId, StringComparison.OrdinalIgnoreCase));
+                        .Where(t => t.AssignedUserId.ToLower() == filter.AssignedUserId.ToLower());
 
                 if (filter.DueDate.HasValue)
                     query = query

@@ -37,16 +37,15 @@
     private List<TaskItem> tasks = new List<TaskItem>();
 
     [Inject]
-    private ITaskService TaskService { get; set; }
+    private HttpClient Http { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        tasks = await TaskService.GetTasksAsync();
+        tasks = await Http.GetFromJsonAsync<List<TaskItem>>("api/tasks");
     }
 
     private async Task CreateTask()
     {
-        // Logic to create a new task
         var newTask = new TaskItem
         {
             Title = "New Task",
@@ -55,23 +54,30 @@
             Status = "Todo",
             Priority = "Medium"
         };
-        await TaskService.CreateTaskAsync(newTask);
-        tasks = await TaskService.GetTasksAsync();
+        var response = await Http.PostAsJsonAsync("api/tasks", newTask);
+        if (response.IsSuccessStatusCode)
+        {
+            tasks = await Http.GetFromJsonAsync<List<TaskItem>>("api/tasks");
+        }
     }
 
     private async Task EditTask(TaskItem task)
     {
-        // Logic to edit a task
         task.Title += " (Edited)";
-        await TaskService.UpdateTaskAsync(task);
-        tasks = await TaskService.GetTasksAsync();
+        var response = await Http.PutAsJsonAsync($"api/tasks/{task.Id}", task);
+        if (response.IsSuccessStatusCode)
+        {
+            tasks = await Http.GetFromJsonAsync<List<TaskItem>>("api/tasks");
+        }
     }
 
     private async Task DeleteTask(int taskId)
     {
-        // Logic to delete a task
-        await TaskService.DeleteTaskAsync(taskId);
-        tasks = await TaskService.GetTasksAsync();
+        var response = await Http.DeleteAsync($"api/tasks/{taskId}");
+        if (response.IsSuccessStatusCode)
+        {
+            tasks = await Http.GetFromJsonAsync<List<TaskItem>>("api/tasks");
+        }
     }
 
     public class TaskItem

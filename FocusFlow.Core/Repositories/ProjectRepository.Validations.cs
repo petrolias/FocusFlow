@@ -21,7 +21,7 @@ namespace FocusFlow.Core.Repositories
             if (!getFilteredResult.IsSuccess)
                 return Result<bool>.From(getFilteredResult);
 
-            if (getFilteredResult.Value.Where(x => x.Id != x.Id).Any())
+            if (getFilteredResult.Value.Any())
                 return logger.FailureLog<bool>(LogLevel.Error, StatusCodes.Status400BadRequest,
                    $"Trying to insert duplicate with {nameof(project.Name)} : {project.Name}");
 

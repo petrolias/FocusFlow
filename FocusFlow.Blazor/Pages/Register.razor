@@ -16,12 +16,12 @@
     private RegisterModel registerModel = new RegisterModel();
 
     [Inject]
-    private IAuthService AuthService { get; set; }
+    private HttpClient Http { get; set; }
 
     private async Task HandleRegister()
     {
-        var result = await AuthService.RegisterAsync(registerModel.Email, registerModel.Password, registerModel.ConfirmPassword);
-        if (result)
+        var response = await Http.PostAsJsonAsync("api/auth/register", registerModel);
+        if (response.IsSuccessStatusCode)
         {
             // Redirect to login or another page
         }

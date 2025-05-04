@@ -17,11 +17,11 @@
     private int overdueTasks = 0;
 
     [Inject]
-    private ITaskService TaskService { get; set; }
+    private HttpClient Http { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var statistics = await TaskService.GetTaskStatisticsAsync();
+        var statistics = await Http.GetFromJsonAsync<TaskStatistics>("api/tasks/statistics");
         totalTasks = statistics.TotalTasks;
         completedTasks = statistics.CompletedTasks;
         overdueTasks = statistics.OverdueTasks;

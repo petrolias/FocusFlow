@@ -15,12 +15,12 @@
     private LoginModel loginModel = new LoginModel();
 
     [Inject]
-    private IAuthService AuthService { get; set; }
+    private HttpClient Http { get; set; }
 
     private async Task HandleLogin()
     {
-        var result = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
-        if (result)
+        var response = await Http.PostAsJsonAsync("api/auth/login", loginModel);
+        if (response.IsSuccessStatusCode)
         {
             // Redirect to dashboard or another page
         }
