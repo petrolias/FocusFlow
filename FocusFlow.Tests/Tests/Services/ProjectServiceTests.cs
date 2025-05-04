@@ -116,12 +116,11 @@ namespace FocusFlow.Tests.Tests.Services
         [Fact]
         public async Task UpdateProjectAsync_UpdatesProject()
         {
-            var projectDto = new ProjectDtoBase { Name = "Updated Project", Description = "Updated Description", CreatedBy = Guid.NewGuid().ToString() };
-            var project = new Project { Id = Guid.NewGuid(), Name = "New Project", CreatedBy = projectDto.CreatedBy };
-
+            var project = new Project { Id = Guid.NewGuid(), Name = "New Project", CreatedBy = Guid.NewGuid().ToString() };
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
+            var projectDto = new ProjectDtoBase { Name = "Updated Project", Description = "Updated Description", CreatedBy = project.CreatedBy };
             var result = await _projectService.UpdateAsync(project.Id, projectDto, project.CreatedBy);
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);

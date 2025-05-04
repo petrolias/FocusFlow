@@ -1,107 +1,187 @@
-//using Moq;
-//using AutoMapper;
-//using Microsoft.Extensions.Logging;
-//using FocusFlow.Core.Models;
-//using FocusFlow.Core.Repositories;
-//using FocusFlow.WebApi.Services;
-//using Microsoft.Extensions.DependencyInjection;
-//using TStartup = FocusFlow.WebApi.Program;
+using AutoMapper;
+using FocusFlow.Abstractions.Constants;
+using FocusFlow.Abstractions.DTOs;
+using FocusFlow.Core;
+using FocusFlow.Core.Models;
+using FocusFlow.Core.Services;
+using FocusFlow.Tests.Fixtures;
+using Microsoft.Extensions.DependencyInjection;
 
-//namespace FocusFlow.WebApi.Tests.Services
-//{
-//    public class TaskItemServiceTests : IClassFixture<WebApiFactory<TStartup>>
-//    {
-//        private readonly Mock<TaskItemRepository> _mockRepository;        
-//        private readonly TaskItemService _service;
+namespace FocusFlow.Tests.Tests.Services
+{
+    public class TaskItemServiceTests : IClassFixture<TestFixture>, IDisposable
+    {
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-//        public TaskItemServiceTests(WebApiFactory<TStartup> factory)
-//        {
-//            var scopeFactory = factory.Services.GetRequiredService<IServiceScopeFactory>();
-//            using var scope = scopeFactory.CreateScope();
-//            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-//            var logger = scope.ServiceProvider.GetRequiredService<ILogger<ProjectService>>();
-//            _mockRepository = new Mock<TaskItemRepository>();            
-//            _service = new TaskItemService(logger, mapper, _mockRepository.Object);
-//        }
+        private readonly IServiceScope _scope;
+        private readonly Context _context;
+        private readonly IMapper _mapper;
+        private readonly ITaskItemService _taskItemService;
 
-//        [Fact]
-//        public async Task GetAllAsync_ReturnsTaskItems()
-//        {
-//            // Arrange
-//            var taskItems = new List<TaskItem> { new TaskItem { Id = Guid.NewGuid(), Name = "Test Task" } };
-//            _mockRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(taskItems);
+        public TaskItemServiceTests(TestFixture fixture)
+        {            
+            _scope = fixture.ServiceProvider.CreateScope();
+            _context = _scope.ServiceProvider.GetRequiredService<Context>();
+            _mapper = _scope.ServiceProvider.GetRequiredService<IMapper>();
+            _taskItemService = _scope.ServiceProvider.GetRequiredService<ITaskItemService>();
 
-//            // Act
-//            var result = await _service.GetAllAsync();
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+        }
 
-//            // Assert
-//            Assert.True(result.IsSuccess);
-//            Assert.NotNull(result.Value);
-//            Assert.Single(result.Value);
-//        }
+        public void Dispose() => _scope.Dispose(); // Clean up the scope after each test       
 
-//        [Fact]
-//        public async Task GetByIdAsync_ReturnsTaskItem()
-//        {
-//            // Arrange
-//            var taskId = Guid.NewGuid();
-//            var taskItem = new TaskItem { Id = taskId, Name = "Test Task" };
-//            _mockRepository.Setup(repo => repo.GetByIdAsync(taskId)).ReturnsAsync(taskItem);
+        [Fact]
+        public async Task GetAllAsync_ReturnsTaskItems()
+        {
+            // Arrange
+            var taskItems = new List<TaskItem> { 
+                new TaskItem {
+                    Id = Guid.NewGuid(),
+                    Title = "Task 1",
+                    Description = "Description 1",
+                    Status = TaskItemStatusEnum.Todo,
+                    Priority = TaskItemPriorityEnum.Medium,
+                    DueDate = DateTime.UtcNow.AddDays(7),
+                    CreatedBy = Guid.NewGuid().ToString(),
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                },
+                new TaskItem {
+                    Id = Guid.NewGuid(),
+                    Title = "Task 2",
+                    Description = "Description 2",
+                    Status = TaskItemStatusEnum.InProgress,
+                    Priority = TaskItemPriorityEnum.High,
+                    DueDate = DateTime.UtcNow.AddDays(3),
+                    CreatedBy = Guid.NewGuid().ToString(),
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                }
+            }
+            .Select(x=> { 
+                x.UpdatedBy = x.CreatedBy; 
+                return x;
+            })
+            .ToList();            
+            _context.TaskItems.AddRange(taskItems);
+            await _context.SaveChangesAsync();
 
-//            // Act
-//            var result = await _service.GetByIdAsync(taskId);
+            var result = await _taskItemService.GetAllAsync();
+            Assert.True(result.IsSuccess);            
+            Assert.NotEmpty(result.Value);
+            var expected = _mapper.Map<List<TaskItemDto>>(taskItems);
 
-//            // Assert
-//            Assert.True(result.IsSuccess);
-//            Assert.NotNull(result.Value);
-//            Assert.Equal("Test Task", result.Value.Name);
-//        }
+            Assert.Equivalent(expected, result.Value);
+        }
 
-//        [Fact]
-//        public async Task AddAsync_AddsTaskItem()
-//        {
-//            // Arrange
-//            var taskItem = new TaskItem { Id = Guid.NewGuid(), Name = "New Task" };
-//            _mockRepository.Setup(repo => repo.AddAsync(taskItem, true)).Returns(Task.CompletedTask);
+        [Fact]
+        public async Task GetByIdAsync_ReturnsTaskItem()
+        {
+            var taskItem = new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task",
+                Description = "Description",
+                Status = TaskItemStatusEnum.InProgress,
+                Priority = TaskItemPriorityEnum.High,
+                DueDate = DateTime.UtcNow.AddDays(5),
+                CreatedBy = Guid.NewGuid().ToString(),
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+            taskItem.UpdatedBy = taskItem.CreatedBy;
 
-//            // Act
-//            var result = await _service.AddAsync(taskItem);
+            _context.TaskItems.Add(taskItem);
+            await _context.SaveChangesAsync();
 
-//            // Assert
-//            Assert.True(result.IsSuccess);
-//            Assert.NotNull(result.Value);
-//            Assert.Equal("New Task", result.Value.Name);
-//        }
+            var result = await _taskItemService.GetByIdAsync(taskItem.Id);
 
-//        [Fact]
-//        public async Task UpdateTaskItemAsync_UpdatesTaskItem()
-//        {
-//            // Arrange
-//            var taskItem = new TaskItem { Id = Guid.NewGuid(), Name = "Updated Task" };
-//            _mockRepository.Setup(repo => repo.UpdateAsync(taskItem, true)).Returns(Task.CompletedTask);
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+            var expected = _mapper.Map<TaskItemDto>(taskItem);
+            Assert.Equivalent(expected, result.Value);
+        }
 
-//            // Act
-//            var result = await _service.UpdateTaskItemAsync(taskItem);
+        [Fact]
+        public async Task AddAsync_AddsTaskItem()
+        {
+            var taskItemDto = new TaskItemDtoBase { 
+                Title = "New Task", 
+                Description = "Description", 
+                Status = TaskItemStatusEnum.Todo,
+                Priority = TaskItemPriorityEnum.High,
+                DueDate = DateTime.UtcNow.AddDays(7), 
+                CreatedBy = Guid.NewGuid().ToString() 
+            };
+            var result = await _taskItemService.AddAsync(taskItemDto, taskItemDto.CreatedBy);
 
-//            // Assert
-//            Assert.True(result.IsSuccess);
-//            Assert.NotNull(result.Value);
-//            Assert.Equal("Updated Task", result.Value.Name);
-//        }
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
 
-//        [Fact]
-//        public async Task DeleteTaskItemAsync_DeletesTaskItem()
-//        {
-//            // Arrange
-//            var taskId = Guid.NewGuid();
-//            _mockRepository.Setup(repo => repo.DeleteAsync(taskId, true)).Returns(Task.CompletedTask);
+            var expected = new { taskItemDto.Title, taskItemDto.Description, taskItemDto.Status, taskItemDto.Priority, taskItemDto.DueDate, taskItemDto.CreatedBy };
+            var actual = new { result.Value.Title, result.Value.Description, result.Value.Status, result.Value.Priority, result.Value.DueDate, result.Value.CreatedBy };
+            Assert.Equivalent(expected, actual);
+            Assert.True(result.Value.CreatedAt > DateTimeOffset.MinValue);
 
-//            // Act
-//            var result = await _service.DeleteTaskItemAsync(taskId);
+            var actualDb = _context.TaskItems.First();
+            actual = new { actual.Title, actual.Description, actual.Status, actual.Priority, actual.DueDate, actual.CreatedBy };
+            Assert.Equivalent(expected, actual);
+            Assert.True(result.Value.CreatedAt > DateTimeOffset.MinValue);
+            Assert.True(actualDb.CreatedAt > DateTimeOffset.MinValue);
+        }
 
-//            // Assert
-//            Assert.True(result.IsSuccess);
-//            Assert.True(result.Value);
-//        }
-//    }
-//}
+        [Fact]
+        public async Task UpdateTaskItemAsync_UpdatesTaskItem()
+        {            
+            var taskItem = new TaskItem { Id = Guid.NewGuid(), Title = "New Task", CreatedBy = Guid.NewGuid().ToString() };
+            _context.TaskItems.Add(taskItem);
+            await _context.SaveChangesAsync();
+
+            var taskItemDto = new TaskItemDtoBase
+            {
+                Title = "Updated Task",
+                Description = "Updated Description",
+                Status = TaskItemStatusEnum.InProgress,
+                Priority = TaskItemPriorityEnum.Low,
+                DueDate = DateTime.UtcNow.AddDays(3),
+                CreatedBy = taskItem.CreatedBy
+            };
+
+            var result = await _taskItemService.UpdateAsync(taskItem.Id, taskItemDto, taskItem.CreatedBy);
+            Assert.True(result.IsSuccess);
+            Assert.NotNull(result.Value);
+
+            var expected = new { taskItemDto.Title, taskItemDto.Description, taskItemDto.Status, taskItemDto.Priority, taskItemDto.DueDate, taskItemDto.CreatedBy };
+            var actual = new { result.Value.Title, result.Value.Description, result.Value.Status, result.Value.Priority, result.Value.DueDate, result.Value.CreatedBy };
+            Assert.Equivalent(expected, actual);
+            Assert.Equal(result.Value.UpdatedBy, taskItem.CreatedBy);
+            Assert.True(result.Value.UpdatedAt > DateTimeOffset.MinValue);
+
+            var actualDb = _context.TaskItems.First();
+            actual = new { actual.Title, actual.Description, actual.Status, actual.Priority, actual.DueDate, actual.CreatedBy };
+            Assert.Equivalent(expected, actual);
+            Assert.Equal(actualDb.UpdatedBy, taskItem.CreatedBy);
+            Assert.True(actualDb.UpdatedAt > DateTimeOffset.MinValue);
+        }
+
+        [Fact]
+        public async Task DeleteTaskItemAsync_DeletesTaskItem()
+        {
+            var taskItem = new TaskItem { 
+                Id = Guid.NewGuid(), Title = "New Task",
+                Status = TaskItemStatusEnum.Todo,
+                Priority = TaskItemPriorityEnum.Low,
+                DueDate = DateTime.UtcNow.AddDays(7), 
+                CreatedBy = Guid.NewGuid().ToString()
+            };
+            _context.TaskItems.Add(taskItem);
+            await _context.SaveChangesAsync();
+
+            var result = await _taskItemService.DeleteTaskItemAsync(taskItem.Id, taskItem.CreatedBy);
+            Assert.True(result.IsSuccess);
+            Assert.True(result.Value);
+            Assert.Empty(_context.TaskItems);
+        }
+    }
+}

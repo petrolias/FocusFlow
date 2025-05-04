@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\ProjectsControllerTests.cs" />
-    <Compile Remove="Tests\Services\TaskItemServiceTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
