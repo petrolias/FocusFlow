@@ -5,36 +5,198 @@
 
 <h3>Projects</h3>
 
-<button @onclick="CreateProject">Create New Project</button>
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <button class="btn btn-primary">
+        <i class="bi bi-plus"></i> Create New Project
+    </button>
+    <div class="d-flex align-items-center gap-2">
+        <span>Show</span>
+        <select class="form-select form-select-sm" style="width: auto;" @bind="pageSize">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+        </select>
+        <span>entries</span>
+    </div>
+</div>
 
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var project in projects)
-        {
+<div class="table-responsive" style="max-height: 600px;">
+    <table class="table table-hover table-striped border">
+        <thead class="table-light sticky-top">
             <tr>
-                <td>@project.Name</td>
-                <td>@project.Description</td>
-                <td>
-                    <button @onclick="() => EditProject(project)">Edit</button>
-                    <button @onclick="() => DeleteProject(project.Id)">Delete</button>
+                <th>
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter name..."
+                           @bind="nameFilter" @bind:event="oninput" />
+                </th>
+                <th>
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter description..."
+                           @bind="descriptionFilter" @bind:event="oninput" />
+                </th>
+                <th>
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter created by..."
+                           @bind="createdByFilter" @bind:event="oninput" />
+                </th>
+                <th>
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter updated by..."
+                           @bind="updatedByFilter" @bind:event="oninput" />
+                </th>
+                <th>
+                    <input type="date" class="form-control form-control-sm" 
+                           @bind="createdDateFilter" @bind:event="oninput" />
+                </th>
+                <th>
+                    <input type="date" class="form-control form-control-sm"
+                           @bind="updatedDateFilter" @bind:event="oninput" />
+                </th>
+                <th>Actions</th>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Created By</th>
+                <th>Updated By</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var project in PagedProjects)
+            {
+                <tr>
+                    <td>@project.Name</td>
+                    <td>@project.Description</td>
+                    <td>@project.CreatedBy</td>
+                    <td>@project.UpdatedBy</td>
+                    <td>@project.CreatedAt.ToString("g")</td>
+                    <td>@project.UpdatedAt.ToString("g")</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-warning" @onclick="() => NavigateToEditPage(project.Id)">
+                                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => ShowDeletePrompt(project)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot class="table-light">
+            <tr>
+                <td colspan="7">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            Showing @(((currentPage - 1) * pageSize) + 1) to @Math.Min(currentPage * pageSize, FilteredProjects.Count()) of @FilteredProjects.Count() entries
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-secondary" @onclick="PreviousPage" disabled="@(currentPage == 1)">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <span class="mx-2">Page @currentPage of @TotalPages</span>
+                            <button class="btn btn-sm btn-secondary" @onclick="NextPage" disabled="@(currentPage == TotalPages)">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
                 </td>
             </tr>
-        }
-    </tbody>
-</table>
+        </tfoot>
+    </table>
+</div>
 
+@if (showDeletePrompt)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete project "@projectToDelete?.Name"?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
 
+@inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 @code {
     private List<ProjectDto> projects = new();
     private HttpClient _client;
+
+    private string nameFilter = "";
+    private string descriptionFilter = "";
+    private string createdByFilter = "";
+    private string updatedByFilter = "";
+    private DateTime? createdDateFilter;
+    private DateTime? updatedDateFilter;
+
+    private int pageSize = 10;
+    private int currentPage = 1;
+    private bool showDeletePrompt = false;
+    private ProjectDto? projectToDelete;
+
+    private IEnumerable<ProjectDto> FilteredProjects => projects
+        .Where(p => string.IsNullOrEmpty(nameFilter) || p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => string.IsNullOrEmpty(descriptionFilter) || (p.Description?.Contains(descriptionFilter, StringComparison.OrdinalIgnoreCase) ?? false))
+        .Where(p => string.IsNullOrEmpty(createdByFilter) || p.CreatedBy.Contains(createdByFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => string.IsNullOrEmpty(updatedByFilter) || p.UpdatedBy.Contains(updatedByFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => !createdDateFilter.HasValue || p.CreatedAt.Date == createdDateFilter.Value.Date)
+        .Where(p => !updatedDateFilter.HasValue || p.UpdatedAt.Date == updatedDateFilter.Value.Date);
+
+    private IEnumerable<ProjectDto> PagedProjects => FilteredProjects
+        .Skip((currentPage - 1) * pageSize)
+        .Take(pageSize);
+
+    private int TotalPages => (int)Math.Ceiling(FilteredProjects.Count() / (double)pageSize);
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+            currentPage--;
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < TotalPages)
+            currentPage++;
+    }
+
+    private void ShowDeletePrompt(ProjectDto project)
+    {
+        projectToDelete = project;
+        showDeletePrompt = true;
+    }
+
+    private void CancelDelete()
+    {
+        showDeletePrompt = false;
+        projectToDelete = null;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (projectToDelete != null)
+        {
+            await DeleteProject(projectToDelete.Id);
+            showDeletePrompt = false;
+            projectToDelete = null;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -44,7 +206,7 @@
 
     private async Task CreateProject()
     {
-        var newProject = new ProjectDtoBase { Name = "New Project", Description = "Description" };
+        var newProject = new ProjectDtoBase { Name = "New Project", Description = "Description", CreatedBy = "Admin", UpdatedBy = "Admin", CreatedAt = DateTimeOffset.Now, UpdatedAt = DateTimeOffset.Now };
         var response = await _client.PostAsJsonAsync("api/projects", newProject);
         if (response.IsSuccessStatusCode)
         {
@@ -52,14 +214,9 @@
         }
     }
 
-    private async Task EditProject(ProjectDto project)
+    private void NavigateToEditPage(Guid projectId)
     {
-        project.Name += " (Edited)";
-        var response = await _client.PutAsJsonAsync($"api/projects/{project.Id}", project);
-        if (response.IsSuccessStatusCode)
-        {
-            projects = await _client.GetFromJsonAsync<List<ProjectDto>>("api/projects");
-        }
+        NavigationManager.NavigateTo($"/projects/edit/{projectId}");
     }
 
     private async Task DeleteProject(Guid projectId)

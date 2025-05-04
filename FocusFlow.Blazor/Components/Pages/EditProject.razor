@@ -1,0 +1,85 @@
+@page "/projects/edit/{ProjectId:guid}"
+@using FocusFlow.Abstractions.DTOs
+
+<h3>Edit Project</h3>
+
+<EditForm Model="project" OnValidSubmit="SaveProject">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" class="form-control" @bind-Value="project.Name" />
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="project.Description" />
+    </div>
+
+    <div class="form-group">
+        <label>Created By</label>
+        <p class="form-control-plaintext">@project.CreatedBy</p>
+    </div>
+
+    <div class="form-group">
+        <label>Updated By</label>
+        <p class="form-control-plaintext">@project.UpdatedBy</p>
+    </div>
+
+    <div class="form-group">
+        <label>Created At</label>
+        <p class="form-control-plaintext">@project.CreatedAt.ToString("g")</p>
+    </div>
+
+    <div class="form-group">
+        <label>Updated At</label>
+        <p class="form-control-plaintext">@project.UpdatedAt.ToString("g")</p>
+    </div>
+
+    @* <div class="form-group"> *@
+    @*     <label for="startDate">Start Date</label> *@
+    @*     <InputDate id="startDate" class="form-control" @bind-Value="project.StartDate" /> *@
+    @* </div> *@
+
+    @* <div class="form-group"> *@
+    @*     <label for="endDate">End Date</label> *@
+    @*     <InputDate id="endDate" class="form-control" @bind-Value="project.EndDate" /> *@
+    @* </div> *@
+
+    @* <div class="form-group"> *@
+    @*     <label for="status">Status</label> *@
+    @*     <InputText id="status" class="form-control" @bind-Value="project.Status" /> *@
+    @* </div> *@
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+</EditForm>
+
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+@code {
+    [Parameter] public Guid ProjectId { get; set; }
+    private ProjectDto project = new();
+    private HttpClient _client;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _client = HttpClientFactory.CreateClient("MyApi");
+        project = await _client.GetFromJsonAsync<ProjectDto>($"api/projects/{ProjectId}");
+    }
+
+    private async Task SaveProject()
+    {
+        var response = await _client.PutAsJsonAsync($"api/projects/{ProjectId}", project);
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/projects");
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/projects");
+    }
+}
