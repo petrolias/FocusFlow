@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace FocusFlow.Core.Services
 {
     public class IdentityService(
-        ILogger<ProjectService> _logger,
+        ILogger<IdentityService> _logger,
         UserManager<AppUser> _userManager,
         RoleManager<IdentityRole> _roleManager
         ) : IIdentityService
