@@ -11,15 +11,15 @@ namespace FocusFlow.Tests.Factories
         WebApplicationFactory<TStartup> where TStartup : class
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder.UseEnvironment("Testing");
+        {            
             base.ConfigureWebHost(builder);
             builder.ConfigureServices(services =>
             {
                 var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<Context>));
                 if (descriptor != null)
                     services.Remove(descriptor);
-                services.AddDbContext<Context>(options => options.UseInMemoryDatabase("TestDb"));
+                var dbName = Guid.NewGuid().ToString();
+                services.AddDbContext<Context>(options => options.UseInMemoryDatabase(dbName));
                 services.AddTransient<ProjectsController>();
                 services.AddTransient<AuthController>();
             });
