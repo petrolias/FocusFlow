@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using FocusFlow.Core;
+using FocusFlow.WebApi.HealthChecks;
+using static FocusFlow.WebApi.HealthChecks.HealthCheckExtensions;
 
 namespace FocusFlow.WebApi
 {
@@ -20,6 +22,7 @@ namespace FocusFlow.WebApi
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
+            app.AddHealthChecks();
 
             app.Services.ContextMigrate();
 
@@ -37,7 +40,9 @@ namespace FocusFlow.WebApi
                 .AddDebug();
 
             // Add services to the container.
-            builder.Services.AddControllers();
+            builder.Services.AddControllers();            
+            builder.Services.AddHealthChecks()
+                    .AddCheck<DatabaseHealthCheck>("Database", tags: new[] { HealthCheckType.Readiness.ToString() });
             builder.Services
                 .AddEndpointsApiExplorer()
                 .AddSwaggerGen()

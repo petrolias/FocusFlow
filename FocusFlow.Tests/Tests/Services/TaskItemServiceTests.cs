@@ -253,8 +253,8 @@ namespace FocusFlow.Tests.Tests.Services
             var dueDateUntilResult = await _taskItemService.GetFilteredAsync(dueDateUntilFilter);
             Assert.True(dueDateUntilResult.IsSuccess);
             Assert.Equal(2, dueDateUntilResult.Value.Count());
-            Assert.Contains("High Priority Task", dueDateUntilResult.Value.Select(x=>x.Title));
-            Assert.Contains("Medium Priority Task", dueDateUntilResult.Value.Select(x=>x.Title));
+            Assert.Contains("High Priority Task", dueDateUntilResult.Value.Select(x => x.Title));
+            Assert.Contains("Medium Priority Task", dueDateUntilResult.Value.Select(x => x.Title));
 
             // Test combined filters
             var combinedFilter = new TaskItemFilter

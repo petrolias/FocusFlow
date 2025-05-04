@@ -4,13 +4,12 @@ using FocusFlow.Abstractions.Services;
 using FocusFlow.Core;
 using FocusFlow.Core.Models;
 using FocusFlow.Tests.Fixtures;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FocusFlow.Tests.Tests.Services
 {
     public class ProjectServiceTests : IClassFixture<TestFixture>, IDisposable
-    {        
+    {
         private readonly IServiceScope _scope;
         private readonly Context _context;
         private readonly IMapper _mapper;
