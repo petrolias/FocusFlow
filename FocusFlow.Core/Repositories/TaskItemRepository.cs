@@ -76,7 +76,12 @@ namespace FocusFlow.Core.Repositories
                 if (filter.DueDate.HasValue)
                     query = query
                        .Where(t => t.DueDate != null)
-                       .Where(t => t.DueDate == filter.DueDate.Value);
+                       .Where(t => t.DueDate.Value.UtcDateTime.Date == filter.DueDate.Value.Date);
+
+                if (filter.DueDateUntil.HasValue)
+                    query = query
+                       .Where(t => t.DueDate != null)
+                       .Where(t => t.DueDate.Value.UtcDateTime.Date <= filter.DueDateUntil.Value.Date);
 
                 var result = await query.ToListAsync();
                 return Result<IEnumerable<TaskItem>>.Success(result);

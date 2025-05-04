@@ -11,5 +11,6 @@ namespace FocusFlow.Abstractions.DTOs
         public TaskItemPriorityEnum? Priority { get; set; }
         public string AssignedUserId { get; set; }
         public DateTime? DueDate { get; set; }
+        public DateTime? DueDateUntil { get; set; }
     }
 }

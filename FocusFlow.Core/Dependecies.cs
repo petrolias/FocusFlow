@@ -14,7 +14,7 @@ namespace FocusFlow.Core
     public static class Dependecies
     {
         public static IServiceCollection AddDependencies(this IServiceCollection self,
-            Action<DbContextOptionsBuilder> dbContextOptions)
+            Action<DbContextOptionsBuilder> dbContextOptions, LogLevel logLevel = LogLevel.Debug)
         {
             self.AddDbContext<Context>(dbContextOptions)
                 .AddScoped<IProjectRepository, ProjectRepository>()
@@ -31,7 +31,7 @@ namespace FocusFlow.Core
             {                
                 builder.AddConsole();
                 builder.AddDebug();
-                builder.SetMinimumLevel(LogLevel.Trace);
+                builder.SetMinimumLevel(logLevel);
             });
 
             return self;

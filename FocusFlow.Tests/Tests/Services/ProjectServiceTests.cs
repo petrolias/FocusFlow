@@ -10,16 +10,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace FocusFlow.Tests.Tests.Services
 {
     public class ProjectServiceTests : IClassFixture<TestFixture>, IDisposable
-    {
-        private readonly IServiceScopeFactory _serviceScopeFactory;
-
+    {        
         private readonly IServiceScope _scope;
         private readonly Context _context;
         private readonly IMapper _mapper;
         private readonly IProjectService _projectService;
 
         public ProjectServiceTests(TestFixture fixture)
-        {            
+        {
             _scope = fixture.ServiceProvider.CreateScope();
             _context = _scope.ServiceProvider.GetRequiredService<Context>();
             _mapper = _scope.ServiceProvider.GetRequiredService<IMapper>();
@@ -29,12 +27,12 @@ namespace FocusFlow.Tests.Tests.Services
             _context.Database.EnsureCreated();
         }
 
-        public void Dispose() => _scope.Dispose(); // Clean up the scope after each test       
+        public void Dispose() => _scope.Dispose(); // Clean up the scope after each test
 
         [Fact]
         public async Task GetAllAsync_ReturnsProjects()
-        {                        
-            var projects = new List<Project> { 
+        {
+            var projects = new List<Project> {
                 new Project {
                     Id = Guid.NewGuid(),
                     Name = "Project",
@@ -48,18 +46,19 @@ namespace FocusFlow.Tests.Tests.Services
                     CreatedBy = Guid.NewGuid().ToString()
                 }
             }
-            .Select(x=> { 
+            .Select(x =>
+            {
                 x.UpdatedBy = x.CreatedBy;
                 x.CreatedAt = DateTimeOffset.UtcNow;
                 x.UpdatedAt = DateTimeOffset.UtcNow;
                 return x;
             })
-            .ToList();            
+            .ToList();
             _context.Projects.AddRange(projects);
             await _context.SaveChangesAsync();
 
             var result = await _projectService.GetAllAsync();
-            Assert.True(result.IsSuccess);            
+            Assert.True(result.IsSuccess);
             Assert.NotEmpty(result.Value);
             var expected = _mapper.Map<List<ProjectDto>>(projects);
 
@@ -152,34 +151,35 @@ namespace FocusFlow.Tests.Tests.Services
 
         [Fact]
         public async Task GetAllAsync_WithFilter_ReturnsFilteredProjects()
-        {            
+        {
             var projects = new List<Project>
             {
-                new Project 
-                { 
-                    Id = Guid.NewGuid(), 
-                    Name = "Test Project 1", 
+                new Project
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Test Project 1",
                     Description = "First test project development",
                     CreatedBy = Guid.NewGuid().ToString(),
                     CreatedAt = DateTimeOffset.UtcNow,
                     UpdatedAt = DateTimeOffset.UtcNow
                 },
-                new Project 
-                { 
-                    Id = Guid.NewGuid(), 
-                    Name = "Development Project", 
+                new Project
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Development Project",
                     Description = "Second test project",
                     CreatedBy = Guid.NewGuid().ToString(),
                 },
-                new Project 
-                { 
-                    Id = Guid.NewGuid(), 
-                    Name = "Another Project", 
+                new Project
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Another Project",
                     Description = "Project with development",
                     CreatedBy = Guid.NewGuid().ToString(),
                 }
             }
-            .Select(x => {
+            .Select(x =>
+            {
                 x.UpdatedBy = x.CreatedBy;
                 x.CreatedAt = DateTimeOffset.UtcNow;
                 x.UpdatedAt = DateTimeOffset.UtcNow;
@@ -206,8 +206,25 @@ namespace FocusFlow.Tests.Tests.Services
         }
 
         [Fact]
+        public async Task GetFilteredAsync_ReturnsEmptyList_WhenNoMatch()
+        {
+            var projects = new List<Project>
+            {
+                new Project { Id = Guid.NewGuid(), Name = "Project 1", Description = "Description 1", CreatedBy = Guid.NewGuid().ToString() },
+                new Project { Id = Guid.NewGuid(), Name = "Project 2", Description = "Description 2", CreatedBy = Guid.NewGuid().ToString() }
+            };
+            _context.Projects.AddRange(projects);
+            await _context.SaveChangesAsync();
+            var invalidFilter = new ProjectFilter { Name = "Nonexistent" };
+            var result = await _projectService.GetFilteredAsync(invalidFilter);
+
+            Assert.True(result.IsSuccess);
+            Assert.Empty(result.Value);
+        }
+
+        [Fact]
         public async Task GetAllAsync_WithEmptySearchTerm_ReturnsAllProjects()
-        {            
+        {
             var projects = new List<Project>
             {
                 new Project { Id = Guid.NewGuid(), Name = "Project 1", Description = "Description 1", CreatedBy = Guid.NewGuid().ToString() },
@@ -216,10 +233,8 @@ namespace FocusFlow.Tests.Tests.Services
             _context.Projects.AddRange(projects);
             await _context.SaveChangesAsync();
 
-            var emptyFilter = new ProjectFilter();
-            var allResult = await _projectService.GetFilteredAsync(emptyFilter);
+            var allResult = await _projectService.GetFilteredAsync(new());
 
-            // Assert
             Assert.True(allResult.IsSuccess);
             Assert.Equal(2, allResult.Value.Count());
         }
