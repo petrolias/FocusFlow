@@ -44,11 +44,11 @@ namespace FocusFlow.Core.Repositories
             }
         }
 
-        public async Task<Result<IEnumerable<Project>>> GetFilteredAsync(ProjectFilter filter, bool includeProject = false)
+        public async Task<Result<IEnumerable<Project>>> GetFilteredAsync(ProjectFilter filter, bool includeTask = false)
         {
             try
             {
-                var query = Projects(includeProject);
+                var query = Projects(includeTask);
 
                 if (!string.IsNullOrWhiteSpace(filter.Name))
                     query = query.Where(t => t.Name.Equals(filter.Name, StringComparison.OrdinalIgnoreCase));

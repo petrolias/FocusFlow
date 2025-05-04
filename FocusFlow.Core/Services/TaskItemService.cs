@@ -11,7 +11,7 @@ namespace FocusFlow.Core.Services
     public class TaskItemService(
         ILogger<ProjectService> _logger,
         IMapper _mapper,
-        ITaskItemRepository _taskItemRepository)
+        ITaskItemRepository _taskItemRepository) : ITaskItemService
     {
         public async Task<Result<IEnumerable<TaskItemDto>>> GetAllAsync(bool includeProject = false)
         {

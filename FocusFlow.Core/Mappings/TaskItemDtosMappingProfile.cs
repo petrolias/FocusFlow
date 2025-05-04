@@ -9,9 +9,9 @@ namespace FocusFlow.Core.Mappings
         public TaskItemDtosMappingProfile()
         {           
             CreateMap<TaskItemDto, TaskItem>();
-            CreateMap<TaskItemCreateDto, TaskItem>();
-            CreateMap<TaskItemUpdateDto, TaskItem>();
+            CreateMap<TaskItemDtoBase, TaskItem>();
             CreateMap<TaskItem, TaskItemDto>();
+            CreateMap<TaskItem, TaskItemDtoBase>();
         }
     }
 }

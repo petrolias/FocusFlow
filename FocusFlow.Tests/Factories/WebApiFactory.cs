@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FocusFlow.WebApi.Tests
+namespace FocusFlow.Tests.Factories
 {
     public class WebApiFactory<TStartup> :
         WebApplicationFactory<TStartup> where TStartup : class

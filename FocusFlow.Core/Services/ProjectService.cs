@@ -51,11 +51,11 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<IEnumerable<ProjectDto>>> GetFilteredAsync(ProjectFilter filter, bool includeProject = false)
+        public async Task<Result<IEnumerable<ProjectDto>>> GetFilteredAsync(ProjectFilter filter, bool includeTask = false)
         {
             try
             {
-                var getFilteredResult = await _projectRepository.GetFilteredAsync(filter, includeProject);
+                var getFilteredResult = await _projectRepository.GetFilteredAsync(filter, includeTask);
                 if (!getFilteredResult.IsSuccess)
                     return Result<IEnumerable<ProjectDto>>.From(getFilteredResult);
 
