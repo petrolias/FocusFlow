@@ -43,9 +43,7 @@ namespace FocusFlow.Tests.Tests.Services
                     Status = TaskItemStatusEnum.Todo,
                     Priority = TaskItemPriorityEnum.Medium,
                     DueDate = DateTime.UtcNow.AddDays(7),
-                    CreatedBy = Guid.NewGuid().ToString(),
-                    CreatedAt = DateTimeOffset.UtcNow,
-                    UpdatedAt = DateTimeOffset.UtcNow
+                    CreatedBy = Guid.NewGuid().ToString()
                 },
                 new TaskItem {
                     Id = Guid.NewGuid(),
@@ -54,13 +52,13 @@ namespace FocusFlow.Tests.Tests.Services
                     Status = TaskItemStatusEnum.InProgress,
                     Priority = TaskItemPriorityEnum.High,
                     DueDate = DateTime.UtcNow.AddDays(3),
-                    CreatedBy = Guid.NewGuid().ToString(),
-                    CreatedAt = DateTimeOffset.UtcNow,
-                    UpdatedAt = DateTimeOffset.UtcNow
+                    CreatedBy = Guid.NewGuid().ToString()
                 }
             }
             .Select(x=> { 
-                x.UpdatedBy = x.CreatedBy; 
+                x.UpdatedBy = x.CreatedBy;
+                x.CreatedAt = DateTimeOffset.UtcNow;
+                x.UpdatedAt = DateTimeOffset.UtcNow;
                 return x;
             })
             .ToList();            

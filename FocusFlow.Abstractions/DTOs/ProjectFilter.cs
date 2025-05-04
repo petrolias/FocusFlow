@@ -1,6 +1,6 @@
 ﻿namespace FocusFlow.Abstractions.DTOs
 {
-    public struct ProjectFilter
+    public class ProjectFilter
     {
         public string? Name { get; set; }
         public string? Description { get; set; }

@@ -51,7 +51,7 @@ namespace FocusFlow.Core.Repositories
                 var query = Projects(includeTask);
 
                 if (!string.IsNullOrWhiteSpace(filter.Name))
-                    query = query.Where(t => t.Name.Equals(filter.Name, StringComparison.OrdinalIgnoreCase));
+                    query = query.Where(t => t.Name.Contains(filter.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (!string.IsNullOrWhiteSpace(filter.Description))
                 {

@@ -10,7 +10,8 @@ namespace FocusFlow.Tests.Fixtures
         public TestFixture()
         {
             var services = new ServiceCollection();
-            services.AddDependencies(options => options.UseInMemoryDatabase("TestDb"));                        
+            var dbName = Guid.NewGuid().ToString();
+            services.AddDependencies(options => options.UseInMemoryDatabase(dbName));                        
             ServiceProvider = services.BuildServiceProvider();
         }
     }

@@ -4,6 +4,7 @@ using FocusFlow.Abstractions.Services;
 using FocusFlow.Core;
 using FocusFlow.Core.Models;
 using FocusFlow.Tests.Fixtures;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FocusFlow.Tests.Tests.Services
@@ -38,21 +39,19 @@ namespace FocusFlow.Tests.Tests.Services
                     Id = Guid.NewGuid(),
                     Name = "Project",
                     Description = "Description",
-                    CreatedBy = Guid.NewGuid().ToString(),
-                    CreatedAt = DateTimeOffset.UtcNow,
-                    UpdatedAt = DateTimeOffset.UtcNow
+                    CreatedBy = Guid.NewGuid().ToString()
                 },
                 new Project {
                     Id = Guid.NewGuid(),
                     Name = "Project1",
                     Description = "Description1",
-                    CreatedBy = Guid.NewGuid().ToString(),
-                    CreatedAt = DateTimeOffset.UtcNow,
-                    UpdatedAt = DateTimeOffset.UtcNow
+                    CreatedBy = Guid.NewGuid().ToString()
                 }
             }
             .Select(x=> { 
-                x.UpdatedBy = x.CreatedBy; 
+                x.UpdatedBy = x.CreatedBy;
+                x.CreatedAt = DateTimeOffset.UtcNow;
+                x.UpdatedAt = DateTimeOffset.UtcNow;
                 return x;
             })
             .ToList();            
@@ -149,6 +148,80 @@ namespace FocusFlow.Tests.Tests.Services
             Assert.True(result.IsSuccess);
             Assert.True(result.Value);
             Assert.Empty(_context.Projects);
+        }
+
+        [Fact]
+        public async Task GetAllAsync_WithFilter_ReturnsFilteredProjects()
+        {            
+            var projects = new List<Project>
+            {
+                new Project 
+                { 
+                    Id = Guid.NewGuid(), 
+                    Name = "Test Project 1", 
+                    Description = "First test project development",
+                    CreatedBy = Guid.NewGuid().ToString(),
+                    CreatedAt = DateTimeOffset.UtcNow,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                },
+                new Project 
+                { 
+                    Id = Guid.NewGuid(), 
+                    Name = "Development Project", 
+                    Description = "Second test project",
+                    CreatedBy = Guid.NewGuid().ToString(),
+                },
+                new Project 
+                { 
+                    Id = Guid.NewGuid(), 
+                    Name = "Another Project", 
+                    Description = "Project with development",
+                    CreatedBy = Guid.NewGuid().ToString(),
+                }
+            }
+            .Select(x => {
+                x.UpdatedBy = x.CreatedBy;
+                x.CreatedAt = DateTimeOffset.UtcNow;
+                x.UpdatedAt = DateTimeOffset.UtcNow;
+                return x;
+            })
+            .ToList();
+
+            _context.Projects.AddRange(projects);
+            await _context.SaveChangesAsync();
+
+            // Test name filter
+            var nameFilter = new ProjectFilter { Name = "Development" };
+            var nameResult = await _projectService.GetFilteredAsync(nameFilter);
+            Assert.True(nameResult.IsSuccess);
+            Assert.Single(nameResult.Value);
+            Assert.Contains(nameResult.Value, p => p.Name == "Development Project");
+
+            // Test description filter
+            var descFilter = new ProjectFilter { Description = "development" };
+            var descResult = await _projectService.GetFilteredAsync(descFilter);
+            Assert.True(descResult.IsSuccess);
+            Assert.Equal(2, descResult.Value.Count());
+            Assert.Contains(descResult.Value, p => p.Description.Contains("development", StringComparison.OrdinalIgnoreCase));
+        }
+
+        [Fact]
+        public async Task GetAllAsync_WithEmptySearchTerm_ReturnsAllProjects()
+        {            
+            var projects = new List<Project>
+            {
+                new Project { Id = Guid.NewGuid(), Name = "Project 1", Description = "Description 1", CreatedBy = Guid.NewGuid().ToString() },
+                new Project { Id = Guid.NewGuid(), Name = "Project 2", Description = "Description 2", CreatedBy = Guid.NewGuid().ToString() }
+            };
+            _context.Projects.AddRange(projects);
+            await _context.SaveChangesAsync();
+
+            var emptyFilter = new ProjectFilter();
+            var allResult = await _projectService.GetFilteredAsync(emptyFilter);
+
+            // Assert
+            Assert.True(allResult.IsSuccess);
+            Assert.Equal(2, allResult.Value.Count());
         }
     }
 }

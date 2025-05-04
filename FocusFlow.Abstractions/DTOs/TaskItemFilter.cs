@@ -2,7 +2,7 @@
 
 namespace FocusFlow.Abstractions.DTOs
 {
-    public struct TaskItemFilter
+    public class TaskItemFilter
     {
         public Guid? ProjectId { get; set; }
         public string? Title { get; set; }

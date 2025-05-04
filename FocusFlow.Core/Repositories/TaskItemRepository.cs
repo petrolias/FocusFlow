@@ -53,7 +53,7 @@ namespace FocusFlow.Core.Repositories
                     query = query.Where(t => t.ProjectId == filter.ProjectId.Value);
 
                 if (!string.IsNullOrWhiteSpace(filter.Title))
-                    query = query.Where(t => t.Title.Equals(filter.Title, StringComparison.OrdinalIgnoreCase));
+                    query = query.Where(t => t.Title.Contains(filter.Title, StringComparison.OrdinalIgnoreCase));
 
                 if (!string.IsNullOrWhiteSpace(filter.Description))
                 {
