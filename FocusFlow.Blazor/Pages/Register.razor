@@ -1,0 +1,40 @@
+@page "/register"
+
+<h3>Register</h3>
+
+<EditForm Model="@registerModel" OnValidSubmit="HandleRegister">
+    <!-- Registration form fields -->
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <InputText id="email" @bind-Value="registerModel.Email" placeholder="Email" />
+    <InputText id="password" @bind-Value="registerModel.Password" placeholder="Password" type="password" />
+    <InputText id="confirmPassword" @bind-Value="registerModel.ConfirmPassword" placeholder="Confirm Password" type="password" />
+    <button type="submit">Register</button>
+</EditForm>
+
+@code {
+    private RegisterModel registerModel = new RegisterModel();
+
+    [Inject]
+    private IAuthService AuthService { get; set; }
+
+    private async Task HandleRegister()
+    {
+        var result = await AuthService.RegisterAsync(registerModel.Email, registerModel.Password, registerModel.ConfirmPassword);
+        if (result)
+        {
+            // Redirect to login or another page
+        }
+        else
+        {
+            // Show error message
+        }
+    }
+
+    public class RegisterModel
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string ConfirmPassword { get; set; }
+    }
+}

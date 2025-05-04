@@ -1,0 +1,86 @@
+@page "/tasks"
+
+<h3>Tasks</h3>
+
+<button @onclick="CreateTask">Create New Task</button>
+
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in tasks)
+        {
+            <tr>
+                <td>@task.Title</td>
+                <td>@task.Description</td>
+                <td>@task.DueDate</td>
+                <td>@task.Status</td>
+                <td>@task.Priority</td>
+                <td>
+                    <button @onclick="() => EditTask(task)">Edit</button>
+                    <button @onclick="() => DeleteTask(task.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<TaskItem> tasks = new List<TaskItem>();
+
+    [Inject]
+    private ITaskService TaskService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        tasks = await TaskService.GetTasksAsync();
+    }
+
+    private async Task CreateTask()
+    {
+        // Logic to create a new task
+        var newTask = new TaskItem
+        {
+            Title = "New Task",
+            Description = "Description",
+            DueDate = DateTime.Now.AddDays(7),
+            Status = "Todo",
+            Priority = "Medium"
+        };
+        await TaskService.CreateTaskAsync(newTask);
+        tasks = await TaskService.GetTasksAsync();
+    }
+
+    private async Task EditTask(TaskItem task)
+    {
+        // Logic to edit a task
+        task.Title += " (Edited)";
+        await TaskService.UpdateTaskAsync(task);
+        tasks = await TaskService.GetTasksAsync();
+    }
+
+    private async Task DeleteTask(int taskId)
+    {
+        // Logic to delete a task
+        await TaskService.DeleteTaskAsync(taskId);
+        tasks = await TaskService.GetTasksAsync();
+    }
+
+    public class TaskItem
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime DueDate { get; set; }
+        public string Status { get; set; }
+        public string Priority { get; set; }
+    }
+}
