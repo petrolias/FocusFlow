@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FocusFlow.Core.Identity
+namespace FocusFlow.Core.Seeders
 {
     internal class IdentitySeeder
     {

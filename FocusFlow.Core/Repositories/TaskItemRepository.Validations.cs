@@ -14,7 +14,7 @@ namespace FocusFlow.Core.Repositories
                 return Result<bool>.From(getByIdResult);
 
             if (getByIdResult.Value != null)
-                return _logger.FailureLog<bool>(
+                return logger.FailureLog<bool>(
                   LogLevel.Error,
                   StatusCodes.Status400BadRequest,
                   $"Trying to insert duplicate with {nameof(taskItem.Id)} : {taskItem.Id}");
@@ -24,7 +24,7 @@ namespace FocusFlow.Core.Repositories
                 return Result<bool>.From(getFilteredResult);
 
             if (getFilteredResult.Value.Where(x => x.Id != x.Id).Any())
-                return _logger.FailureLog<bool>(
+                return logger.FailureLog<bool>(
                    LogLevel.Error,
                    StatusCodes.Status400BadRequest,
                    $"Trying to insert duplicate with {nameof(taskItem.Title)} : {taskItem.Title}");
@@ -39,7 +39,7 @@ namespace FocusFlow.Core.Repositories
                 return Result<bool>.From(getFilteredResult);
 
             if (getFilteredResult.Value.Any(x => x.Id != taskItem.Id))
-                return _logger.FailureLog<bool>(
+                return logger.FailureLog<bool>(
                     LogLevel.Error,
                     StatusCodes.Status400BadRequest,
                     $"TaskItem with {nameof(taskItem.Title)} : {taskItem.Title} already exists");

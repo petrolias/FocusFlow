@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace FocusFlow.WebApi.HealthChecks
+namespace FocusFlow.WebApi.Common
 {
-    public static class HealthCheckExtensions
+    public enum HealthCheckType
     {
-        public enum HealthCheckType
-        {
-            Health,
-            Readiness,
-            Liveness,
-            Startup
-        }
+        Health,
+        Readiness,
+        Liveness,
+        Startup
+    }
 
+    public static class HealthCheckExtensions
+    {       
         public static WebApplication AddHealthChecks(this WebApplication app)
         {
             MapTaggedHealthCheck(app, "/health", HealthCheckType.Health);

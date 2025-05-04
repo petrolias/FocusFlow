@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 
 namespace FocusFlow.Core.Repositories
 {
-    public partial class TaskItemRepository(ILogger<TaskItemRepository> _logger, Context _context) : ITaskItemRepository
+    public partial class TaskItemRepository(ILogger<TaskItemRepository> logger, Context context) : ITaskItemRepository
     {
         private IQueryable<TaskItem> TaskItems(bool includeProject = false)
         {
-            var query = _context.TaskItems.AsQueryable();
+            var query = context.TaskItems.AsQueryable();
             if (includeProject)
                 query = query.Include(p => p.Project);
             return query;
@@ -25,7 +25,7 @@ namespace FocusFlow.Core.Repositories
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<TaskItem?>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<TaskItem?>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -39,7 +39,7 @@ namespace FocusFlow.Core.Repositories
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<IEnumerable<TaskItem>>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<IEnumerable<TaskItem>>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -88,7 +88,7 @@ namespace FocusFlow.Core.Repositories
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<IEnumerable<TaskItem>>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<IEnumerable<TaskItem>>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -103,13 +103,13 @@ namespace FocusFlow.Core.Repositories
                 if (!validationResult.IsSuccess)
                     return Result<bool>.From(validationResult);
 
-                await _context.TaskItems.AddAsync(taskItem);
-                await _context.SaveChangesAsync();
+                await context.TaskItems.AddAsync(taskItem);
+                await context.SaveChangesAsync();
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -121,13 +121,13 @@ namespace FocusFlow.Core.Repositories
                 if (!validationResult.IsSuccess)
                     return Result<bool>.From(validationResult);
 
-                _context.TaskItems.Update(taskItem);
-                await _context.SaveChangesAsync();
+                context.TaskItems.Update(taskItem);
+                await context.SaveChangesAsync();
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -141,14 +141,14 @@ namespace FocusFlow.Core.Repositories
 
                 if (getByIdResult.Value != null)
                 {
-                    _context.TaskItems.Remove(getByIdResult.Value);
-                    await _context.SaveChangesAsync();
+                    context.TaskItems.Remove(getByIdResult.Value);
+                    await context.SaveChangesAsync();
                 }
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
         }
     }

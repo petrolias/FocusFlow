@@ -8,13 +8,13 @@ namespace FocusFlow.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager) : ControllerBase
+    public class IdentityController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager) : ControllerBase
     {
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
             var user = dto.MapToAppUser();
-            var result = await _userManager.CreateAsync(user, dto.Password);
+            var result = await userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded) return BadRequest(result.Errors);
 
             return Ok("User registered successfully");
@@ -23,7 +23,7 @@ namespace FocusFlow.WebApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
-            var result = await _signInManager.PasswordSignInAsync(dto.Username, dto.Password, isPersistent: false, lockoutOnFailure: false);
+            var result = await signInManager.PasswordSignInAsync(dto.Username, dto.Password, isPersistent: false, lockoutOnFailure: false);
             if (!result.Succeeded) return Unauthorized("Invalid login");
 
             return Ok("Logged in");
@@ -32,7 +32,7 @@ namespace FocusFlow.WebApi.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await signInManager.SignOutAsync();
             return Ok("Logged out");
         }
     }

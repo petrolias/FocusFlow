@@ -10,24 +10,24 @@ using Microsoft.Extensions.Logging;
 namespace FocusFlow.Core.Services
 {
     public class ProjectService(
-        ILogger<ProjectService> _logger,
-        IMapper _mapper,
-        IProjectRepository _projectRepository) : IProjectService
+        ILogger<ProjectService> logger,
+        IMapper mapper,
+        IProjectRepository projectRepository) : IProjectService
     {
         public async Task<Result<IEnumerable<ProjectDto>>> GetAllAsync(bool includeTask = false)
         {
             try
             {
-                var getAllResult = await _projectRepository.GetAllAsync(includeTask);
+                var getAllResult = await projectRepository.GetAllAsync(includeTask);
                 if (!getAllResult.IsSuccess)
                     return Result<IEnumerable<ProjectDto>>.From(getAllResult);
 
-                var result = _mapper.Map<IEnumerable<ProjectDto>>(getAllResult.Value);
+                var result = mapper.Map<IEnumerable<ProjectDto>>(getAllResult.Value);
                 return Result<IEnumerable<ProjectDto>>.Success(result);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<IEnumerable<ProjectDto>>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<IEnumerable<ProjectDto>>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -35,19 +35,19 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                var getByIdResult = await _projectRepository.GetByIdAsync(id, includeTask);
+                var getByIdResult = await projectRepository.GetByIdAsync(id, includeTask);
                 if (!getByIdResult.IsSuccess)
                     return Result<ProjectDto?>.From(getByIdResult);
 
                 if (getByIdResult.Value is null)
                     return Result<ProjectDto?>.Failure(statusCode: StatusCodes.Status404NotFound);
 
-                var result = _mapper.Map<ProjectDto>(getByIdResult.Value);
+                var result = mapper.Map<ProjectDto>(getByIdResult.Value);
                 return Result<ProjectDto?>.Success(result);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<ProjectDto?>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<ProjectDto?>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -55,16 +55,16 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                var getFilteredResult = await _projectRepository.GetFilteredAsync(filter, includeTask);
+                var getFilteredResult = await projectRepository.GetFilteredAsync(filter, includeTask);
                 if (!getFilteredResult.IsSuccess)
                     return Result<IEnumerable<ProjectDto>>.From(getFilteredResult);
 
-                var result = _mapper.Map<IEnumerable<ProjectDto>>(getFilteredResult.Value);
+                var result = mapper.Map<IEnumerable<ProjectDto>>(getFilteredResult.Value);
                 return Result<IEnumerable<ProjectDto>>.Success(result);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<IEnumerable<ProjectDto>>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<IEnumerable<ProjectDto>>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -72,20 +72,20 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                var model = _mapper.Map<Project>(project);
+                var model = mapper.Map<Project>(project);
                 model.CreatedAt = DateTimeOffset.UtcNow;
                 model.CreatedBy = userId;
 
-                var addResult = await _projectRepository.AddAsync(model);
+                var addResult = await projectRepository.AddAsync(model);
                 if (!addResult.IsSuccess)
                     return Result<ProjectDto>.From(addResult);
 
-                var result = _mapper.Map<ProjectDto>(model);
+                var result = mapper.Map<ProjectDto>(model);
                 return Result<ProjectDto>.Success(result);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<ProjectDto>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<ProjectDto>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -93,7 +93,7 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                var existingModelResult = await _projectRepository.GetByIdAsync(id);
+                var existingModelResult = await projectRepository.GetByIdAsync(id);
                 if (!existingModelResult.IsSuccess)
                     return Result<ProjectDto>.From(existingModelResult);
 
@@ -103,16 +103,16 @@ namespace FocusFlow.Core.Services
                 model.Name = project.Name;
                 model.Description = project.Description;
 
-                var updateResult = await _projectRepository.UpdateAsync(model);
+                var updateResult = await projectRepository.UpdateAsync(model);
                 if (!updateResult.IsSuccess)
                     return Result<ProjectDto>.From(updateResult);
 
-                var result = _mapper.Map<ProjectDto>(model);
+                var result = mapper.Map<ProjectDto>(model);
                 return Result<ProjectDto>.Success(result);
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<ProjectDto>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<ProjectDto>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -120,7 +120,7 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                var deleteResult = await _projectRepository.DeleteAsync(id);
+                var deleteResult = await projectRepository.DeleteAsync(id);
                 if (!deleteResult.IsSuccess)
                     return Result<bool>.From(deleteResult);
 
@@ -128,7 +128,7 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
         }
     }

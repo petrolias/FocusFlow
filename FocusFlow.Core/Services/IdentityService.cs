@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging;
 namespace FocusFlow.Core.Services
 {
     public class IdentityService(
-        ILogger<IdentityService> _logger,
-        UserManager<AppUser> _userManager,
-        RoleManager<IdentityRole> _roleManager
+        ILogger<IdentityService> logger,
+        UserManager<AppUser> userManager,
+        RoleManager<IdentityRole> roleManager
         ) : IIdentityService
     {
         public async Task<Result<AppUser>> CreateUserAsync(string email, string password)
@@ -24,7 +24,7 @@ namespace FocusFlow.Core.Services
                     EmailConfirmed = true
                 };
 
-                var result = await _userManager.CreateAsync(user, password);
+                var result = await userManager.CreateAsync(user, password);
                 if (result.Succeeded)
                 {
                     return Result<AppUser>.Success(user);
@@ -37,7 +37,7 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<AppUser>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<AppUser>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -45,10 +45,10 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                if (!await _roleManager.RoleExistsAsync(roleName))
+                if (!await roleManager.RoleExistsAsync(roleName))
                 {
                     var role = new IdentityRole(roleName);
-                    var result = await _roleManager.CreateAsync(role);
+                    var result = await roleManager.CreateAsync(role);
                     if (result.Succeeded)
                     {
                         return Result<IdentityRole>.Success(role);
@@ -66,7 +66,7 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<IdentityRole>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<IdentityRole>(LogLevel.Error, exception: ex);
             }
         }
 
@@ -74,9 +74,9 @@ namespace FocusFlow.Core.Services
         {
             try
             {
-                if (await _roleManager.RoleExistsAsync(roleName))
+                if (await roleManager.RoleExistsAsync(roleName))
                 {
-                    var result = await _userManager.AddToRoleAsync(user, roleName);
+                    var result = await userManager.AddToRoleAsync(user, roleName);
                     if (result.Succeeded)
                     {
                         return Result<bool>.Success(true);
@@ -94,7 +94,7 @@ namespace FocusFlow.Core.Services
             }
             catch (Exception ex)
             {
-                return _logger.FailureLog<bool>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿using FocusFlow.Abstractions.Services;
-using FocusFlow.Core.Identity;
 using FocusFlow.Core.Mappings;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Repositories;
+using FocusFlow.Core.Seeders;
 using FocusFlow.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -48,10 +48,8 @@ namespace FocusFlow.Core
 
         public static async Task SeedDataAsync(this IServiceProvider self)
         {
-            using (var scope = self.CreateScope())
-            {
-                await IdentitySeeder.SeedAsync(scope.ServiceProvider);
-            }
+            using var scope = self.CreateScope();
+            await IdentitySeeder.SeedAsync(scope.ServiceProvider);
         }
     }
 }

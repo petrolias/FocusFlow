@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using FocusFlow.Core;
+using FocusFlow.WebApi.Common;
 using FocusFlow.WebApi.HealthChecks;
-using static FocusFlow.WebApi.HealthChecks.HealthCheckExtensions;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace FocusFlow.WebApi
 {
@@ -20,6 +23,7 @@ namespace FocusFlow.WebApi
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
             app.AddHealthChecks();
@@ -39,15 +43,36 @@ namespace FocusFlow.WebApi
                 .AddConsole()
                 .AddDebug();
 
-            // Add services to the container.
-            builder.Services.AddControllers();            
-            builder.Services.AddHealthChecks()
-                    .AddCheck<DatabaseHealthCheck>("Database", tags: new[] { HealthCheckType.Readiness.ToString() });
+            builder.Services.AddControllers();
+            builder.Services
+                .AddHealthChecks()
+                .AddCheck<DatabaseHealthCheck>("Database", tags: [HealthCheckType.Readiness.ToString()]);
+
             builder.Services
                 .AddEndpointsApiExplorer()
-                .AddSwaggerGen()
+                .AddSwaggerGen(options => SwaggerHelper.SwaggerBearerAuthentication(options))
                 .AddDependencies(options => options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection")));
 
+            builder.Services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                    };
+                });
+            builder.Services.AddAuthorization();
             return builder;
         }
     }
