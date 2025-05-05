@@ -1,3 +1,5 @@
+using FocusFlow.Blazor;
+using FocusFlow.Blazor.Auth;
 using FocusFlow.Blazor.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -10,10 +12,10 @@ builder.Services
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<ProtectedSessionStorage>();
-builder.Services.AddAuthenticationCore();
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
-builder.Services.AddAuthorization();
-builder.Services.AddScoped<AuthorizationMessageHandler>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
+builder.Services.AddScoped<ApiService>();
 builder.Services.AddHttpClient("LocalApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["LocalApi"]);
@@ -27,8 +29,19 @@ builder.Services.AddHttpClient("ExternalApi", client =>
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("MyApi"));
 builder.Services.AddControllers();
 
-var app = builder.Build();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("https://localhost:7039") // Your frontend port
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); // Required to allow cookies
+    });
 
+});
+var app = builder.Build();
+app.UseCors("AllowFrontend");
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

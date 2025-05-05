@@ -3,15 +3,18 @@
 @using FocusFlow.Abstractions.Api.Shared
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.ComponentModel.DataAnnotations
+@using System.Net
+@using System.Text.Json
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject HttpClient Http
+@inject IJSRuntime JS
 
 <h3>Login</h3>
 
 <EditForm Model="LoginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
-	@* <DataAnnotationsValidator /> *@
-	@* <ValidationSummary /> *@
+	<DataAnnotationsValidator />
+	<ValidationSummary />
 
 	<div class="form-group">
 		<label for="email">Email</label>
@@ -65,45 +68,31 @@
 			if (result.IsSuccessStatusCode)
 			{
 				NavigationManager.NavigateTo("/", forceLoad: true);
+
+			}
+			var loginDataJson = JsonSerializer.Serialize(LoginModel);
+			var statusCode = await JS.InvokeAsync<int>("loginUser", "/api/auth/login", loginDataJson);
+
+			if (statusCode == 200)
+			{
+				NavigationManager.NavigateTo("/");
+			}
+			else if (statusCode == 401)
+			{
+				ErrorMessage = "Invalid username or password.";
 			}
 			else
 			{
-				ErrorMessage = "Invalid login attempt.";
+				ErrorMessage = $"Unexpected error: {statusCode}";
 			}
-
-			// var response = await Http.PostAsJsonAsync("api/auth/login", LoginModel);
-			// if (response.IsSuccessStatusCode)
-			// {
-			// 	var token = await response.Content.ReadFromJsonAsync<TokenResponse>();
-
-			// 	response.Cookies.Append("access_token", token, new CookieOptions
-			// 	{
-			// 		HttpOnly = true,
-			// 		Secure = true,
-			// 		SameSite = SameSiteMode.None,
-			// 		Expires = DateTimeOffset.UtcNow.AddHours(1)
-			// 	});
-
-			// 	await sessionStorage.SetAsync("authToken", token);
-			// 	if (AuthStateProvider is CustomAuthStateProvider customAuthProvider)
-			// 	{
-			// 		await customAuthProvider.MarkUserAsAuthenticated(token.Token);
-			// 	}
-
-			// 	NavigationManager.NavigateTo("/");
-			// }
-			// else
-			// {
-			// 	ErrorMessage = "Invalid login attempt.";
-			// }
 		}
 		catch (Exception ex)
 		{
-			ErrorMessage = "An unexpected error occurred.";
+			ErrorMessage = $"Login failed: {ex.Message}";
 		}
 		finally
 		{
 			IsSubmitting = false;
 		}
-	}	
+	}		
 }

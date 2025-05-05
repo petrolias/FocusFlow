@@ -1,16 +1,13 @@
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 public class CustomAuthStateProvider : AuthenticationStateProvider
 {
-    private readonly ProtectedSessionStorage _sessionStorage;
     private readonly HttpClient _http;
 
-    public CustomAuthStateProvider(ProtectedSessionStorage sessionStorage, HttpClient http)
+    public CustomAuthStateProvider(HttpClient http)
     {
-        _sessionStorage = sessionStorage;
         _http = http;
     }
 
@@ -19,42 +16,42 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
 
         string? token = null;
-        
+
         try
         {
-            token = "";
-            //var result = await _sessionStorage.GetAsync<string>("authToken");
-            //token = result.Success ? result.Value : null;
+            var response = await _http.GetAsync("api/auth/token");
+            if (!response.IsSuccessStatusCode)
+                return new AuthenticationState(anonymous);
+
+            token = await response.Content.ReadAsStringAsync();
         }
-        catch (InvalidOperationException)
+        catch
         {
-            // Return unauthenticated state during prerendering
             return new AuthenticationState(anonymous);
         }
 
-        if (string.IsNullOrEmpty(token))
-        {
+        if (string.IsNullOrWhiteSpace(token))
             return new AuthenticationState(anonymous);
-        }              
 
         _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-        
-        return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt")));
+
+        var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+        var user = new ClaimsPrincipal(identity);
+
+        return new AuthenticationState(user);
     }
 
-    public async Task MarkUserAsAuthenticated(string token)
+    public void MarkUserAsAuthenticated(string token)
     {
-        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt"));
-        var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
-        NotifyAuthenticationStateChanged(authState);
+        var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+        var user = new ClaimsPrincipal(identity);
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
     }
 
-    public async Task MarkUserAsLoggedOut()
+    public void MarkUserAsLoggedOut()
     {
-        await _sessionStorage.DeleteAsync("authToken");
-        var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
-        var authState = Task.FromResult(new AuthenticationState(anonymousUser));
-        NotifyAuthenticationStateChanged(authState);
+        var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(anonymous)));
     }
 
     private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
@@ -64,17 +61,13 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         var jsonBytes = ParseBase64WithoutPadding(payload);
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
-        keyValuePairs.TryGetValue(ClaimTypes.Role, out object roles);
-
-        if (roles != null)
+        if (keyValuePairs.TryGetValue(ClaimTypes.Role, out object roles))
         {
             if (roles.ToString().Trim().StartsWith("["))
             {
                 var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
-                foreach (var parsedRole in parsedRoles)
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, parsedRole));
-                }
+                foreach (var role in parsedRoles)
+                    claims.Add(new Claim(ClaimTypes.Role, role));
             }
             else
             {

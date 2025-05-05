@@ -133,6 +133,7 @@
 }
 
 @inject NavigationManager NavigationManager
+@inject ApiService ApiService
 @inject IHttpClientFactory HttpClientFactory
 @code {
     private List<ProjectDto> projects = new();
@@ -199,9 +200,8 @@
     }
 
     protected override async Task OnInitializedAsync()
-    {
-        _client = HttpClientFactory.CreateClient("ExternalApi");
-        projects = await _client.GetFromJsonAsync<List<ProjectDto>>("api/projects");
+    {             
+        projects = await ApiService.GetWithTokenAsync<List<ProjectDto>>("api/projects");
     }
 
     private async Task CreateProject()
