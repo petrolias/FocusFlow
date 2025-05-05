@@ -3,9 +3,8 @@ using FocusFlow.Abstractions.Models;
 
 namespace FocusFlow.Core.Models
 {
-    public class TaskItem : EntryBase, IEntityModel, IEntryBase
-    {
-        public Guid Id { get; set; }
+    public class TaskItem : ModelGuid, IModelGuid, IEntryBase
+    {        
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public DateTimeOffset? DueDate { get; set; }

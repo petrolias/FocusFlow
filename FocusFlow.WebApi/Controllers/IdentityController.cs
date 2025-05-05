@@ -1,5 +1,5 @@
-﻿using FocusFlow.Abstractions.DTOs;
-using FocusFlow.Core.Mappings;
+﻿using AutoMapper;
+using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,32 +8,16 @@ namespace FocusFlow.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class IdentityController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager) : ControllerBase
+    public class IdentityController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IMapper mapper) : ControllerBase
     {
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        public async Task<IActionResult> Register(RegisterDto registerDto)
         {
-            var user = dto.MapToAppUser();
-            var result = await userManager.CreateAsync(user, dto.Password);
+            var user = mapper.Map<AppUser>(registerDto);
+            var result = await userManager.CreateAsync(user, registerDto.Password);
             if (!result.Succeeded) return BadRequest(result.Errors);
 
             return Ok("User registered successfully");
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto dto)
-        {
-            var result = await signInManager.PasswordSignInAsync(dto.Username, dto.Password, isPersistent: false, lockoutOnFailure: false);
-            if (!result.Succeeded) return Unauthorized("Invalid login");
-
-            return Ok("Logged in");
-        }
-
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            await signInManager.SignOutAsync();
-            return Ok("Logged out");
-        }
+        }       
     }
 }

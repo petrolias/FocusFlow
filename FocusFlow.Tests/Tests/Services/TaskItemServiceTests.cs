@@ -1,4 +1,5 @@
 using AutoMapper;
+using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Constants;
 using FocusFlow.Abstractions.DTOs;
 using FocusFlow.Core;

@@ -1,4 +1,4 @@
-﻿namespace FocusFlow.Abstractions.DTOs
+﻿namespace FocusFlow.Abstractions.Api.Shared
 {
     public class ProjectFilter
     {

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Common;
-using FocusFlow.Abstractions.DTOs;
 using FocusFlow.Abstractions.Services;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Repositories;

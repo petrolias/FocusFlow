@@ -1,8 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Core.Models;
-using FocusFlow.WebApi.Dtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -11,12 +11,12 @@ namespace FocusFlow.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TokenController(UserManager<AppUser> userManager, IConfiguration configuration) : ControllerBase
+    public class AuthController(UserManager<AppUser> userManager, IConfiguration configuration) : ControllerBase
     {
-        [HttpPost("generate")]
-        public async Task<IActionResult> GenerateToken([FromBody] GenerateTokenRequest request)
+        [HttpPost("login")]
+        public async Task<IActionResult> GenerateToken([FromBody] LoginDto request)
         {
-            var user = await userManager.FindByNameAsync(request.Username);
+            var user = await userManager.FindByNameAsync(request.Email);
             if (user == null || !await userManager.CheckPasswordAsync(user, request.Password))
                 return Unauthorized("Invalid username or password.");
 

@@ -1,7 +1,7 @@
 ﻿using FocusFlow.Abstractions.Constants;
 using FocusFlow.Abstractions.Models;
 
-namespace FocusFlow.Abstractions.DTOs
+namespace FocusFlow.Abstractions.Api.Shared
 {
     public record TaskItemDtoBase : EntryRecordBase
     {

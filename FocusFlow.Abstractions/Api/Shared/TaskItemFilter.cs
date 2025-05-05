@@ -1,6 +1,6 @@
 ﻿using FocusFlow.Abstractions.Constants;
 
-namespace FocusFlow.Abstractions.DTOs
+namespace FocusFlow.Abstractions.Api.Shared
 {
     public class TaskItemFilter
     {

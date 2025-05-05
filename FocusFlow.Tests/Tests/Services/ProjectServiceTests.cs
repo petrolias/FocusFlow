@@ -1,5 +1,5 @@
 using AutoMapper;
-using FocusFlow.Abstractions.DTOs;
+using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Services;
 using FocusFlow.Core;
 using FocusFlow.Core.Models;
@@ -92,13 +92,14 @@ namespace FocusFlow.Tests.Tests.Services
         [Fact]
         public async Task AddAsync_AddsProject()
         {
-            var projectDto = new ProjectDtoBase { Name = "New Project", Description = "Description", CreatedBy = Guid.NewGuid().ToString() };
-            var result = await _projectService.AddAsync(projectDto, projectDto.CreatedBy);
+            var userId = Guid.NewGuid().ToString();
+            var projectDto = new ProjectDtoBase { Name = "New Project", Description = "Description" };
+            var result = await _projectService.AddAsync(projectDto, userId);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
 
-            var expected = new { projectDto.Name, projectDto.Description, projectDto.CreatedBy };
+            var expected = new { projectDto.Name, projectDto.Description, CreatedBy = userId };
             var actual = new { result.Value.Name, result.Value.Description, result.Value.CreatedBy };
             Assert.Equivalent(expected, actual);
             Assert.True(result.Value.CreatedAt > DateTimeOffset.MinValue);
@@ -117,12 +118,12 @@ namespace FocusFlow.Tests.Tests.Services
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
-            var projectDto = new ProjectDtoBase { Name = "Updated Project", Description = "Updated Description", CreatedBy = project.CreatedBy };
+            var projectDto = new ProjectDtoBase { Name = "Updated Project", Description = "Updated Description" };
             var result = await _projectService.UpdateAsync(project.Id, projectDto, project.CreatedBy);
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
 
-            var expected = new { projectDto.Name, projectDto.Description, projectDto.CreatedBy };
+            var expected = new { projectDto.Name, projectDto.Description, project.CreatedBy };
             var actual = new { result.Value.Name, result.Value.Description, result.Value.CreatedBy };
             Assert.Equivalent(expected, actual);
             Assert.Equal(result.Value.UpdatedBy, project.CreatedBy);

@@ -1,15 +1,31 @@
 using FocusFlow.Blazor.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
+builder.Services
+    .AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient("MyApi", client =>
+builder.Services.AddScoped<ProtectedSessionStorage>();
+builder.Services.AddAuthenticationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<AuthorizationMessageHandler>();
+builder.Services.AddHttpClient("LocalApi", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]);
+    client.BaseAddress = new Uri(builder.Configuration["LocalApi"]);
 });
+builder.Services.AddHttpClient("ExternalApi", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ExternalApi"]);
+    //client.DefaultRequestHeaders.Add("Accept", "application/json");
+});//.AddHttpMessageHandler<AuthorizationMessageHandler>();
+
+builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("MyApi"));
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -22,11 +38,8 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
-
+app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+app.MapControllers();
 app.Run();

@@ -1,5 +1,5 @@
-﻿using FocusFlow.Abstractions.Common;
-using FocusFlow.Abstractions.DTOs;
+﻿using FocusFlow.Abstractions.Api.Shared;
+using FocusFlow.Abstractions.Common;
 
 namespace FocusFlow.Core.Services
 {

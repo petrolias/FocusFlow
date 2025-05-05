@@ -1,0 +1,61 @@
+@page "/register"
+@rendermode InteractiveServer
+
+@using FocusFlow.Abstractions.Api.Shared
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+
+<h3>Register</h3>
+
+<EditForm Model="@registerModel" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    
+    <div class="form-group">
+        <InputText id="email" @bind-Value="registerModel.Email" placeholder="Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <InputText id="password" @bind-Value="registerModel.Password" placeholder="Password" type="password" class="form-control" />
+    </div>
+    <div class="form-group">
+        <InputText id="confirmPassword" @bind-Value="registerModel.ConfirmPassword" placeholder="Confirm Password" type="password" class="form-control" />
+    </div>
+    
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    
+    <button type="submit" class="btn btn-primary">Register</button>
+</EditForm>
+
+@code {
+    private RegisterDto registerModel = new ();
+    private string errorMessage;
+    private HttpClient _client;
+
+    protected override void OnInitialized()
+    {
+        _client = HttpClientFactory.CreateClient("MyApi");
+    }
+
+    private async Task HandleRegister()
+    {
+        try
+        {
+            var response = await _client.PostAsJsonAsync("api/auth/register", registerModel);
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                errorMessage = "Registration failed";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An error occurred during registration";
+        }
+    }   
+}

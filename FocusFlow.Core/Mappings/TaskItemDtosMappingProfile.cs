@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FocusFlow.Abstractions.DTOs;
+using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Core.Models;
 
 namespace FocusFlow.Core.Mappings

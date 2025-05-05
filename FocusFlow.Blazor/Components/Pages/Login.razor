@@ -1,0 +1,109 @@
+@page "/login"
+@rendermode InteractiveServer
+@using FocusFlow.Abstractions.Api.Shared
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject HttpClient Http
+
+<h3>Login</h3>
+
+<EditForm Model="LoginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+	@* <DataAnnotationsValidator /> *@
+	@* <ValidationSummary /> *@
+
+	<div class="form-group">
+		<label for="email">Email</label>
+		<InputText id="email" class="form-control" @bind-Value="LoginModel.Email" />
+		<ValidationMessage For="@(() => LoginModel.Email)" />
+	</div>
+
+	<div class="form-group">
+		<label for="password">Password</label>
+		<InputText id="password" class="form-control" type="password" @bind-Value="LoginModel.Password" />
+		<ValidationMessage For="@(() => LoginModel.Password)" />
+	</div>
+
+	@if (!string.IsNullOrEmpty(ErrorMessage))
+	{
+		<div class="alert alert-danger">@ErrorMessage</div>
+	}
+
+	<button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+		@(IsSubmitting ? "Logging in..." : "Login")
+	</button>
+</EditForm>
+
+@inject IHttpClientFactory HttpClientFactory
+@code {
+	private HttpClient _client;	
+	[SupplyParameterFromForm]
+	private LoginDto LoginModel { get; set; } = new();
+	private bool IsSubmitting = false;
+	private string ErrorMessage;	
+
+	protected override async Task OnInitializedAsync()
+	{
+		_client = HttpClientFactory.CreateClient("LocalApi");	
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		if (authState.User.Identity?.IsAuthenticated == true)
+		{
+			NavigationManager.NavigateTo("/");
+		}
+	}
+
+	private async Task HandleLogin()
+	{
+		IsSubmitting = true;
+		ErrorMessage = null;
+
+		try
+		{
+			var result = await _client.PostAsJsonAsync("/api/auth/login", LoginModel);
+
+			if (result.IsSuccessStatusCode)
+			{
+				NavigationManager.NavigateTo("/", forceLoad: true);
+			}
+			else
+			{
+				ErrorMessage = "Invalid login attempt.";
+			}
+
+			// var response = await Http.PostAsJsonAsync("api/auth/login", LoginModel);
+			// if (response.IsSuccessStatusCode)
+			// {
+			// 	var token = await response.Content.ReadFromJsonAsync<TokenResponse>();
+
+			// 	response.Cookies.Append("access_token", token, new CookieOptions
+			// 	{
+			// 		HttpOnly = true,
+			// 		Secure = true,
+			// 		SameSite = SameSiteMode.None,
+			// 		Expires = DateTimeOffset.UtcNow.AddHours(1)
+			// 	});
+
+			// 	await sessionStorage.SetAsync("authToken", token);
+			// 	if (AuthStateProvider is CustomAuthStateProvider customAuthProvider)
+			// 	{
+			// 		await customAuthProvider.MarkUserAsAuthenticated(token.Token);
+			// 	}
+
+			// 	NavigationManager.NavigateTo("/");
+			// }
+			// else
+			// {
+			// 	ErrorMessage = "Invalid login attempt.";
+			// }
+		}
+		catch (Exception ex)
+		{
+			ErrorMessage = "An unexpected error occurred.";
+		}
+		finally
+		{
+			IsSubmitting = false;
+		}
+	}	
+}

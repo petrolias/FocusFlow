@@ -1,11 +1,12 @@
-﻿using FocusFlow.Abstractions.DTOs;
+﻿using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Services;
+using FocusFlow.WebApi.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FocusFlow.WebApi.Controllers
 {
-    //TODO add dto's add auto mapper here
-
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ProjectsController(ILogger<ProjectsController> logger, IProjectService projectService) : ControllerBase
@@ -52,8 +53,8 @@ namespace FocusFlow.WebApi.Controllers
         public async Task<ActionResult> Create(ProjectDtoBase project)
         {
             try
-            {
-                var result = await projectService.AddAsync(project, Guid.NewGuid().ToString());
+            {                
+                var result = await projectService.AddAsync(project, User.GetUserId());
                 if (result.IsSuccess)
                     return Ok(result.Value);
 
@@ -72,7 +73,7 @@ namespace FocusFlow.WebApi.Controllers
         {
             try
             {
-                var result = await projectService.UpdateAsync(id, project, Guid.NewGuid().ToString());
+                var result = await projectService.UpdateAsync(id, project, User.GetUserId());
                 if (result.IsSuccess)
                     return Ok(result.Value);
 
@@ -91,7 +92,7 @@ namespace FocusFlow.WebApi.Controllers
         {
             try
             {
-                var result = await projectService.DeleteProjectAsync(id, Guid.NewGuid().ToString());
+                var result = await projectService.DeleteProjectAsync(id, User.GetUserId());
                 if (result.IsSuccess)
                     return Ok(result.Value);
 
