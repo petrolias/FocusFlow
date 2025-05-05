@@ -1,6 +1,7 @@
 @page "/login"
 @rendermode InteractiveServer
 @using FocusFlow.Abstractions.Api.Shared
+@using FocusFlow.Blazor.Common
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.ComponentModel.DataAnnotations
 @using System.Net
@@ -39,16 +40,14 @@
 </EditForm>
 
 @inject IHttpClientFactory HttpClientFactory
-@code {
-	private HttpClient _client;	
+@code {	
 	[SupplyParameterFromForm]
 	private LoginDto LoginModel { get; set; } = new();
 	private bool IsSubmitting = false;
 	private string ErrorMessage;	
 
 	protected override async Task OnInitializedAsync()
-	{
-		_client = HttpClientFactory.CreateClient("LocalApi");	
+	{		
 		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
 		if (authState.User.Identity?.IsAuthenticated == true)
 		{
@@ -63,27 +62,28 @@
 
 		try
 		{
-			var result = await _client.PostAsJsonAsync("/api/auth/login", LoginModel);
-
-			if (result.IsSuccessStatusCode)
+			var response = await HttpClientFactory.LocalApi().PostAsJsonAsync("/api/auth/login", LoginModel);
+			if (response.IsSuccessStatusCode)
 			{
-				NavigationManager.NavigateTo("/", forceLoad: true);
+				var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();
 
+				if (tokenResponse?.Token != null)
+				{					
+					await JS.InvokeVoidAsync("setCookie", Constants.CookieAccessToken, tokenResponse.Token, 60); // expires in 60 mins
+					NavigationManager.NavigateTo("/", forceLoad: true);
+				}
+				else
+				{
+					ErrorMessage = "Login succeeded but token was missing.";
+				}
 			}
-			var loginDataJson = JsonSerializer.Serialize(LoginModel);
-			var statusCode = await JS.InvokeAsync<int>("loginUser", "/api/auth/login", loginDataJson);
-
-			if (statusCode == 200)
-			{
-				NavigationManager.NavigateTo("/");
-			}
-			else if (statusCode == 401)
+			else if (response.StatusCode == HttpStatusCode.Unauthorized)
 			{
 				ErrorMessage = "Invalid username or password.";
 			}
 			else
 			{
-				ErrorMessage = $"Unexpected error: {statusCode}";
+				ErrorMessage = $"Unexpected error: {(int)response.StatusCode} - {response.ReasonPhrase}";
 			}
 		}
 		catch (Exception ex)

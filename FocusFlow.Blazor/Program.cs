@@ -1,5 +1,6 @@
 using FocusFlow.Blazor;
 using FocusFlow.Blazor.Auth;
+using FocusFlow.Blazor.Common;
 using FocusFlow.Blazor.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -14,17 +15,12 @@ builder.Services
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthorizationMessageHandler>();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
-builder.Services.AddScoped<ApiService>();
-builder.Services.AddHttpClient("LocalApi", client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["LocalApi"]);
-});
-builder.Services.AddHttpClient("ExternalApi", client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["ExternalApi"]);
-    //client.DefaultRequestHeaders.Add("Accept", "application/json");
-});//.AddHttpMessageHandler<AuthorizationMessageHandler>();
+builder.Services.AddHttpClient(Constants.HttpClients.LocalApi, c => { c.BaseAddress = new Uri(builder.Configuration[Constants.HttpClients.LocalApi]); });
+builder.Services
+    .AddHttpClient(Constants.HttpClients.ExternalApi, c => { c.BaseAddress = new Uri(builder.Configuration[Constants.HttpClients.ExternalApi]); })
+    .AddHttpMessageHandler<AuthorizationMessageHandler>();
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("MyApi"));
 builder.Services.AddControllers();
@@ -38,7 +34,6 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowCredentials(); // Required to allow cookies
     });
-
 });
 var app = builder.Build();
 app.UseCors("AllowFrontend");

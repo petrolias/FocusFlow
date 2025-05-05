@@ -15,7 +15,7 @@ namespace FocusFlow.Blazor.Auth
 
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = _httpContextAccessor.HttpContext?.Request.Cookies["access_token"];
+            var token = _httpContextAccessor.HttpContext?.Request.Cookies[Constants.CookieAccessToken];
             ClaimsIdentity identity = new();
 
             if (!string.IsNullOrWhiteSpace(token))

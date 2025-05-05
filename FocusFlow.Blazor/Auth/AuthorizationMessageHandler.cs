@@ -1,18 +1,10 @@
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using FocusFlow.Blazor;
 
-public class AuthorizationMessageHandler : DelegatingHandler
+public class AuthorizationMessageHandler(IHttpContextAccessor accessor) : DelegatingHandler
 {
-    private readonly ProtectedSessionStorage _sessionStorage;
-
-    public AuthorizationMessageHandler(ProtectedSessionStorage sessionStorage)
-    {
-        _sessionStorage = sessionStorage;
-    }
-
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-    {        
-        var result = await _sessionStorage.GetAsync<string>("authToken");
-        string token = result.Success ? result.Value : null;
+    {
+        var token = accessor.HttpContext?.Request.Cookies[Constants.CookieAccessToken];
 
         if (!string.IsNullOrEmpty(token))
         {

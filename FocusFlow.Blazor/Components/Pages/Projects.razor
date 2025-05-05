@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 
 @using FocusFlow.Abstractions.Api.Shared
+@using FocusFlow.Blazor.Common
 
 <h3>Projects</h3>
 
@@ -133,11 +134,9 @@
 }
 
 @inject NavigationManager NavigationManager
-@inject ApiService ApiService
 @inject IHttpClientFactory HttpClientFactory
 @code {
     private List<ProjectDto> projects = new();
-    private HttpClient _client;
 
     private string nameFilter = "";
     private string descriptionFilter = "";
@@ -201,16 +200,16 @@
 
     protected override async Task OnInitializedAsync()
     {             
-        projects = await ApiService.GetWithTokenAsync<List<ProjectDto>>("api/projects");
+        projects = await HttpClientFactory.ExternalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
     }
 
     private async Task CreateProject()
     {
         var newProject = new ProjectDtoBase { Name = "New Project", Description = "Description"};
-        var response = await _client.PostAsJsonAsync("api/projects", newProject);
+        var response = await HttpClientFactory.ExternalApi().PostAsJsonAsync("api/projects", newProject);
         if (response.IsSuccessStatusCode)
         {
-            projects = await _client.GetFromJsonAsync<List<ProjectDto>>("api/projects");
+            projects = await HttpClientFactory.ExternalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
         }
     }
 
@@ -221,10 +220,10 @@
 
     private async Task DeleteProject(Guid projectId)
     {
-        var response = await _client.DeleteAsync($"api/projects/{projectId}");
-        if (response.IsSuccessStatusCode)
-        {
-            projects = await _client.GetFromJsonAsync<List<ProjectDto>>("api/projects");
-        }
+        // var response = await _client.DeleteAsync($"api/projects/{projectId}");
+        // if (response.IsSuccessStatusCode)
+        // {
+        //     projects = await _client.GetFromJsonAsync<List<ProjectDto>>("api/projects");
+        // }
     }  
 }

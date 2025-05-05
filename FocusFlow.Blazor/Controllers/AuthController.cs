@@ -19,22 +19,13 @@ namespace FocusFlow.Blazor.Controllers
                 return BadRequest("Login failed");
 
             var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();
-
-            Response.Cookies.Append("access_token", tokenResponse.Token, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Lax,                
-                Expires = DateTimeOffset.UtcNow.AddHours(20)//.AddMinutes(-1)
-            });
-
             return Ok(tokenResponse);
         }
 
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("access_token");
+            Response.Cookies.Delete(Constants.CookieAccessToken);
             return Ok();
         }
     }
