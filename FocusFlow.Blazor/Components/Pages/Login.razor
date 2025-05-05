@@ -1,11 +1,11 @@
 @page "/login"
 @rendermode InteractiveServer
-@using FocusFlow.Abstractions.Api.Shared
-@using FocusFlow.Blazor.Common
-@using Microsoft.AspNetCore.Components.Authorization
 @using System.ComponentModel.DataAnnotations
 @using System.Net
 @using System.Text.Json
+@using FocusFlow.Abstractions.Api.Shared
+@using FocusFlow.Blazor.Extensions
+@using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
 @inject HttpClient Http

@@ -1,4 +1,4 @@
-﻿namespace FocusFlow.Blazor.Common
+﻿namespace FocusFlow.Blazor.Extensions
 {
     public static class HttpClientExtensions
     {
