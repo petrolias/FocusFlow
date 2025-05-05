@@ -4,9 +4,9 @@ services:
   focusflowblazor:
     build:
       context: .
-      dockerfile: ./FocusFlow.WebApi/Dockerfile
+      dockerfile: ./FocusFlow.Blazor/Dockerfile
     ports:
-      - "8080:5000" # Expose Blazor app on HTTP port 8080
+      - "9090:5000" # Expose Blazor app on HTTP port 8080
     depends_on:
       - focusflowwebapi
 
@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: ./FocusFlow.WebApi/Dockerfile
     ports:
-      - "8081:5001" # Expose Web API on HTTP port 8081
+      - "9091:5000" # Expose Web API on HTTP port 8081
 
 networks:
   default:

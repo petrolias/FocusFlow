@@ -11,7 +11,7 @@ COPY FocusFlow.Abstractions/FocusFlow.Abstractions.csproj ./FocusFlow.Abstractio
 COPY ../ .
 
 # Restore and publish
-RUN dotnet restore ./FocusFlow.WebApi/FocusFlow.WebApi.csproj
+#RUN dotnet restore ./FocusFlow.WebApi/FocusFlow.WebApi.csproj
 RUN dotnet publish ./FocusFlow.WebApi/FocusFlow.WebApi.csproj -c Release -o /app/publish
 
 # Runtime
@@ -19,7 +19,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 
-EXPOSE 5001
+EXPOSE 5000
 EXPOSE 443
-ENV ASPNETCORE_URLS=https://+:443
+#ENV ASPNETCORE_URLS=https://+:443
+ENV ASPNETCORE_URLS=http://+:5000;
 ENTRYPOINT ["dotnet", "FocusFlow.WebApi.dll"]
