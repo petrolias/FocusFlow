@@ -3,7 +3,7 @@
 namespace FocusFlow.Blazor.Extensions
 {
     public static class ApiExtensions
-    {        
+    {
         public static async Task<List<ProjectDto>> GetProjectsAsync(this IHttpClientFactory self) =>
             await self.ExternalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
 
@@ -15,5 +15,15 @@ namespace FocusFlow.Blazor.Extensions
 
         public static async Task<HttpResponseMessage> DeleteProjectsAsync(this IHttpClientFactory self, Guid id) =>
             await self.ExternalApi().DeleteAsync($"api/projects/{id}");
+
+        public static async Task<HttpResponseMessage> GetTokenAsync(this IHttpClientFactory self, LoginDto model) =>
+            await self.LocalApi().PostAsJsonAsync($"/api/auth/token", model);
+
+        public static async Task<HttpResponseMessage> LogoutAsync(this IHttpClientFactory self) =>
+           await self.LocalApi().GetAsync($"/api/auth/logout");
+
+        public static async Task<HttpResponseMessage> GetExternalTokenAsync(this IHttpClientFactory self, LoginDto model) =>
+           await self.ExternalApi().PostAsJsonAsync($"/api/auth/token", model);
+
     }
 }

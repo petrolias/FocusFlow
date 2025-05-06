@@ -1,7 +1,9 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using FocusFlow.Blazor.Extensions
+@using Microsoft.AspNetCore.Components.Authorization
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IHttpClientFactory HttpClientFactory
 
 <div class="page">    
     <div class="sidebar">
@@ -13,6 +15,7 @@
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
             <AuthorizeView>
                 <Authorized>
+                    <span class="me-3">Hello, @email!</span>
                     <button class="btn btn-link" @onclick="HandleLogout">Logout</button>
                 </Authorized>
                 <NotAuthorized>
@@ -35,9 +38,11 @@
 </div>
 
 @code {
+    private string? email;
+
     private async Task HandleLogout()
     {
-        // await ((CustomAuthStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
-        // NavigationManager.NavigateTo("/");
+        await HttpClientFactory.LogoutAsync();
+        NavigationManager.NavigateTo("/");
     }
 }
