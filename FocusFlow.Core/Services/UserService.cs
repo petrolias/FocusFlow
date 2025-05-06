@@ -10,12 +10,12 @@ using Microsoft.Extensions.Logging;
 
 namespace FocusFlow.Core.Services
 {
-    public class IdentityService(
-        ILogger<IdentityService> logger,
+    public class UserService(
+        ILogger<UserService> logger,
         IMapper mapper,
         UserManager<AppUser> userManager,
         RoleManager<IdentityRole> roleManager
-        ) : IIdentityService
+        ) : IUserService
     {
         public async Task<Result<AppUser>> CreateUserAsync(string email, string password)
         {

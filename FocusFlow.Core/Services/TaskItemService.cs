@@ -98,6 +98,9 @@ namespace FocusFlow.Core.Services
                 var existingModelResult = await taskItemRepository.GetByIdAsync(id);
                 if (!existingModelResult.IsSuccess)
                     return Result<TaskItemDto>.From(existingModelResult);
+                
+                if (existingModelResult.Value == null)
+                    return Result<TaskItemDto>.Failure(statusCode: StatusCodes.Status404NotFound);
 
                 var model = existingModelResult.Value;
                 model.UpdatedAt = DateTimeOffset.UtcNow;

@@ -27,6 +27,9 @@ namespace FocusFlow.Core
                 .HasMany(u => u.Tasks)
                 .WithOne(t => t.AssignedUser)
                 .HasForeignKey(t => t.AssignedUserId);
+
+            modelBuilder.Entity<ProjectHistory>().HasKey(h => new { h.Id, h.ChangedAt });
+            modelBuilder.Entity<TaskItemHistory>().HasKey(h => new { h.Id, h.ChangedAt });
         }
 
         public override int SaveChanges()
@@ -49,7 +52,10 @@ namespace FocusFlow.Core
         {
             var entries = ChangeTracker
                 .Entries<TModel>()
-                .Where(e => e.State == EntityState.Modified || e.State == EntityState.Deleted);
+                .Where(e =>
+                    e.State == EntityState.Added ||
+                    e.State == EntityState.Modified ||
+                    e.State == EntityState.Deleted);
 
             List<TModelHistory> modelHistories = [];
             foreach (var entry in entries)

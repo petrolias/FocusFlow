@@ -97,6 +97,9 @@ namespace FocusFlow.Core.Services
                 if (!existingModelResult.IsSuccess)
                     return Result<ProjectDto>.From(existingModelResult);
 
+                if (existingModelResult.Value == null)
+                    return Result<ProjectDto>.Failure(statusCode: StatusCodes.Status404NotFound);
+
                 var model = existingModelResult.Value;
                 model.UpdatedAt = DateTimeOffset.UtcNow;
                 model.UpdatedBy = userId;

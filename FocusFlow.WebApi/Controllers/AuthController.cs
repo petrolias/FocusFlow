@@ -11,35 +11,45 @@ namespace FocusFlow.WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController(UserManager<AppUser> userManager, IConfiguration configuration) : ControllerBase
+    public class AuthController(ILogger<AuthController> logger,
+        UserManager<AppUser> userManager, IConfiguration configuration) : ControllerBase
     {
-        [HttpPost("login")]
+        [HttpPost("token")]
         public async Task<IActionResult> GenerateToken([FromBody] LoginDto request)
         {
-            var user = await userManager.FindByNameAsync(request.Email);
-            if (user == null || !await userManager.CheckPasswordAsync(user, request.Password))
-                return Unauthorized("Invalid username or password.");
-
-            var claims = new[]
+            try
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+                var user = await userManager.FindByNameAsync(request.Email);
+                if (user == null || !await userManager.CheckPasswordAsync(user, request.Password))
+                    return Unauthorized("Invalid username or password.");
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var claims = new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
 
-            var token = new JwtSecurityToken(
-                issuer: configuration["Jwt:Issuer"],
-                audience: configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddHours(1),
-                signingCredentials: creds
-            );
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+                var token = new JwtSecurityToken(
+                    issuer: configuration["Jwt:Issuer"],
+                    audience: configuration["Jwt:Audience"],
+                    claims: claims,
+                    expires: DateTime.Now.AddHours(1),
+                    signingCredentials: creds
+                );
+
+                return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+            }
+            catch (Exception ex)
+            {
+                var message = "An unexpected error occurred.";
+                logger.LogError(ex, message);
+                return StatusCode(StatusCodes.Status500InternalServerError, message);
+            }
         }
     }
 }

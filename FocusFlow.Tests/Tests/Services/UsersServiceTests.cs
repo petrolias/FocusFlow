@@ -6,19 +6,19 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FocusFlow.Tests.Tests.Services
 {
-    public class IdentityServiceTests : IClassFixture<TestFixture>, IDisposable
+    public class UsersServiceTests : IClassFixture<TestFixture>, IDisposable
     {
         private readonly IServiceScope _scope;
-        private readonly IIdentityService _identityService;
+        private readonly IUserService _identityService;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         private string Email() => $"{Guid.NewGuid().ToString()}@example.com";
         private const string Password = "Password123!";
-        public IdentityServiceTests(TestFixture fixture)
+        public UsersServiceTests(TestFixture fixture)
         {
             _scope = fixture.ServiceProvider.CreateScope();
-            _identityService = _scope.ServiceProvider.GetRequiredService<IIdentityService>();
+            _identityService = _scope.ServiceProvider.GetRequiredService<IUserService>();
             _userManager = _scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
             _roleManager = _scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         }

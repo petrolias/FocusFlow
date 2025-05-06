@@ -4,7 +4,10 @@
 @using System.Net
 @using System.Text.Json
 @using FocusFlow.Abstractions.Api.Shared
+@using FocusFlow.Abstractions.Extensions
+@using FocusFlow.Blazor;
 @using FocusFlow.Blazor.Extensions
+@using FocusFlow.Blazor.Models
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
@@ -62,28 +65,25 @@
 
 		try
 		{
+			var errorMessage = "Login failed. Please try again."
 			var response = await HttpClientFactory.LocalApi().PostAsJsonAsync("/api/auth/login", LoginModel);
 			if (response.IsSuccessStatusCode)
 			{
 				var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();
-
+				var cookieObject = new CookieModel { Token = tokenResponse.Token, Email = LoginModel.Email }.ToJson();
 				if (tokenResponse?.Token != null)
 				{					
-					await JS.InvokeVoidAsync("setCookie", Constants.CookieAccessToken, tokenResponse.Token, 60); // expires in 60 mins
+					await JS.InvokeVoidAsync("setCookie", Constants.CookieAccessToken, cookieObject, 60);
 					NavigationManager.NavigateTo("/", forceLoad: true);
 				}
 				else
 				{
-					ErrorMessage = "Login succeeded but token was missing.";
+					ErrorMessage = errorMessage;
 				}
-			}
-			else if (response.StatusCode == HttpStatusCode.Unauthorized)
-			{
-				ErrorMessage = "Invalid username or password.";
 			}
 			else
 			{
-				ErrorMessage = $"Unexpected error: {(int)response.StatusCode} - {response.ReasonPhrase}";
+				ErrorMessage = errorMessage;
 			}
 		}
 		catch (Exception ex)

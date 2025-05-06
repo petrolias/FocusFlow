@@ -21,7 +21,7 @@ namespace FocusFlow.Tests.Factories
                 var dbName = Guid.NewGuid().ToString();
                 services.AddDbContext<Context>(options => options.UseInMemoryDatabase(dbName));
                 services.AddTransient<ProjectsController>();
-                services.AddTransient<IdentityController>();
+                services.AddTransient<UsersController>();
             });
         }
     }

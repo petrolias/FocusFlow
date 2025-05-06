@@ -14,14 +14,14 @@ namespace FocusFlow.Blazor.Auth
         }
 
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
-        {
-            var token = _httpContextAccessor.HttpContext?.Request.Cookies[Constants.CookieAccessToken];
+        {            
+            var cookie = _httpContextAccessor.HttpContext?.Request.Cookies[Constants.CookieAccessToken];
             ClaimsIdentity identity = new();
 
-            if (!string.IsNullOrWhiteSpace(token))
+            if (!string.IsNullOrWhiteSpace(cookie))
             {
                 var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(token);
+                var jwt = handler.ReadJwtToken(cookie);
                 identity = new ClaimsIdentity(jwt.Claims, "jwt");
             }
 

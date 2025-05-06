@@ -12,11 +12,11 @@ namespace FocusFlow.WebApi.Controllers
     public class ProjectsController(ILogger<ProjectsController> logger, IProjectService projectService) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects()
+        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects([FromQuery] bool includeTasks = false)
         {
             try
             {
-                var result = await projectService.GetAllAsync();
+                var result = await projectService.GetAllAsync(includeTasks);
                 if (result.IsSuccess)
                     return Ok(result.Value);
 
@@ -31,11 +31,11 @@ namespace FocusFlow.WebApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProjectDto>> GetProject(Guid id)
+        public async Task<ActionResult<ProjectDto>> GetProject(Guid id, [FromQuery] bool includeTasks = false)
         {
             try
             {
-                var result = await projectService.GetByIdAsync(id);
+                var result = await projectService.GetByIdAsync(id, includeTasks);
                 if (result.IsSuccess)
                     return Ok(result.Value);
 
@@ -50,7 +50,7 @@ namespace FocusFlow.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(ProjectDtoBase project)
+        public async Task<ActionResult> CreateProject(ProjectDtoBase project)
         {
             try
             {                
@@ -69,7 +69,7 @@ namespace FocusFlow.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, ProjectDtoBase project)
+        public async Task<IActionResult> UpdateProject(Guid id, ProjectDtoBase project)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace FocusFlow.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> DeleteProject(Guid id)
         {
             try
             {

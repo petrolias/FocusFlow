@@ -13,7 +13,7 @@ namespace FocusFlow.Blazor.Controllers
         {
             var client = httpClientFactory.CreateClient("ExternalApi");
 
-            var response = await client.PostAsJsonAsync("/api/auth/login", model);
+            var response = await client.PostAsJsonAsync("/api/auth/token", model);
 
             if (!response.IsSuccessStatusCode)
                 return BadRequest("Login failed");
