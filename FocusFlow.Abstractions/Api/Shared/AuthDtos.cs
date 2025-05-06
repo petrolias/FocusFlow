@@ -26,4 +26,10 @@ namespace FocusFlow.Abstractions.Api.Shared
         [Required]
         public string Password { get; set; }
     }
+
+    public class AppUserDto
+    {
+        public string Id { get; set; }
+        public string Email { get; set; }
+    }
 }

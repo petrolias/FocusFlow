@@ -11,7 +11,8 @@ namespace FocusFlow.Abstractions.Api.Shared
         public TaskItemStatusEnum? Status { get; set; }
         public TaskItemPriorityEnum? Priority { get; set; }
         public string? AssignedUserId { get; set; }
-        public Guid ProjectId { get; set; }
+        public string? AssignedUserName{ get; set; }
+        public Guid? ProjectId { get; set; }
     };
 
     public record TaskItemDto : TaskItemDtoBase

@@ -11,6 +11,10 @@ namespace FocusFlow.Core.Mappings
             CreateMap<RegisterDto, AppUser>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
+
+            CreateMap<AppUser, AppUserDto>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));          
         }
     }
 }

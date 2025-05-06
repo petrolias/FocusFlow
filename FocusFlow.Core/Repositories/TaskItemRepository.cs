@@ -1,6 +1,7 @@
 ﻿using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Common;
 using FocusFlow.Core.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -99,6 +100,10 @@ namespace FocusFlow.Core.Repositories
                 if (taskItem.Id == Guid.Empty)
                     taskItem.Id = Guid.NewGuid();
 
+                if (!taskItem.IsValid(out var validationMessages))
+                    return logger.FailureLog<bool>(LogLevel.Error, StatusCodes.Status400BadRequest,
+                        $"Validations errors {string.Join(", ", validationMessages)} {nameof(taskItem.Id)} : {taskItem.Id}");
+
                 var validationResult = await this.IsValidCreateAsync(taskItem);
                 if (!validationResult.IsSuccess)
                     return Result<bool>.From(validationResult);
@@ -117,6 +122,10 @@ namespace FocusFlow.Core.Repositories
         {
             try
             {
+                if (!taskItem.IsValid(out var validationMessages))
+                    return logger.FailureLog<bool>(LogLevel.Error, StatusCodes.Status400BadRequest,
+                        $"Validations errors {string.Join(", ", validationMessages)} {nameof(taskItem.Id)} : {taskItem.Id}");
+
                 var validationResult = await this.IsValidUpdateAsync(taskItem);
                 if (!validationResult.IsSuccess)
                     return Result<bool>.From(validationResult);

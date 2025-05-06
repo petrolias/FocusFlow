@@ -1,14 +1,18 @@
 ﻿using System.Data;
+using AutoMapper;
+using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Common;
 using FocusFlow.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FocusFlow.Core.Services
 {
     public class IdentityService(
         ILogger<IdentityService> logger,
+        IMapper mapper,
         UserManager<AppUser> userManager,
         RoleManager<IdentityRole> roleManager
         ) : IIdentityService
@@ -24,7 +28,17 @@ namespace FocusFlow.Core.Services
                     EmailConfirmed = true
                 };
 
+                if (string.IsNullOrEmpty(email))
+                    return Result<AppUser>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "Email cannot be empty.");
+
+                if (string.IsNullOrEmpty(password))
+                    return Result<AppUser>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "Password cannot be empty.");
+
+                if (await userManager.FindByEmailAsync(email) != null)
+                    return Result<AppUser>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "User already exists.");
+
                 var result = await userManager.CreateAsync(user, password);
+
                 if (result.Succeeded)
                 {
                     return Result<AppUser>.Success(user);
@@ -95,6 +109,20 @@ namespace FocusFlow.Core.Services
             catch (Exception ex)
             {
                 return logger.FailureLog<bool>(LogLevel.Error, exception: ex);
+            }
+        }
+
+        public async Task<Result<IEnumerable<AppUserDto>>> GetAllUsersAsync()
+        {
+            try
+            {
+                var users = await userManager.Users.ToListAsync();
+                var result = mapper.Map<IEnumerable<AppUserDto>>(users);
+                return Result<IEnumerable<AppUserDto>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                return logger.FailureLog<IEnumerable<AppUserDto>>(LogLevel.Error, exception: ex);
             }
         }
     }
