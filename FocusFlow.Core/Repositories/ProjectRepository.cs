@@ -7,7 +7,8 @@ using Microsoft.Extensions.Logging;
 
 namespace FocusFlow.Core.Repositories
 {
-    public partial class ProjectRepository(ILogger<ProjectRepository> logger, Context context)
+    public partial class ProjectRepository(ILogger<ProjectRepository> logger, Context context, 
+        ITaskItemRepository taskItemRepository)
         : IProjectRepository
     {
         private IQueryable<Project> Projects(bool includeTask = false)
@@ -121,12 +122,19 @@ namespace FocusFlow.Core.Repositories
         {
             try
             {
-                var getByIdResult = await GetByIdAsync(id);
+                var getByIdResult = await GetByIdAsync(id, true);
                 if (!getByIdResult.IsSuccess)
                     return Result<bool>.From(getByIdResult);
 
                 if (getByIdResult.Value != null)
                 {
+                    foreach (var item in getByIdResult.Value.Tasks)
+                    {
+                        //remove project id from any tasks
+                        item.ProjectId = null;
+                        taskItemRepository.UpdateAsync(item).Wait();
+                    }
+
                     context.Projects.Remove(getByIdResult.Value);
                     await context.SaveChangesAsync();
                 }

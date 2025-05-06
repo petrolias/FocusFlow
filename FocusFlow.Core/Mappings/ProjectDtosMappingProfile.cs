@@ -12,6 +12,9 @@ namespace FocusFlow.Core.Mappings
             CreateMap<ProjectDtoBase, Project>();            
             CreateMap<Project, ProjectDto>();
             CreateMap<Project, ProjectDtoBase>();
+            CreateMap<Project, ProjectHistory>()                
+                .ForMember(dest => dest.ChangedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
+                .ForMember(dest => dest.ChangeType, opt => opt.Ignore());
         }
     }
 }
