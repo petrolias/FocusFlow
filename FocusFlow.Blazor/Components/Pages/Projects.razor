@@ -4,22 +4,32 @@
 @using FocusFlow.Abstractions.Api.Shared
 @using FocusFlow.Blazor.Extensions
 
-<h3>Projects</h3>
-
-<div class="mb-3 d-flex justify-content-between align-items-center">
-    <button class="btn btn-primary">
-        <i class="bi bi-plus"></i> Create New Project
-    </button>
-    <div class="d-flex align-items-center gap-2">
-        <span>Show</span>
-        <select class="form-select form-select-sm" style="width: auto;" @bind="pageSize">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-        </select>
-        <span>entries</span>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0"><i class="bi bi-kanban-fill"></i> Projects</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Projects</li>
+            </ol>
+        </nav>
     </div>
+    <div>
+        <button class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Create New Project
+        </button>
+    </div>
+</div>
+
+<div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+    <span>Show</span>
+    <select class="form-select form-select-sm w-auto" @bind="pageSize">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
+    </select>
+    <span>entries</span>
 </div>
 @if (!string.IsNullOrEmpty(ErrorMessage))
 {
