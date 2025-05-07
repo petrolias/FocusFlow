@@ -47,39 +47,39 @@
             <tr>
                 <th style="width: 160px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter title..."
-                           @bind="titleFilter" @bind:event="oninput" />
+                    @bind="titleFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 180px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter assigned user..."
-                           @bind="assignedUserFilter" @bind:event="oninput" />
+                    @bind="assignedUserFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 240px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter description..."
-                           @bind="descriptionFilter" @bind:event="oninput" />
+                    @bind="descriptionFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 120px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter priority..."
-                           @bind="priorityFilter" @bind:event="oninput" />
+                    @bind="priorityFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 130px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter status..."
-                           @bind="statusFilter" @bind:event="oninput" />
+                    @bind="statusFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 150px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter created by..."
-                           @bind="createdByFilter" @bind:event="oninput" />
+                    @bind="createdByFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 140px;">
                     <input type="date" class="form-control form-control-sm"
-                           @bind="createdDateFilter" @bind:event="oninput" />
+                    @bind="createdDateFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 140px;">
                     <input type="date" class="form-control form-control-sm" placeholder="Filter due date..."
-                           @bind="dueDateFilter" @bind:event="oninput" />
+                    @bind="dueDateFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 220px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter project..."
-                           @bind="projectFilter" @bind:event="oninput" />
+                    @bind="projectFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 160px;">Actions</th>
             </tr>
@@ -124,9 +124,9 @@
                     <td>@model.DueDateFormatted()</td>
                     <td>
                         <a href="@($"/projects/edit/{model.ProjectId}")"
-                           class="d-inline-block text-truncate w-100 text-decoration-none"
-                           style="max-width: 220px;"
-                           title="@model.ProjectInfo()">
+                        class="d-inline-block text-truncate w-100 text-decoration-none"
+                        style="max-width: 220px;"
+                        title="@model.ProjectInfo()">
                             @model.ProjectInfo()
                         </a>
                     </td>
@@ -281,11 +281,11 @@
         }
     }
 
-	protected override async Task OnInitializedAsync() => Models = await GetModelsAsync();
+    protected override async Task OnInitializedAsync() => Models = await GetModelsAsync();
 
     private void NavigateToCreatePage() => NavigationManager.NavigateTo($"/tasks/edit");
 
-	private void NavigateToEditPage(Guid modelId) => NavigationManager.NavigateTo($"/tasks/edit/{modelId}");
+    private void NavigateToEditPage(Guid modelId) => NavigationManager.NavigateTo($"/tasks/edit/{modelId}");
 
     private async Task DeleteModel(Guid modelId)
     {
@@ -300,7 +300,7 @@
             }
             else
             {
-                ErrorMessage = response.ReasonPhrase;
+                ErrorMessage = await response.ReadErrorMessageAsync();
             }
         }
         catch (Exception ex)

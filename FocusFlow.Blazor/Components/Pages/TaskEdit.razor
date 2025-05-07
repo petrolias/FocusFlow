@@ -207,7 +207,7 @@
             }
             else
             {
-                ErrorMessage = response.ReasonPhrase;
+                ErrorMessage = await response.ReadErrorMessageAsync();
             }
         }
         catch (Exception ex)

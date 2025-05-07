@@ -123,20 +123,20 @@
             if (response.IsSuccessStatusCode)
             {
                 var updated = await response.Content.ReadFromJsonAsync<ProjectDto>();
-				SuccessMessage = "Project saved successfully!";
-				StateHasChanged();
-				_ = Task.Run(async () =>
-				{
-					await Task.Delay(3000);
-					SuccessMessage = null;
-					await InvokeAsync(StateHasChanged);
-				});
+                SuccessMessage = "Project saved successfully!";
+                StateHasChanged();
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(3000);
+                    SuccessMessage = null;
+                    await InvokeAsync(StateHasChanged);
+                });
 
                 NavigationManager.NavigateTo($"/projects/edit/{updated.Id}");
             }
-			else
-			{
-                ErrorMessage = response.ReasonPhrase;
+            else
+            {
+                ErrorMessage = await response.ReadErrorMessageAsync();
             }
         }
         catch (Exception ex)

@@ -1,4 +1,5 @@
 ﻿using FocusFlow.Abstractions.Api.Shared;
+using FocusFlow.Blazor.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FocusFlow.Blazor.Controllers
@@ -16,7 +17,7 @@ namespace FocusFlow.Blazor.Controllers
             {
                 var response = await GetHttpClient().GetAsync($"api/projects?includeTasks={includeTasks}");
                 if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                    return StatusCode((int)response.StatusCode, await response.ReadErrorMessageAsync());
 
                 var result = await response.Content.ReadFromJsonAsync<IEnumerable<ProjectDto>>();
 
@@ -37,7 +38,7 @@ namespace FocusFlow.Blazor.Controllers
             {
                 var response = await GetHttpClient().GetAsync($"api/projects/{id}?includeTasks={includeTasks}");
                 if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                    return StatusCode((int)response.StatusCode, await response.ReadErrorMessageAsync());
 
                 var result = await response.Content.ReadFromJsonAsync<ProjectDto>();
 
@@ -58,7 +59,7 @@ namespace FocusFlow.Blazor.Controllers
             {
                 var response = await GetHttpClient().PutAsJsonAsync($"api/projects/{id}", project);
                 if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                    return StatusCode((int)response.StatusCode, await response.ReadErrorMessageAsync());
                 
                 var result = await response.Content.ReadFromJsonAsync<ProjectDto>();
                 return Ok(result);
@@ -78,7 +79,7 @@ namespace FocusFlow.Blazor.Controllers
             {
                 var response = await GetHttpClient().PostAsJsonAsync($"api/projects", project);
                 if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                    return StatusCode((int)response.StatusCode, await response.ReadErrorMessageAsync());
 
                 var result = await response.Content.ReadFromJsonAsync<ProjectDto>();
                 return Ok(result);
@@ -98,7 +99,7 @@ namespace FocusFlow.Blazor.Controllers
             {
                 var response = await GetHttpClient().DeleteAsync($"api/projects/{id}");
                 if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                    return StatusCode((int)response.StatusCode, await response.ReadErrorMessageAsync());
 
                 return Ok();
             }

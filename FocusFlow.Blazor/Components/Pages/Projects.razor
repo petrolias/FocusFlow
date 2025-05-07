@@ -46,27 +46,27 @@
             <tr>
                 <th style="width: 150px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter name..."
-                           @bind="nameFilter" @bind:event="oninput" />
+                    @bind="nameFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 250px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter description..."
-                           @bind="descriptionFilter" @bind:event="oninput" />
+                    @bind="descriptionFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 150px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter created by..."
-                           @bind="createdByFilter" @bind:event="oninput" />
+                    @bind="createdByFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 150px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter updated by..."
-                           @bind="updatedByFilter" @bind:event="oninput" />
+                    @bind="updatedByFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 140px;">
                     <input type="date" class="form-control form-control-sm"
-                           @bind="createdDateFilter" @bind:event="oninput" />
+                    @bind="createdDateFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 140px;">
                     <input type="date" class="form-control form-control-sm"
-                           @bind="updatedDateFilter" @bind:event="oninput" />
+                    @bind="updatedDateFilter" @bind:event="oninput" />
                 </th>
                 <th style="width: 160px;">Actions</th>
             </tr>
@@ -87,7 +87,7 @@
                     <td>@model.Name</td>
                     <td>
                         <span class="d-inline-block text-truncate w-100" style="max-width: 230px;"
-                              title="@model.Description">
+                        title="@model.Description">
                             @model.Description
                         </span>
                     </td>
@@ -98,7 +98,7 @@
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-success"
-                                    @onclick="@(() => NavigationManager.NavigateTo($"/tasks/create/from-project/{model.Id}"))">
+                            @onclick="@(() => NavigationManager.NavigateTo($"/tasks/create/from-project/{model.Id}"))">
                                 <i class="bi bi-plus-circle"></i> Add Task
                             </button>
                             <button class="btn btn-sm btn-warning" @onclick="() => NavigateToEditPage(model.Id)">
@@ -229,22 +229,22 @@
 
     private void NavigateToCreatePage() => NavigationManager.NavigateTo($"/projects/edit");
 
-	private void NavigateToEditPage(Guid modelId) => NavigationManager.NavigateTo($"/projects/edit/{modelId}");
+    private void NavigateToEditPage(Guid modelId) => NavigationManager.NavigateTo($"/projects/edit/{modelId}");
 
     private async Task DeleteModel(Guid modelId)
     {
         IsSubmitting = true;
         ErrorMessage = null;
         try
-		{			
+        {			
             var response = await HttpClientFactory.LocalApi().DeleteAsync($"{Route}/{modelId}");
             if (response.IsSuccessStatusCode)
             {
                 NavigationManager.NavigateTo("/projects", true);
             }           
-			else
-			{
-                ErrorMessage = response.ReasonPhrase;
+            else
+            {
+                ErrorMessage = await response.ReadErrorMessageAsync();
             }
         }
         catch (Exception ex)

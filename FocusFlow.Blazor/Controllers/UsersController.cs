@@ -1,4 +1,5 @@
 ﻿using FocusFlow.Abstractions.Api.Shared;
+using FocusFlow.Abstractions.Common;
 using FocusFlow.Blazor.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,7 @@ namespace FocusFlow.Blazor.Controllers
             {
                 var response = await GetHttpClient().GetAsync($"api/users");
                 if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                    return StatusCode((int)response.StatusCode, await response.ReadErrorMessageAsync());
 
                 var result = await response.Content.ReadFromJsonAsync<IEnumerable<AppUserDto>>();
 
@@ -40,7 +41,7 @@ namespace FocusFlow.Blazor.Controllers
             {
                 var response = await httpClientFactory.ExternalApi().PostAsJsonAsync($"/api/users", model);
                 if (!response.IsSuccessStatusCode)
-                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+                    return StatusCode((int)response.StatusCode, await response.ReadErrorMessageAsync());
 
                 return Ok();
             }

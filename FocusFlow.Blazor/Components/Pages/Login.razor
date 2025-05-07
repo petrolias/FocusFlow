@@ -32,7 +32,18 @@
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <InputText id="password" type="password" class="form-control" @bind-Value="LoginModel.Password" />
+                            <div class="input-group">
+                                <InputText id="password"
+                                class="form-control"
+                                type="@(ShowPassword ? "text" : "password")"
+                                @bind-Value="LoginModel.Password" />
+                                <button type="button"
+                                class="btn btn-outline-secondary"
+                                @onclick="() => ShowPassword = !ShowPassword"
+                                title="Toggle password visibility">
+                                    <i class="bi @(ShowPassword ? "bi-eye-slash" : "bi-eye")"></i>
+                                </button>
+                            </div>
                             <ValidationMessage For="@(() => LoginModel.Password)" class="text-danger" />
                         </div>
 
@@ -62,6 +73,7 @@
 
     private bool IsSubmitting = false;
     private string ErrorMessage;
+    private bool ShowPassword = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -98,7 +110,7 @@
             }
             else
             {
-                ErrorMessage = response.ReasonPhrase ?? errorMessage;
+                ErrorMessage = await response.ReadErrorMessageAsync();
             }
         }
         catch (Exception ex)

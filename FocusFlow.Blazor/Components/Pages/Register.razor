@@ -67,7 +67,8 @@
             }
             else
             {
-                errorMessage = "Registration failed: " + response.ReasonPhrase;
+                var message = await response.Content.ReadAsStringAsync();
+                errorMessage = "Registration failed: " + await response.ReadErrorMessageAsync();
             }
         }
         catch
