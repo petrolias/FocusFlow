@@ -16,34 +16,47 @@
                         <ValidationSummary />
 
                         <div class="mb-3">
-                            <label for="name" class="form-label">Name</label>
-                            <InputText id="name" class="form-control" @bind-Value="Model.Name" />
+                            <label for="name" class="form-label">Title</label>
+                            <InputText id="name" class="form-control" @bind-Value="Model.Name" placeholder="Enter a short project title..." />
                         </div>
 
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <InputTextArea id="description" class="form-control" @bind-Value="Model.Description" />
+                            <InputTextArea id="description" class="form-control" @bind-Value="Model.Description" placeholder="Write a brief description of the project..." />
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Created By</label>
-                            <p class="form-control-plaintext">@Model.CreatedByInfo</p>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-person-circle text-secondary"></i>
+                                <span>@Model.CreatedByInfo</span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Updated By</label>
-                            <p class="form-control-plaintext">@Model.UpdatedByInfo</p>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-arrow-repeat text-secondary"></i>
+                                <span>@Model.UpdatedByInfo</span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Created At</label>
-                            <p class="form-control-plaintext">@Model.CreatedAtFormatted()</p>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-calendar-event text-secondary"></i>
+                                <span>@Model.CreatedAtFormatted()</span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Updated At</label>
-                            <p class="form-control-plaintext">@Model.UpdatedAtFormatted()</p>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-clock-history text-secondary"></i>
+                                <span>@Model.UpdatedAtFormatted()</span>
+                            </div>
                         </div>
+
 
                         @if (!string.IsNullOrEmpty(ErrorMessage))
                         {

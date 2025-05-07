@@ -1,4 +1,6 @@
-﻿namespace FocusFlow.Abstractions.Models
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace FocusFlow.Abstractions.Models
 {
     /// <summary>
     /// contains basic properties for all entry records
@@ -17,7 +19,7 @@
 
         public string? LastUpdatedByInfo() => string.IsNullOrEmpty(UpdatedByInfo) ? CreatedByInfo : UpdatedByInfo;
         public string? LastUpdatedDateTime() => UpdatedAt > CreatedAt ? UpdatedAtFormatted() : CreatedAtFormatted();
-        public string? CreatedAtFormatted() => CreatedAt.ToString("u");
-        public string? UpdatedAtFormatted() => CreatedAt.ToString("u");
+        public string? CreatedAtFormatted() => CreatedAt == DateTimeOffset.MinValue ? "Not available" : CreatedAt.ToString("u");
+        public string? UpdatedAtFormatted() => UpdatedAt == DateTimeOffset.MinValue ? "Not available" : UpdatedAt.ToString("u");        
     }
 }
