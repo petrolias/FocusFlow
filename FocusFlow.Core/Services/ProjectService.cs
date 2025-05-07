@@ -22,7 +22,7 @@ namespace FocusFlow.Core.Services
                 if (!getAllResult.IsSuccess)
                     return Result<IEnumerable<ProjectDto>>.From(getAllResult);
 
-                var result = mapper.Map<IEnumerable<ProjectDto>>(getAllResult.Value);
+                var result = mapper.Map<IEnumerable<ProjectDto>>(getAllResult.Value)??new List<ProjectDto>();
                 return Result<IEnumerable<ProjectDto>>.Success(result);
             }
             catch (Exception ex)

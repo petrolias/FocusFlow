@@ -52,7 +52,7 @@ namespace FocusFlow.Core
         public static async Task SeedDataAsync(this IServiceProvider self)
         {
             using var scope = self.CreateScope();
-            await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+            await ContextSeeder.SeedAsync(scope.ServiceProvider);
         }
     }
 }

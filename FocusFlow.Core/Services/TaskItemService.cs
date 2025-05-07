@@ -20,11 +20,8 @@ namespace FocusFlow.Core.Services
                 var getAllResult = await taskItemRepository.GetAllAsync(includeProject);
                 if (!getAllResult.IsSuccess)
                     return Result<IEnumerable<TaskItemDto>>.From(getAllResult);
-
-                if (!getAllResult.Value.Any())
-                    return Result<IEnumerable<TaskItemDto>>.Failure(statusCode: StatusCodes.Status404NotFound);
-
-                var result = mapper.Map<IEnumerable<TaskItemDto>>(getAllResult.Value);
+                
+                var result = mapper.Map<IEnumerable<TaskItemDto>>(getAllResult.Value)??new List<TaskItemDto>();
                 return Result<IEnumerable<TaskItemDto>>.Success(result);
             }
             catch (Exception ex)

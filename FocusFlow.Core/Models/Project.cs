@@ -7,7 +7,7 @@ namespace FocusFlow.Core.Models
     {        
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public ICollection<TaskItem> Tasks { get; set; } = [];
+        public ICollection<TaskItem>? Tasks { get; set; } = [];
 
         public bool IsValid(out List<string> validationErrors)
         {

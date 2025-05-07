@@ -87,6 +87,30 @@ namespace FocusFlow.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TaskItemHistories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ChangedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    DueDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    Status = table.Column<int>(type: "INTEGER", nullable: true),
+                    Priority = table.Column<int>(type: "INTEGER", nullable: true),
+                    AssignedUserId = table.Column<string>(type: "TEXT", nullable: true),
+                    ProjectId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ChangeType = table.Column<string>(type: "TEXT", nullable: false),
+                    CreatedBy = table.Column<string>(type: "TEXT", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskItemHistories", x => new { x.Id, x.ChangedAt });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -193,35 +217,6 @@ namespace FocusFlow.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TaskItemHistories",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ChangedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Title = table.Column<string>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
-                    DueDate = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    Status = table.Column<int>(type: "INTEGER", nullable: true),
-                    Priority = table.Column<int>(type: "INTEGER", nullable: true),
-                    AssignedUserId = table.Column<string>(type: "TEXT", nullable: true),
-                    ProjectId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    ChangeType = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedBy = table.Column<string>(type: "TEXT", nullable: false),
-                    UpdatedBy = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TaskItemHistories", x => new { x.Id, x.ChangedAt });
-                    table.ForeignKey(
-                        name: "FK_TaskItemHistories_AspNetUsers_AssignedUserId",
-                        column: x => x.AssignedUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TaskItems",
                 columns: table => new
                 {
@@ -245,12 +240,14 @@ namespace FocusFlow.Core.Migrations
                         name: "FK_TaskItems_AspNetUsers_AssignedUserId",
                         column: x => x.AssignedUserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_TaskItems_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateIndex(
@@ -289,11 +286,6 @@ namespace FocusFlow.Core.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TaskItemHistories_AssignedUserId",
-                table: "TaskItemHistories",
-                column: "AssignedUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TaskItems_AssignedUserId",

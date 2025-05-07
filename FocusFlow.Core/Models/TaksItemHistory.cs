@@ -10,8 +10,7 @@ namespace FocusFlow.Core.Models
         public DateTimeOffset? DueDate { get; set; }
         public TaskItemStatusEnum? Status { get; set; }
         public TaskItemPriorityEnum? Priority { get; set; }
-        public string? AssignedUserId { get; set; }
-        public AppUser? AssignedUser { get; set; }
+        public string? AssignedUserId { get; set; }        
         public Guid? ProjectId { get; set; }
         public DateTime ChangedAt { get; set; }
         public string ChangeType { get; set; } // "Modified" or "Deleted"

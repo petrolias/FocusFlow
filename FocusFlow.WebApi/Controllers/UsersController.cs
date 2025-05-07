@@ -32,7 +32,7 @@ namespace FocusFlow.WebApi.Controllers
         {
             try
             {
-                var result = await userService.GetAllUsersAsync();
+                var result = await userService.GetAllAsync();
                 if (result.IsSuccess)
                     return Ok(result.Value);
 

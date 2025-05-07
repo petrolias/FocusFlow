@@ -13,6 +13,6 @@ namespace FocusFlow.Core.Services
 
         Task<Result<AppUser>> CreateUserAsync(string email, string password);
 
-        Task<Result<IEnumerable<AppUserDto>>> GetAllUsersAsync();
+        Task<Result<IEnumerable<AppUserDto>>> GetAllAsync();
     }
 }

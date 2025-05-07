@@ -5,6 +5,6 @@ namespace FocusFlow.Core.Models
 {
     public class AppUser : IdentityUser, IModelGuid
     {
-        public ICollection<TaskItem> Tasks { get; set; } = [];
+        public ICollection<TaskItem>? Tasks { get; set; } = [];
     }
 }

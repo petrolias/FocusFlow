@@ -23,6 +23,18 @@ namespace FocusFlow.Core
                 .WithOne(t => t.Project)
                 .HasForeignKey(t => t.ProjectId);
 
+            modelBuilder.Entity<TaskItem>()
+                .HasOne(t => t.Project)
+                .WithMany(p => p.Tasks) 
+                .HasForeignKey(t => t.ProjectId)
+                .OnDelete(DeleteBehavior.SetNull); // optional: or Restrict if you want to block deletes
+
+            modelBuilder.Entity<TaskItem>()
+                .HasOne(t => t.AssignedUser)
+                .WithMany()
+                .HasForeignKey(t => t.AssignedUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<AppUser>()
                 .HasMany(u => u.Tasks)
                 .WithOne(t => t.AssignedUser)

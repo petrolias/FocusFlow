@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FocusFlow.Core.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20250506215454_InitialCreate")]
+    [Migration("20250507164257_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -255,8 +255,6 @@ namespace FocusFlow.Core.Migrations
 
                     b.HasKey("Id", "ChangedAt");
 
-                    b.HasIndex("AssignedUserId");
-
                     b.ToTable("TaskItemHistories");
                 });
 
@@ -392,24 +390,17 @@ namespace FocusFlow.Core.Migrations
                 {
                     b.HasOne("FocusFlow.Core.Models.AppUser", "AssignedUser")
                         .WithMany("Tasks")
-                        .HasForeignKey("AssignedUserId");
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("FocusFlow.Core.Models.Project", "Project")
                         .WithMany("Tasks")
-                        .HasForeignKey("ProjectId");
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("AssignedUser");
 
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("FocusFlow.Core.Models.TaskItemHistory", b =>
-                {
-                    b.HasOne("FocusFlow.Core.Models.AppUser", "AssignedUser")
-                        .WithMany()
-                        .HasForeignKey("AssignedUserId");
-
-                    b.Navigation("AssignedUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

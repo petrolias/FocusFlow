@@ -5,16 +5,16 @@ namespace FocusFlow.Blazor.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProjectsController(
+    public class TasksController(
         ILogger<ProjectsController> logger,
         IHttpClientFactory httpClientFactory) : BaseController(httpClientFactory)
     {
         [HttpGet()]
-        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects([FromQuery] bool includeTasks = false)
+        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetTasks([FromQuery] bool includeProjects = false)
         {
             try
             {
-                var response = await GetHttpClient().GetAsync($"api/projects?includeTasks={includeTasks}");
+                var response = await GetHttpClient().GetAsync($"api/tasks?includeProjects={includeProjects}");
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 
@@ -31,11 +31,11 @@ namespace FocusFlow.Blazor.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProjectDto>> GetProject(Guid id, [FromQuery] bool includeTasks = false)
+        public async Task<ActionResult<TaskItemDto>> GetTasks(Guid id, [FromQuery] bool includeProjects = false)
         {
             try
             {
-                var response = await GetHttpClient().GetAsync($"api/projects/{id}?includeTasks={includeTasks}");
+                var response = await GetHttpClient().GetAsync($"api/tasks/{id}?includeProjects={includeProjects}");
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 
@@ -52,11 +52,11 @@ namespace FocusFlow.Blazor.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProject(Guid id, ProjectDtoBase project)
+        public async Task<IActionResult> UpdateTask(Guid id, TaskItemDtoBase project)
         {
             try
             {
-                var response = await GetHttpClient().PutAsJsonAsync($"api/projects/{id}", project);
+                var response = await GetHttpClient().PutAsJsonAsync($"api/tasks/{id}", project);
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 
@@ -71,11 +71,11 @@ namespace FocusFlow.Blazor.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProject(Guid id)
+        public async Task<IActionResult> DeleteTask(Guid id)
         {
             try
             {
-                var response = await GetHttpClient().DeleteAsync($"api/projects/{id}");
+                var response = await GetHttpClient().DeleteAsync($"api/tasks/{id}");
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 

@@ -112,7 +112,7 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<IEnumerable<AppUserDto>>> GetAllUsersAsync()
+        public async Task<Result<IEnumerable<AppUserDto>>> GetAllAsync()
         {
             try
             {

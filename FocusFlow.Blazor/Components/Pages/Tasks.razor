@@ -1,4 +1,4 @@
-@page "/projects"
+@page "/tasks"
 @rendermode InteractiveServer
 
 @using FocusFlow.Abstractions.Api.Shared
@@ -6,17 +6,17 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <h2 class="mb-0"><i class="bi bi-kanban-fill"></i> Projects</h2>
+        <h2 class="mb-0"><i class="bi bi-kanban-fill"></i> Tasks</h2>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Projects</li>
+                <li class="breadcrumb-item active" aria-current="page">Tasks</li>
             </ol>
         </nav>
     </div>
     <div>
         <button class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Create New Project
+            <i class="bi bi-plus-lg"></i> Create New Task
         </button>
     </div>
 </div>
@@ -44,8 +44,8 @@
         <thead class="table-light sticky-top">
             <tr>
                 <th>
-                    <input type="text" class="form-control form-control-sm" placeholder="Filter name..."
-                    @bind="nameFilter" @bind:event="oninput" />
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter title..."
+                    @bind="titleFilter" @bind:event="oninput" />
                 </th>
                 <th>
                     <input type="text" class="form-control form-control-sm" placeholder="Filter description..."
@@ -70,9 +70,11 @@
                 <th>Actions</th>
             </tr>
             <tr>
-                <th>Name</th>
+                <th>Title</th>
                 <th>Description</th>
                 <th>Created By</th>
+                <th>Priority</th>
+                <th>Status</th>
                 <th>Updated By</th>
                 <th>Created At</th>
                 <th>Updated At</th>
@@ -83,9 +85,11 @@
             @foreach (var model in PagedModels)
             {
                 <tr>
-                    <td>@model.Name</td>
+                    <td>@model.Title</td>
                     <td>@model.Description</td>
                     <td>@model.CreatedBy</td>
+                    <td>@model.Priority</td>
+                    <td>@model.Status</td>
                     <td>@model.UpdatedBy</td>
                     <td>@model.CreatedAt.ToString("g")</td>
                     <td>@model.UpdatedAt.ToString("g")</td>
@@ -136,7 +140,7 @@
                     <button type="button" class="btn-close" @onclick="CancelDelete"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to delete project "@modelToDelete?.Name"?
+                    Are you sure you want to delete model "@modelToDelete?.Title"?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
@@ -153,12 +157,12 @@
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 @code {
-    private async Task<List<ProjectDto>> GetModelsAsync() => await HttpClientFactory.LocalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
-    private List<ProjectDto> Models = new();
+    private async Task<List<TaskItemDto>> GetModelsAsync() => await HttpClientFactory.LocalApi().GetFromJsonAsync<List<TaskItemDto>>("api/tasks");
+    private List<TaskItemDto> Models = new();
     private bool IsSubmitting = false;
     private string ErrorMessage;
 
-    private string nameFilter = "";
+    private string titleFilter = "";
     private string descriptionFilter = "";
     private string createdByFilter = "";
     private string updatedByFilter = "";
@@ -168,17 +172,17 @@
     private int pageSize = 10;
     private int currentPage = 1;
     private bool showDeletePrompt = false;
-    private ProjectDto? modelToDelete;
+    private TaskItemDto? modelToDelete;
 
-    private IEnumerable<ProjectDto> FilteredModels => Models
-        .Where(p => string.IsNullOrEmpty(nameFilter) || p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase))
+    private IEnumerable<TaskItemDto> FilteredModels => Models
+        .Where(p => string.IsNullOrEmpty(titleFilter) || p.Title.Contains(titleFilter, StringComparison.OrdinalIgnoreCase))
         .Where(p => string.IsNullOrEmpty(descriptionFilter) || (p.Description?.Contains(descriptionFilter, StringComparison.OrdinalIgnoreCase) ?? false))
         .Where(p => string.IsNullOrEmpty(createdByFilter) || p.CreatedBy.Contains(createdByFilter, StringComparison.OrdinalIgnoreCase))
         .Where(p => string.IsNullOrEmpty(updatedByFilter) || p.UpdatedBy.Contains(updatedByFilter, StringComparison.OrdinalIgnoreCase))
         .Where(p => !createdDateFilter.HasValue || p.CreatedAt.Date == createdDateFilter.Value.Date)
         .Where(p => !updatedDateFilter.HasValue || p.UpdatedAt.Date == updatedDateFilter.Value.Date);
 
-    private IEnumerable<ProjectDto> PagedModels => FilteredModels
+    private IEnumerable<TaskItemDto> PagedModels => FilteredModels
         .Skip((currentPage - 1) * pageSize)
         .Take(pageSize);
 
@@ -196,7 +200,7 @@
             currentPage++;
     }
 
-    private void ShowDeletePrompt(ProjectDto model)
+    private void ShowDeletePrompt(TaskItemDto model)
     {
         modelToDelete = model;
         showDeletePrompt = true;
@@ -223,11 +227,10 @@
         Models = await GetModelsAsync();
     }
 
-
     private async Task CreateModel()
     {
-        var newModel = new ProjectDtoBase { Name = "New Project", Description = "Description"};
-        var response = await HttpClientFactory.LocalApi().PostAsJsonAsync("api/projects", newModel);
+        var newModel = new TaskItemDtoBase { Title = "New Project", Description = "Description"};
+        var response = await HttpClientFactory.LocalApi().PostAsJsonAsync("api/tasks", newModel);
         if (response.IsSuccessStatusCode)
         {
             Models = await GetModelsAsync();
@@ -236,7 +239,7 @@
 
     private void NavigateToEditPage(Guid modelId)
     {
-        NavigationManager.NavigateTo($"/projects/edit/{modelId}");
+        NavigationManager.NavigateTo($"/tasks/edit/{modelId}");
     }
 
     private async Task DeleteModel(Guid modelId)
@@ -245,7 +248,7 @@
         ErrorMessage = null;
         try
 		{			
-            var response = await HttpClientFactory.LocalApi().DeleteAsync($"api/projects/{modelId}");
+            var response = await HttpClientFactory.LocalApi().DeleteAsync($"api/tasks/{modelId}");
             if (response.IsSuccessStatusCode)
             {
                 NavigationManager.NavigateTo("/", true); // Reloads and re-initializes the current route

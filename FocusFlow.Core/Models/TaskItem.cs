@@ -14,7 +14,7 @@ namespace FocusFlow.Core.Models
         public string? AssignedUserId { get; set; }
         public AppUser? AssignedUser { get; set; }
         public Guid? ProjectId { get; set; }
-        public Project? Project { get; set; } = default!;
+        public Project? Project { get; set; }
 
         public bool IsValid(out List<string> validationErrors)
         {
