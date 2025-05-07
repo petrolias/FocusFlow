@@ -49,7 +49,11 @@
                     <input type="text" class="form-control form-control-sm" placeholder="Filter title..."
                            @bind="titleFilter" @bind:event="oninput" />
                 </th>
-                <th style="width: 260px;">
+                <th style="width: 180px;">
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter assigned user..."
+                           @bind="assignedUserFilter" @bind:event="oninput" />
+                </th>
+                <th style="width: 240px;">
                     <input type="text" class="form-control form-control-sm" placeholder="Filter description..."
                            @bind="descriptionFilter" @bind:event="oninput" />
                 </th>
@@ -69,13 +73,21 @@
                     <input type="date" class="form-control form-control-sm"
                            @bind="createdDateFilter" @bind:event="oninput" />
                 </th>
-                <th style="width: 160px;">Due Date</th>
-                <th style="width: 240px;">Project</th>
+                <th style="width: 140px;">
+                    <input type="date" class="form-control form-control-sm" placeholder="Filter due date..."
+                           @bind="dueDateFilter" @bind:event="oninput" />
+                </th>
+                <th style="width: 220px;">
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter project..."
+                           @bind="projectFilter" @bind:event="oninput" />
+                </th>
                 <th style="width: 160px;">Actions</th>
             </tr>
+
             <tr>
                 <th>Title</th>
                 <th>Description</th>
+                <th>Assigned User</th>
                 <th class="text-center">Priority</th>
                 <th class="text-center">Status</th>
                 <th>Created By</th>
@@ -96,6 +108,7 @@
                             @model.Description
                         </span>
                     </td>
+                    <td>@model.AssignedUserInfo</td>
                     <td class="text-center align-middle">
                         <span class="@GetPriorityBadgeClass(model.Priority)">
                             @model.Priority
@@ -107,12 +120,15 @@
                         </span>
                     </td>
                     <td>@model.CreatedByInfo</td>
-                    <td>@model.CreatedAtFormatted()</td>
+                    <td>@model.CreatedAtDateFormatted()</td>
                     <td>@model.DueDateFormatted()</td>
                     <td>
-                        <span class="d-inline-block text-truncate w-100" style="max-width: 220px;" title="@model.ProjectInfo()">
+                        <a href="@($"/projects/edit/{model.ProjectId}")"
+                           class="d-inline-block text-truncate w-100 text-decoration-none"
+                           style="max-width: 220px;"
+                           title="@model.ProjectInfo()">
                             @model.ProjectInfo()
-                        </span>
+                        </a>
                     </td>
                     <td class="text-start">
                         <div class="btn-group">
@@ -182,10 +198,13 @@
 
     private string titleFilter = "";
     private string descriptionFilter = "";
+    private string assignedUserFilter = "";
+    private DateTime? dueDateFilter;
     private string createdByFilter = "";
     private string updatedByFilter = "";
     private string priorityFilter = "";
     private string statusFilter = "";
+    private string projectFilter = "";
     private DateTime? createdDateFilter;
     private DateTime? updatedDateFilter;
 
@@ -196,9 +215,15 @@
 
     private IEnumerable<TaskItemDto> FilteredModels => Models
         .Where(p => string.IsNullOrEmpty(titleFilter) || p.Title.Contains(titleFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => string.IsNullOrEmpty(assignedUserFilter) || p.AssignedUserInfo.Contains(assignedUserFilter, StringComparison.OrdinalIgnoreCase))
         .Where(p => string.IsNullOrEmpty(descriptionFilter) || (p.Description?.Contains(descriptionFilter, StringComparison.OrdinalIgnoreCase) ?? false))
         .Where(p => string.IsNullOrEmpty(createdByFilter) || p.CreatedBy.Contains(createdByFilter, StringComparison.OrdinalIgnoreCase))
-        .Where(p => !createdDateFilter.HasValue || p.CreatedAt.Date == createdDateFilter.Value.Date);
+        .Where(p => string.IsNullOrEmpty(projectFilter) || p.ProjectInfo().Contains(projectFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => string.IsNullOrEmpty(priorityFilter) || p.Priority.ToString().Contains(priorityFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => string.IsNullOrEmpty(statusFilter) || p.Status.ToString().Contains(statusFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => string.IsNullOrEmpty(projectFilter) || p.ProjectInfo().Contains(projectFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => !createdDateFilter.HasValue || p.CreatedAt.Date == createdDateFilter.Value.Date)
+        .Where(p => !dueDateFilter.HasValue || p.DueDate.Value.Date <= dueDateFilter.Value.Date);
 
     private IEnumerable<TaskItemDto> PagedModels => FilteredModels
         .Skip((currentPage - 1) * pageSize)

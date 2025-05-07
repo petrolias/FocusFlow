@@ -10,7 +10,8 @@ namespace FocusFlow.Core.Mappings
         {           
             CreateMap<TaskItemDto, TaskItem>();
             CreateMap<TaskItemDtoBase, TaskItem>();
-            CreateMap<TaskItem, TaskItemDto>();
+            CreateMap<TaskItem, TaskItemDto>()
+                .ForMember(dest => dest.AssignedUserInfo, opt => opt.MapFrom(x => x.GetUserInfo()));
             CreateMap<TaskItem, TaskItemDtoBase>();
             CreateMap<TaskItem, TaskItemHistory>()
                 .ForMember(dest => dest.ChangedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))

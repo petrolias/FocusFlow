@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FocusFlow.Core.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20250507164257_InitialCreate")]
+    [Migration("20250507204306_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -98,10 +98,12 @@ namespace FocusFlow.Core.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -171,6 +173,7 @@ namespace FocusFlow.Core.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset?>("DueDate")
@@ -187,6 +190,7 @@ namespace FocusFlow.Core.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("UpdatedAt")

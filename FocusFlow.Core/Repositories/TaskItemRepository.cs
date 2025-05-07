@@ -14,6 +14,8 @@ namespace FocusFlow.Core.Repositories
             var query = context.TaskItems.AsQueryable();
             if (includeProject)
                 query = query.Include(p => p.Project);
+            
+                query = query.Include(t => t.AssignedUser);
             return query;
         }
 

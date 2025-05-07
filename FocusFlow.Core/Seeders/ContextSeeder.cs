@@ -1,5 +1,6 @@
 ﻿using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Constants;
+using FocusFlow.Abstractions.Extensions;
 using FocusFlow.Abstractions.Services;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Services;
@@ -101,10 +102,11 @@ namespace FocusFlow.Core.Seeders
                     {
                         Title = $"Task {i}_{projectIndex}",
                         Description = $"Description {i}_{projectIndex}",
-                        Status = TaskItemStatusEnum.Todo,
-                        Priority = TaskItemPriorityEnum.Medium,
+                        Status = EnumExtensions.GetRandomValue<TaskItemStatusEnum>(),
+                        Priority = EnumExtensions.GetRandomValue<TaskItemPriorityEnum>(),
                         DueDate = DateTime.UtcNow.AddDays(7),
-                        ProjectId = item.Id
+                        ProjectId = item.Id,
+                        AssignedUserId = user.Id
                     };
 
                     var result = await taskItemService.AddAsync(taskItem, user.Id);

@@ -28,10 +28,11 @@ namespace FocusFlow.Abstractions.Api.Shared
         [Required(ErrorMessage = "Priority is required")]
         public TaskItemPriorityEnum? Priority { get; set; }
         public string? AssignedUserId { get; set; }
-        public string? AssignedUserName { get; set; }
+        public string? AssignedUserInfo { get; set; }
         public Guid? ProjectId { get; set; }
         public string ProjectInfo() => string.IsNullOrEmpty(Project?.Name) ? "Not available" : Project.Name;
         public string DueDateFormatted() => DueDate == null || DueDate == DateTimeOffset.MinValue ? "Not available" : DueDate.Value.ToString("yyyy-MM-dd");
+        public string? CreatedAtDateFormatted() => CreatedAt == DateTimeOffset.MinValue ? "Not available" : CreatedAt.ToString("yyyy-MM-dd");
 
         public ProjectDtoBase? Project { get; set; }
     }
