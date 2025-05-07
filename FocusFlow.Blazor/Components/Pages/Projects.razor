@@ -80,22 +80,22 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var project in PagedProjects)
+            @foreach (var model in PagedModels)
             {
                 <tr>
-                    <td>@project.Name</td>
-                    <td>@project.Description</td>
-                    <td>@project.CreatedBy</td>
-                    <td>@project.UpdatedBy</td>
-                    <td>@project.CreatedAt.ToString("g")</td>
-                    <td>@project.UpdatedAt.ToString("g")</td>
+                    <td>@model.Name</td>
+                    <td>@model.Description</td>
+                    <td>@model.CreatedBy</td>
+                    <td>@model.UpdatedBy</td>
+                    <td>@model.CreatedAt.ToString("g")</td>
+                    <td>@model.UpdatedAt.ToString("g")</td>
                     <td>
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-warning" @onclick="() => NavigateToEditPage(project.Id)">
+                            <button class="btn btn-sm btn-warning" @onclick="() => NavigateToEditPage(model.Id)">
                                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>
                                 <i class="bi bi-pencil"></i> Edit
                             </button>
-                            <button class="btn btn-sm btn-danger" @onclick="() => ShowDeletePrompt(project)">
+                            <button class="btn btn-sm btn-danger" @onclick="() => ShowDeletePrompt(model)">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -108,7 +108,7 @@
                 <td colspan="7">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            Showing @(((currentPage - 1) * pageSize) + 1) to @Math.Min(currentPage * pageSize, FilteredProjects.Count()) of @FilteredProjects.Count() entries
+                            Showing @(((currentPage - 1) * pageSize) + 1) to @Math.Min(currentPage * pageSize, FilteredModels.Count()) of @FilteredModels.Count() entries
                         </div>
                         <div>
                             <button class="btn btn-sm btn-secondary" @onclick="PreviousPage" disabled="@(currentPage == 1)">
@@ -136,7 +136,7 @@
                     <button type="button" class="btn-close" @onclick="CancelDelete"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to delete project "@projectToDelete?.Name"?
+                    Are you sure you want to delete project "@modelToDelete?.Name"?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
@@ -153,7 +153,7 @@
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 @code {
-    private List<ProjectDto> projects = new();
+    private List<ProjectDto> Models = new();
     private bool IsSubmitting = false;
     private string ErrorMessage;
 
@@ -167,9 +167,9 @@
     private int pageSize = 10;
     private int currentPage = 1;
     private bool showDeletePrompt = false;
-    private ProjectDto? projectToDelete;
+    private ProjectDto? modelToDelete;
 
-    private IEnumerable<ProjectDto> FilteredProjects => projects
+    private IEnumerable<ProjectDto> FilteredModels => Models
         .Where(p => string.IsNullOrEmpty(nameFilter) || p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase))
         .Where(p => string.IsNullOrEmpty(descriptionFilter) || (p.Description?.Contains(descriptionFilter, StringComparison.OrdinalIgnoreCase) ?? false))
         .Where(p => string.IsNullOrEmpty(createdByFilter) || p.CreatedBy.Contains(createdByFilter, StringComparison.OrdinalIgnoreCase))
@@ -177,11 +177,11 @@
         .Where(p => !createdDateFilter.HasValue || p.CreatedAt.Date == createdDateFilter.Value.Date)
         .Where(p => !updatedDateFilter.HasValue || p.UpdatedAt.Date == updatedDateFilter.Value.Date);
 
-    private IEnumerable<ProjectDto> PagedProjects => FilteredProjects
+    private IEnumerable<ProjectDto> PagedModels => FilteredModels
         .Skip((currentPage - 1) * pageSize)
         .Take(pageSize);
 
-    private int TotalPages => (int)Math.Ceiling(FilteredProjects.Count() / (double)pageSize);
+    private int TotalPages => (int)Math.Ceiling(FilteredModels.Count() / (double)pageSize);
 
     private void PreviousPage()
     {
@@ -197,53 +197,53 @@
 
     private void ShowDeletePrompt(ProjectDto project)
     {
-        projectToDelete = project;
+        modelToDelete = project;
         showDeletePrompt = true;
     }
 
     private void CancelDelete()
     {
         showDeletePrompt = false;
-        projectToDelete = null;
+        modelToDelete = null;
     }
 
     private async Task ConfirmDelete()
     {
-        if (projectToDelete != null)
+        if (modelToDelete != null)
         {
-            await DeleteProject(projectToDelete.Id);
+            await DeleteModel(modelToDelete.Id);
             showDeletePrompt = false;
-            projectToDelete = null;
+            modelToDelete = null;
         }
     }
 
     protected override async Task OnInitializedAsync()
     {             
-        projects = await HttpClientFactory.ExternalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
+        Models = await HttpClientFactory.ExternalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
     }
 
-    private async Task CreateProject()
+    private async Task CreateModel()
     {
-        var newProject = new ProjectDtoBase { Name = "New Project", Description = "Description"};
-        var response = await HttpClientFactory.ExternalApi().PostAsJsonAsync("api/projects", newProject);
+        var newModel = new ProjectDtoBase { Name = "New Project", Description = "Description"};
+        var response = await HttpClientFactory.ExternalApi().PostAsJsonAsync("api/projects", newModel);
         if (response.IsSuccessStatusCode)
         {
-            projects = await HttpClientFactory.ExternalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
+            Models = await HttpClientFactory.ExternalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
         }
     }
 
-    private void NavigateToEditPage(Guid projectId)
+    private void NavigateToEditPage(Guid modelId)
     {
-        NavigationManager.NavigateTo($"/projects/edit/{projectId}");
+        NavigationManager.NavigateTo($"/projects/edit/{modelId}");
     }
 
-    private async Task DeleteProject(Guid projectId)
+    private async Task DeleteModel(Guid modelId)
     {
         IsSubmitting = true;
         ErrorMessage = null;
         try
 		{			
-            var response = await HttpClientFactory.ExternalApi().DeleteAsync($"api/projects/{projectId}");
+            var response = await HttpClientFactory.ExternalApi().DeleteAsync($"api/projects/{modelId}");
             if (response.IsSuccessStatusCode)
             {
                 NavigationManager.NavigateTo("/", true); // Reloads and re-initializes the current route
