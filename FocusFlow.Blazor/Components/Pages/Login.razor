@@ -1,4 +1,5 @@
 @page "/login"
+@page "/login/{action}"
 @rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
 @using System.Net
@@ -9,8 +10,8 @@
 @using FocusFlow.Blazor.Extensions
 @using FocusFlow.Blazor.Models
 @using Microsoft.AspNetCore.Components.Authorization
+@inject IJSRuntime JS
 <h3>Login</h3>
-
 <EditForm Model="LoginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
 	<DataAnnotationsValidator />
 	<ValidationSummary />
@@ -42,17 +43,24 @@
 @inject IJSRuntime JS
 @inject IHttpClientFactory HttpClientFactory
 @code {
+	[Parameter]
+	public string? action { get; set; }
+
 	[SupplyParameterFromForm]
 	private LoginDto LoginModel { get; set; } = new();
 	private bool IsSubmitting = false;
-	private string ErrorMessage;
+	private string ErrorMessage;	
 
-	protected override async Task OnInitializedAsync()
-	{
-		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-		if (authState.User.Identity?.IsAuthenticated == true)
+	protected override async Task OnAfterRenderAsync(bool firstRender)	{
+		if (action == "out")
 		{
-			NavigationManager.NavigateTo("/");
+			await JS.InvokeVoidAsync("clearCookiesAndReload");			
+			NavigationManager.NavigateTo("/Login");
+		}
+
+		if(firstRender)
+		{
+			// Do work to load page data and set properties
 		}
 	}
 
@@ -71,7 +79,8 @@
 				var cookieObject = new CookieModel { Token = tokenResponse.Token, Email = LoginModel.Email }.ToJson();
 				if (tokenResponse?.Token != null)
 				{
-					await JS.InvokeVoidAsync("setCookie", Constants.CookieAccessToken, cookieObject, 60);
+					await JS.InvokeVoidAsync("setCookie", Constants.CookieAccessToken, tokenResponse.Token, 60); // expires in 60 mins
+					await JS.InvokeVoidAsync("setCookie", Constants.CookieData, LoginModel.Email, 60); // expires in 60 mins
 					NavigationManager.NavigateTo("/", forceLoad: true);
 					return;
 				}

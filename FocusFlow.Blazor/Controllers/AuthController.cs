@@ -6,7 +6,7 @@ namespace FocusFlow.Blazor.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController(IHttpClientFactory httpClientFactory) : ControllerBase
+    public class AuthController(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor) : ControllerBase
     {
         [HttpPost("token")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
@@ -17,13 +17,6 @@ namespace FocusFlow.Blazor.Controllers
 
             var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();
             return Ok(tokenResponse);
-        }
-
-        [HttpGet("logout")]
-        public IActionResult Logout()
-        {
-            Response.Cookies.Delete(Constants.CookieAccessToken);
-            return Ok();
         }
     }
 }

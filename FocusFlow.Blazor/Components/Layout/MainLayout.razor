@@ -3,7 +3,6 @@
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
-@inject IHttpClientFactory HttpClientFactory
 
 <div class="page">    
     <div class="sidebar">
@@ -15,8 +14,7 @@
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
             <AuthorizeView>
                 <Authorized>
-                    <span class="me-3">Hello, @email!</span>
-                    <button class="btn btn-link" @onclick="HandleLogout">Logout</button>
+                    <a href="/login/out">Logout</a>
                 </Authorized>
                 <NotAuthorized>
                     <a href="/login">Login</a>
@@ -38,11 +36,5 @@
 </div>
 
 @code {
-    private string? email;
 
-    private async Task HandleLogout()
-    {
-        await HttpClientFactory.LogoutAsync();
-        NavigationManager.NavigateTo("/");
-    }
 }

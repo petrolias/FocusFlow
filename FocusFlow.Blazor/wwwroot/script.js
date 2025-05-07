@@ -3,6 +3,15 @@
     document.cookie = `${name}=${value}; expires=${expires}; path=/`;
 };
 
+window.clearCookiesAndReload = () => {
+    // Clear all cookies
+    document.cookie.split(";").forEach(c => {
+        document.cookie = c
+            .replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });        
+};
+
 window.cookieManager = {
     get: function (name) {
         const value = "; " + document.cookie;

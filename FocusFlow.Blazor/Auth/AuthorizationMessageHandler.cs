@@ -1,5 +1,3 @@
-using FocusFlow.Abstractions.Extensions;
-using FocusFlow.Blazor.Models;
 using FocusFlow.Blazor;
 
 public class AuthorizationMessageHandler(IHttpContextAccessor accessor) : DelegatingHandler
@@ -7,11 +5,9 @@ public class AuthorizationMessageHandler(IHttpContextAccessor accessor) : Delega
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var cookie = accessor.HttpContext?.Request.Cookies[Constants.CookieAccessToken];
-        if (cookie != null) {
-            var data = cookie.FromJson<CookieModel>();
-            if (data != null && !string.IsNullOrEmpty(data.Token))
+        if (!string.IsNullOrEmpty(cookie)) {
                 request.Headers.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", data.Token);
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", cookie);
         }        
 
         return await base.SendAsync(request, cancellationToken);

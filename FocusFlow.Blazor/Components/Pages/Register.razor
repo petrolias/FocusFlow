@@ -1,7 +1,8 @@
 @page "/register"
 @rendermode InteractiveServer
-
+@using FocusFlow.Abstractions.Extensions
 @using FocusFlow.Abstractions.Api.Shared
+@using FocusFlow.Blazor.Extensions
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 
@@ -32,18 +33,12 @@
 @code {
     private RegisterDto registerModel = new ();
     private string errorMessage;
-    private HttpClient _client;
-
-    protected override void OnInitialized()
-    {
-        _client = HttpClientFactory.CreateClient("MyApi");
-    }
-
+    
     private async Task HandleRegister()
     {
         try
         {
-            var response = await _client.PostAsJsonAsync("api/auth/register", registerModel);
+            var response = await HttpClientFactory.AddUserAsync(registerModel);
             if (response.IsSuccessStatusCode)
             {
                 NavigationManager.NavigateTo("/login");
