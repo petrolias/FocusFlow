@@ -98,8 +98,12 @@
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-success"
-                            @onclick="@(() => NavigationManager.NavigateTo($"/tasks/create/from-project/{model.Id}"))">
-                                <i class="bi bi-plus-circle"></i> Add Task
+                            @onclick="() => NavigateToCreateTask(model.Id)">
+                                <i class="bi bi-plus-circle"></i> Add
+                            </button>
+                            <button class="btn btn-sm btn-info"
+                            @onclick="() => NavigateToProjectTasks(model.Id)">
+                                <i class="bi bi-list-task"></i> View
                             </button>
                             <button class="btn btn-sm btn-warning" @onclick="() => NavigateToEditPage(model.Id)">
                                 <i class="bi bi-pencil"></i> Edit
@@ -226,6 +230,10 @@
     }
 
     protected override async Task OnInitializedAsync() => Models = await GetModelsAsync();
+
+    private void NavigateToCreateTask(Guid projectId) => NavigationManager.NavigateTo($"/tasks/create/from-project/{projectId}");
+
+    private void NavigateToProjectTasks(Guid projectId) => NavigationManager.NavigateTo($"/tasks/{projectId}");
 
     private void NavigateToCreatePage() => NavigationManager.NavigateTo($"/projects/edit");
 
