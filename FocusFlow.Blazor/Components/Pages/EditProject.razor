@@ -1,53 +1,67 @@
-@page "/projects/edit/{ProjectId:guid}"
+﻿@page "/projects/edit/{ProjectId:guid}"
 @rendermode InteractiveServer
 @using FocusFlow.Abstractions.Api.Shared
 @using FocusFlow.Blazor.Extensions
-<h3>Edit Project</h3>
+<PageTitle>Edit Project</PageTitle>
 
-<EditForm Model="Project" OnValidSubmit="SaveProject" FormName="editProjectForm">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">✏️ Edit Project</h3>
 
-    <div class="form-group">
-        <label for="name">Name</label>
-        <InputText id="name" class="form-control" @bind-Value="Project.Name" />
+                    <EditForm Model="Project" OnValidSubmit="SaveProject" FormName="editProjectForm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <InputText id="name" class="form-control" @bind-Value="Project.Name" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <InputTextArea id="description" class="form-control" @bind-Value="Project.Description" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Created By</label>
+                            <p class="form-control-plaintext">@Project.CreatedBy</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Updated By</label>
+                            <p class="form-control-plaintext">@Project.UpdatedBy</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Created At</label>
+                            <p class="form-control-plaintext">@Project.CreatedAt.ToString("g")</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Updated At</label>
+                            <p class="form-control-plaintext">@Project.UpdatedAt.ToString("g")</p>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(ErrorMessage))
+                        {
+                            <div class="alert alert-danger">@ErrorMessage</div>
+                        }
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                                @(IsSubmitting ? "Saving..." : "Save")
+                            </button>
+                            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label for="description">Description</label>
-        <InputTextArea id="description" class="form-control" @bind-Value="Project.Description" />
-    </div>
-
-    <div class="form-group">
-        <label>Created By</label>
-        <p class="form-control-plaintext">@Project.CreatedBy</p>
-    </div>
-
-    <div class="form-group">
-        <label>Updated By</label>
-        <p class="form-control-plaintext">@Project.UpdatedBy</p>
-    </div>
-
-    <div class="form-group">
-        <label>Created At</label>
-        <p class="form-control-plaintext">@Project.CreatedAt.ToString("g")</p>
-    </div>
-
-    <div class="form-group">
-        <label>Updated At</label>
-        <p class="form-control-plaintext">@Project.UpdatedAt.ToString("g")</p>
-    </div>
-
-    @if (!string.IsNullOrEmpty(ErrorMessage))
-	{
-		<div class="alert alert-danger">@ErrorMessage</div>
-	}
-
-	<button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
-        @(IsSubmitting ? "Saving..." : "Save")
-	</button>
-    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
-</EditForm>
+</div>
 
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
