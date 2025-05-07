@@ -1,6 +1,7 @@
 using AutoMapper;
 using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Constants;
+using FocusFlow.Abstractions.Services;
 using FocusFlow.Core;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Services;
@@ -178,7 +179,7 @@ namespace FocusFlow.Tests.Tests.Services
             _context.TaskItems.Add(taskItem);
             await _context.SaveChangesAsync();
 
-            var result = await _taskItemService.DeleteTaskItemAsync(taskItem.Id, taskItem.CreatedBy);
+            var result = await _taskItemService.DeleteAsync(taskItem.Id, taskItem.CreatedBy);
             Assert.True(result.IsSuccess);
             Assert.True(result.Value);
             Assert.Empty(_context.TaskItems);

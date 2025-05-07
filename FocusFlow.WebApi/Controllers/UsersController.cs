@@ -1,5 +1,5 @@
 ﻿using FocusFlow.Abstractions.Api.Shared;
-using FocusFlow.Core.Services;
+using FocusFlow.Abstractions.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FocusFlow.WebApi.Controllers

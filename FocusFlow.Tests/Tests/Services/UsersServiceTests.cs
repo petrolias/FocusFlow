@@ -1,3 +1,4 @@
+using FocusFlow.Abstractions.Services;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Services;
 using FocusFlow.Tests.Fixtures;
@@ -70,7 +71,7 @@ namespace FocusFlow.Tests.Tests.Services
             var result = await _userService.CreateRoleAsync(roleName);
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
-            Assert.Equal(roleName, result.Value.Name);
+            Assert.Equal(roleName, result.Value);
         }
 
         [Fact]
@@ -83,7 +84,7 @@ namespace FocusFlow.Tests.Tests.Services
             await _userManager.CreateAsync(user, Password);
             await _roleManager.CreateAsync(new IdentityRole { Name = roleName });
 
-            var result = await _userService.AssignRoleToUserAsync(user, roleName);
+            var result = await _userService.AssignRoleToUserAsync(user.Id, roleName);
 
             Assert.True(result.IsSuccess);
             Assert.True(result.Value);

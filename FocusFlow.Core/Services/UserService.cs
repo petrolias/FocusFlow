@@ -3,6 +3,7 @@ using AutoMapper;
 using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Common;
 using FocusFlow.Abstractions.Models;
+using FocusFlow.Abstractions.Services;
 using FocusFlow.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -18,7 +19,7 @@ namespace FocusFlow.Core.Services
         RoleManager<IdentityRole> roleManager
         ) : IUserService
     {
-        public async Task<Result<AppUser>> CreateUserAsync(string email, string password)
+        public async Task<Result<AppUserDto>> CreateUserAsync(string email, string password)
         {
             try
             {
@@ -30,33 +31,32 @@ namespace FocusFlow.Core.Services
                 };
 
                 if (string.IsNullOrEmpty(email))
-                    return Result<AppUser>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "Email cannot be empty.");
+                    return Result<AppUserDto>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "Email cannot be empty.");
 
                 if (string.IsNullOrEmpty(password))
-                    return Result<AppUser>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "Password cannot be empty.");
+                    return Result<AppUserDto>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "Password cannot be empty.");
 
                 if (await userManager.FindByEmailAsync(email) != null)
-                    return Result<AppUser>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "User already exists.");
+                    return Result<AppUserDto>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "User already exists.");
 
                 var result = await userManager.CreateAsync(user, password);
 
-                if (result.Succeeded)
-                {
-                    return Result<AppUser>.Success(user);
-                }
-                else
+                if (!result.Succeeded)
                 {
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    return Result<AppUser>.Failure(statusCode: StatusCodes.Status400BadRequest, message: $"Failed to create user: {errors}");
+                    return Result<AppUserDto>.Failure(statusCode: StatusCodes.Status400BadRequest, message: $"Failed to create user: {errors}");
                 }
+
+                var dto = mapper.Map<AppUserDto>(user);
+                return Result<AppUserDto>.Success(dto);
             }
             catch (Exception ex)
             {
-                return logger.FailureLog<AppUser>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<AppUserDto>(LogLevel.Error, exception: ex);
             }
         }
 
-        public async Task<Result<IdentityRole>> CreateRoleAsync(string roleName)
+        public async Task<Result<string>> CreateRoleAsync(string roleName)
         {
             try
             {
@@ -66,31 +66,32 @@ namespace FocusFlow.Core.Services
                     var result = await roleManager.CreateAsync(role);
                     if (result.Succeeded)
                     {
-                        return Result<IdentityRole>.Success(role);
+                        return Result<string>.Success(role.Name);
                     }
                     else
                     {
                         var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                        return Result<IdentityRole>.Failure(statusCode: StatusCodes.Status400BadRequest, message: $"Failed to create role: {errors}");
+                        return Result<string>.Failure(statusCode: StatusCodes.Status400BadRequest, message: $"Failed to create role: {errors}");
                     }
                 }
                 else
                 {
-                    return Result<IdentityRole>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "Role already exists.");
+                    return Result<string>.Failure(statusCode: StatusCodes.Status400BadRequest, message: "Role already exists.");
                 }
             }
             catch (Exception ex)
             {
-                return logger.FailureLog<IdentityRole>(LogLevel.Error, exception: ex);
+                return logger.FailureLog<string>(LogLevel.Error, exception: ex);
             }
         }
 
-        public async Task<Result<bool>> AssignRoleToUserAsync(AppUser user, string roleName)
+        public async Task<Result<bool>> AssignRoleToUserAsync(string userId, string roleName)
         {
             try
             {
                 if (await roleManager.RoleExistsAsync(roleName))
                 {
+                    var user = await userManager.FindByIdAsync(userId.ToString());
                     var result = await userManager.AddToRoleAsync(user, roleName);
                     if (result.Succeeded)
                     {

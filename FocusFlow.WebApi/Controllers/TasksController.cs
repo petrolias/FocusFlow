@@ -1,5 +1,5 @@
 ﻿using FocusFlow.Abstractions.Api.Shared;
-using FocusFlow.Core.Services;
+using FocusFlow.Abstractions.Services;
 using FocusFlow.WebApi.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +12,7 @@ namespace FocusFlow.WebApi.Controllers
     public class TasksController(ILogger<TasksController> logger, ITaskItemService taskItemService) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskItemDto>>> GetTasks([FromQuery] bool includeProjects = false)
+        public async Task<ActionResult<IEnumerable<TaskItemDto>>> GetTaskItems([FromQuery] bool includeProjects = false)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace FocusFlow.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(TaskItemDtoBase taskItem)
+        public async Task<ActionResult> CreateTaskItem(TaskItemDtoBase taskItem)
         {
             try
             {
@@ -69,7 +69,7 @@ namespace FocusFlow.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, TaskItemDtoBase taskItem)
+        public async Task<IActionResult> UpdateTaskItem(Guid id, TaskItemDtoBase taskItem)
         {
             try
             {
@@ -88,11 +88,11 @@ namespace FocusFlow.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> DeleteTaskItem(Guid id)
         {
             try
             {
-                var result = await taskItemService.DeleteTaskItemAsync(id, User.GetUserId());
+                var result = await taskItemService.DeleteAsync(id, User.GetUserId());
                 if (result.IsSuccess)
                     return Ok(result.Value);
 

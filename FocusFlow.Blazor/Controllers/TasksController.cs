@@ -6,7 +6,7 @@ namespace FocusFlow.Blazor.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class TasksController(
-        ILogger<ProjectsController> logger,
+        ILogger<TasksController> logger,
         IHttpClientFactory httpClientFactory) : BaseController(httpClientFactory)
     {
         [HttpGet()]
@@ -39,7 +39,7 @@ namespace FocusFlow.Blazor.Controllers
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 
-                var result = await response.Content.ReadFromJsonAsync<ProjectDto>();
+                var result = await response.Content.ReadFromJsonAsync<TaskItemDto>();
 
                 return Ok(result);
             }
@@ -52,11 +52,11 @@ namespace FocusFlow.Blazor.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTask(Guid id, TaskItemDtoBase project)
+        public async Task<IActionResult> UpdateTask(Guid id, TaskItemDtoBase model)
         {
             try
             {
-                var response = await GetHttpClient().PutAsJsonAsync($"api/tasks/{id}", project);
+                var response = await GetHttpClient().PutAsJsonAsync($"api/tasks/{id}", model);
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 
@@ -71,11 +71,11 @@ namespace FocusFlow.Blazor.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProject(Guid id, TaskItemDtoBase project)
+        public async Task<IActionResult> CreateTask(Guid id, TaskItemDtoBase model)
         {
             try
             {
-                var response = await GetHttpClient().PostAsJsonAsync($"api/tasks", project);
+                var response = await GetHttpClient().PostAsJsonAsync($"api/tasks", model);
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 

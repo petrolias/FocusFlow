@@ -1,4 +1,6 @@
 ﻿@page "/tasks/edit/{ModelId:guid?}"
+@page "/tasks/create/from-project/{PreselectedProjectId:guid}"
+
 @rendermode InteractiveServer
 
 @using FocusFlow.Abstractions.Api.Shared
@@ -62,27 +64,56 @@
 
                         <div class="mb-3">
                             <label class="form-label">Assigned User</label>
-                            <InputText class="form-control" @bind-Value="Model.AssignedUserId" placeholder="User ID or email..." />
+                            <InputSelect class="form-select" @bind-Value="Model.AssignedUserId">
+                                <option value="">Select a user</option>
+                                @foreach (var user in AvailableUsers)
+                                {
+                                    <option value="@user.Id">@user.Email (@user.Email)</option>
+                                }
+                            </InputSelect>
                         </div>
 
-                        @* <div class="mb-3"> *@
-                        @*     <label class="form-label">Project ID</label> *@
-                        @*     <InputText class="form-control" @bind-Value="Model.ProjectId" placeholder="Project ID..." /> *@
-                        @* </div> *@
+                        <div class="mb-3">
+                            <label class="form-label">Project</label>
+                            <InputSelect class="form-select" @bind-Value="Model.ProjectId">
+                                <option value="">Select a project</option>
+                                @foreach (var project in AvailableProjects)
+                                {
+                                    <option value="@project.Id">@project.Name</option>
+                                }
+                            </InputSelect>
+                        </div>
 
                         <div class="mb-3">
                             <label class="form-label">Created By</label>
-                            <div class="form-control bg-light">@Model.CreatedByInfo</div>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-person-circle text-secondary"></i>
+                                <span>@Model.CreatedByInfo</span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Updated By</label>
-                            <div class="form-control bg-light">@Model.UpdatedByInfo</div>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-arrow-repeat text-secondary"></i>
+                                <span>@Model.UpdatedByInfo</span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Created At</label>
-                            <div class="form-control bg-light">@Model.CreatedAtDateFormatted()</div>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-calendar-event text-secondary"></i>
+                                <span>@Model.CreatedAtFormatted()</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Updated At</label>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-clock-history text-secondary"></i>
+                                <span>@Model.UpdatedAtFormatted()</span>
+                            </div>
                         </div>
 
                         @if (!string.IsNullOrEmpty(ErrorMessage))
@@ -109,6 +140,9 @@
     private string Route = "api/tasks";
 
     [Parameter] public Guid? ModelId { get; set; }
+    [Parameter] public Guid? PreselectedProjectId { get; set; }
+    private List<ProjectDto> AvailableProjects { get; set; } = new();
+    private List<AppUserDto> AvailableUsers { get; set; } = new();
 
     [SupplyParameterFromForm]
     private TaskItemDto Model { get; set; } = new();
@@ -120,7 +154,16 @@
     protected override async Task OnInitializedAsync()
     {
         if (IsEditMode)
+        {
             Model = await HttpClientFactory.LocalApi().GetFromJsonAsync<TaskItemDto>($"{Route}/{ModelId}");
+        }
+        else if (PreselectedProjectId.HasValue)
+        {
+            Model.ProjectId = PreselectedProjectId;
+        }
+
+        AvailableProjects = await HttpClientFactory.LocalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
+        AvailableUsers = await HttpClientFactory.LocalApi().GetFromJsonAsync<List<AppUserDto>>("api/users");
     }
 
     private async Task SaveTask()

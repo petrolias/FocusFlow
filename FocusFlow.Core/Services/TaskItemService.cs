@@ -1,6 +1,7 @@
 using AutoMapper;
 using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Common;
+using FocusFlow.Abstractions.Services;
 using FocusFlow.Core.Models;
 using FocusFlow.Core.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -144,7 +145,7 @@ namespace FocusFlow.Core.Services
             }
         }
 
-        public async Task<Result<bool>> DeleteTaskItemAsync(Guid id, string userId)
+        public async Task<Result<bool>> DeleteAsync(Guid id, string userId)
         {
             try
             {
