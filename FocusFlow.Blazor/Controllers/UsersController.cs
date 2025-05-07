@@ -1,4 +1,5 @@
 ﻿using FocusFlow.Abstractions.Api.Shared;
+using FocusFlow.Blazor.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FocusFlow.Blazor.Controllers
@@ -37,7 +38,7 @@ namespace FocusFlow.Blazor.Controllers
         {
             try
             {
-                var response = await GetHttpClient().PostAsJsonAsync($"/api/users", model);
+                var response = await httpClientFactory.ExternalApi().PostAsJsonAsync($"/api/users", model);
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 

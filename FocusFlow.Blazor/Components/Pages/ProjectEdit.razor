@@ -64,6 +64,13 @@
                             <div class="alert alert-danger">@ErrorMessage</div>
                         }
 
+                        @if (!string.IsNullOrEmpty(SuccessMessage))
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                @SuccessMessage
+                            </div>
+                        }
                         <div class="d-flex justify-content-end gap-2">
                             <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
                                 @(IsSubmitting ? "Saving..." : "Save")
@@ -86,6 +93,7 @@
     [SupplyParameterFromForm]
     private ProjectDto Model { get; set; } = new ();
     private bool IsSubmitting = false;
+    private string? SuccessMessage;
     private string ErrorMessage;
     private bool IsEditMode => ModelId.HasValue;
 
@@ -114,18 +122,20 @@
 
             if (response.IsSuccessStatusCode)
             {
-                if (!IsEditMode)
-                {
-                    var createdModel = await response.Content.ReadFromJsonAsync<ProjectDto>();
-                    NavigationManager.NavigateTo($"/projects/edit/{createdModel.Id}");
-                }
-                else
-                {
-                    Model = await GetModelAsync(ModelId.Value);
-                }
+                var updated = await response.Content.ReadFromJsonAsync<ProjectDto>();
+				SuccessMessage = "Project saved successfully!";
+				StateHasChanged();
+				_ = Task.Run(async () =>
+				{
+					await Task.Delay(3000);
+					SuccessMessage = null;
+					await InvokeAsync(StateHasChanged);
+				});
+
+                NavigationManager.NavigateTo($"/projects/edit/{updated.Id}");
             }
-            else
-            {
+			else
+			{
                 ErrorMessage = response.ReasonPhrase;
             }
         }

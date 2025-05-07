@@ -16,7 +16,7 @@ namespace FocusFlow.Blazor.Controllers
         {
             try
             {
-                var response = await GetHttpClient().PostAsJsonAsync($"/api/auth/token", model);
+                var response = await httpClientFactory.ExternalApi().PostAsJsonAsync($"/api/auth/token", model);                
                 if (!response.IsSuccessStatusCode)
                     return BadRequest("Login failed. Please try again.");
 
