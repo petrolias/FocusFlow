@@ -23,8 +23,4 @@
     <ProjectReference Include="..\FocusFlow.Core\FocusFlow.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Shared\" />
-  </ItemGroup>
-
 </Project>
