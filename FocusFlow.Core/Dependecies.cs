@@ -22,6 +22,7 @@ namespace FocusFlow.Core
                 .AddScoped<IProjectService, ProjectService>()
                 .AddScoped<ITaskItemService, TaskItemService>()
                 .AddScoped<IUserService, UserService>()
+                .AddScoped<IDashboardService, DashboardService>()
                 .AddAutoMapper(
                     typeof(ProjectDtosMappingProfile),
                     typeof(TaskItemDtosMappingProfile),

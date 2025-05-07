@@ -7,23 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Pages\Dashboard.razor" />
-    <Content Remove="Pages\Login.razor" />
-    <Content Remove="Pages\Register.razor" />
-    <Content Remove="Pages\Tasks.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\FocusFlow.Abstractions\FocusFlow.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Pages\" />
   </ItemGroup>
 
 </Project>

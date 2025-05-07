@@ -11,7 +11,6 @@ builder.Services
     .AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthorizationMessageHandler>();
