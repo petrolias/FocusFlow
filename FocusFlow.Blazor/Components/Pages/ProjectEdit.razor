@@ -1,4 +1,4 @@
-﻿@page "/projects/edit/{ProjectId:guid}"
+﻿@page "/projects/edit/{ModelId:guid?}"
 @rendermode InteractiveServer
 @using FocusFlow.Abstractions.Api.Shared
 @using FocusFlow.Blazor.Extensions
@@ -9,40 +9,40 @@
         <div class="col-lg-8">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h3 class="card-title mb-4">✏️ Edit Project</h3>
+                    <h3 class="card-title mb-4">@(IsEditMode ? "✏️ Edit Project" : "➕ Add Project")</h3>
 
-                    <EditForm Model="Project" OnValidSubmit="SaveProject" FormName="editProjectForm">
+                    <EditForm Model="Model" OnValidSubmit="SaveProject" FormName="editProjectForm">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
 
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
-                            <InputText id="name" class="form-control" @bind-Value="Project.Name" />
+                            <InputText id="name" class="form-control" @bind-Value="Model.Name" />
                         </div>
 
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
-                            <InputTextArea id="description" class="form-control" @bind-Value="Project.Description" />
+                            <InputTextArea id="description" class="form-control" @bind-Value="Model.Description" />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Created By</label>
-                            <p class="form-control-plaintext">@Project.CreatedBy</p>
+                            <p class="form-control-plaintext">@Model.CreatedBy</p>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Updated By</label>
-                            <p class="form-control-plaintext">@Project.UpdatedBy</p>
+                            <p class="form-control-plaintext">@Model.UpdatedBy</p>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Created At</label>
-                            <p class="form-control-plaintext">@Project.CreatedAt.ToString("g")</p>
+                            <p class="form-control-plaintext">@Model.CreatedAt.ToString("g")</p>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Updated At</label>
-                            <p class="form-control-plaintext">@Project.UpdatedAt.ToString("g")</p>
+                            <p class="form-control-plaintext">@Model.UpdatedAt.ToString("g")</p>
                         </div>
 
                         @if (!string.IsNullOrEmpty(ErrorMessage))
@@ -66,33 +66,52 @@
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 @code {
-    [Parameter] public Guid ProjectId { get; set; }
+    private string Route = "api/projects";
+    private async Task<ProjectDto> GetModelAsync(Guid modelId) => await HttpClientFactory.LocalApi().GetFromJsonAsync<ProjectDto>($"{Route}/{modelId}");
+    [Parameter] public Guid? ModelId { get; set; }
     [SupplyParameterFromForm]
-    private ProjectDto Project { get; set; } = new ();
+    private ProjectDto Model { get; set; } = new ();
     private bool IsSubmitting = false;
     private string ErrorMessage;
+    private bool IsEditMode => ModelId.HasValue;
 
     protected override async Task OnInitializedAsync()
-    {        
-        Project = await HttpClientFactory.LocalApi().GetFromJsonAsync<ProjectDto>($"api/projects/{ProjectId}");
+    {
+        if (IsEditMode)
+            Model = await GetModelAsync(ModelId.Value);
     }
 
     private async Task SaveProject()
     {
         IsSubmitting = true;
-		ErrorMessage = null;        
+        ErrorMessage = null;
 
         try
-		{
-			var errorMessage = "Login failed. Please try again.";
+        {
+            HttpResponseMessage response;
+            if (IsEditMode)
+            {
+                response = await HttpClientFactory.LocalApi().PutAsJsonAsync($"{Route}/{ModelId}", Model);
+            }
+            else
+            {
+                response = await HttpClientFactory.LocalApi().PostAsJsonAsync(Route, Model);
+            }
 
-            var response = await HttpClientFactory.LocalApi().PutAsJsonAsync($"api/projects/{ProjectId}", Project);
             if (response.IsSuccessStatusCode)
             {
-                Project = await HttpClientFactory.LocalApi().GetFromJsonAsync<ProjectDto>($"api/projects/{ProjectId}");
+                if (!IsEditMode)
+                {
+                    var createdModel = await response.Content.ReadFromJsonAsync<ProjectDto>();
+                    NavigationManager.NavigateTo($"/projects/edit/{createdModel.Id}");
+                }
+                else
+                {
+                    Model = await GetModelAsync(ModelId.Value);
+                }
             }
-			else
-			{
+            else
+            {
                 ErrorMessage = response.ReasonPhrase;
             }
         }
@@ -100,11 +119,10 @@
         {
             ErrorMessage = $"{ErrorMessage} {ex.Message}";
         }
-		finally
-		{
-			IsSubmitting = false;
-		}
-
+        finally
+        {
+            IsSubmitting = false;
+        }
     }
 
     private void Cancel()

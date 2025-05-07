@@ -157,7 +157,8 @@
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 @code {
-    private async Task<List<TaskItemDto>> GetModelsAsync() => await HttpClientFactory.LocalApi().GetFromJsonAsync<List<TaskItemDto>>("api/tasks");
+    private string Route = "api/tasks";
+    private async Task<List<TaskItemDto>> GetModelsAsync() => await HttpClientFactory.LocalApi().GetFromJsonAsync<List<TaskItemDto>>(Route);
     private List<TaskItemDto> Models = new();
     private bool IsSubmitting = false;
     private string ErrorMessage;
@@ -222,39 +223,25 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        Models = await GetModelsAsync();
-    }
+	protected override async Task OnInitializedAsync() => Models = await GetModelsAsync();
 
-    private async Task CreateModel()
-    {
-        var newModel = new TaskItemDtoBase { Title = "New Project", Description = "Description"};
-        var response = await HttpClientFactory.LocalApi().PostAsJsonAsync("api/tasks", newModel);
-        if (response.IsSuccessStatusCode)
-        {
-            Models = await GetModelsAsync();
-        }
-    }
+    private void CreateModel() => NavigationManager.NavigateTo($"/tasks/edit");
 
-    private void NavigateToEditPage(Guid modelId)
-    {
-        NavigationManager.NavigateTo($"/tasks/edit/{modelId}");
-    }
+	private void NavigateToEditPage(Guid modelId) => NavigationManager.NavigateTo($"/tasks/edit/{modelId}");
 
     private async Task DeleteModel(Guid modelId)
     {
         IsSubmitting = true;
         ErrorMessage = null;
         try
-		{			
-            var response = await HttpClientFactory.LocalApi().DeleteAsync($"api/tasks/{modelId}");
+        {
+            var response = await HttpClientFactory.LocalApi().DeleteAsync($"{Route}/{modelId}");
             if (response.IsSuccessStatusCode)
             {
-                NavigationManager.NavigateTo("/", true); // Reloads and re-initializes the current route
-            }           
-			else
-			{
+                NavigationManager.NavigateTo("/projects", true);
+            }
+            else
+            {
                 ErrorMessage = response.ReasonPhrase;
             }
         }
@@ -262,10 +249,10 @@
         {
             ErrorMessage = $"{ex.Message}";
         }
-		finally
-		{
-			IsSubmitting = false;
-		}
-       
-    }  
+        finally
+        {
+            IsSubmitting = false;
+        }
+
+    }
 }

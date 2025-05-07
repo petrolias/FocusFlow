@@ -153,7 +153,8 @@
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 @code {
-    private async Task<List<ProjectDto>> GetModelsAsync() => await HttpClientFactory.LocalApi().GetFromJsonAsync<List<ProjectDto>>("api/projects");
+    private string Route = "api/projects";
+    private async Task<List<ProjectDto>> GetModelsAsync() => await HttpClientFactory.LocalApi().GetFromJsonAsync<List<ProjectDto>>(Route);
     private List<ProjectDto> Models = new();
     private bool IsSubmitting = false;
     private string ErrorMessage;
@@ -218,26 +219,11 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        Models = await GetModelsAsync();
-    }
+    protected override async Task OnInitializedAsync() => Models = await GetModelsAsync();
 
+    private void CreateModel() => NavigationManager.NavigateTo($"/projects/edit");
 
-    private async Task CreateModel()
-    {
-        var newModel = new ProjectDtoBase { Name = "New Project", Description = "Description"};
-        var response = await HttpClientFactory.LocalApi().PostAsJsonAsync("api/projects", newModel);
-        if (response.IsSuccessStatusCode)
-        {
-            Models = await GetModelsAsync();
-        }
-    }
-
-    private void NavigateToEditPage(Guid modelId)
-    {
-        NavigationManager.NavigateTo($"/projects/edit/{modelId}");
-    }
+	private void NavigateToEditPage(Guid modelId) => NavigationManager.NavigateTo($"/projects/edit/{modelId}");
 
     private async Task DeleteModel(Guid modelId)
     {
@@ -245,10 +231,10 @@
         ErrorMessage = null;
         try
 		{			
-            var response = await HttpClientFactory.LocalApi().DeleteAsync($"api/projects/{modelId}");
+            var response = await HttpClientFactory.LocalApi().DeleteAsync($"{Route}/{modelId}");
             if (response.IsSuccessStatusCode)
             {
-                NavigationManager.NavigateTo("/", true); // Reloads and re-initializes the current route
+                NavigationManager.NavigateTo("/projects", true);
             }           
 			else
 			{

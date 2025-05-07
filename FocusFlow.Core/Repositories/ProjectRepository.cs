@@ -126,18 +126,8 @@ namespace FocusFlow.Core.Repositories
                 if (!getByIdResult.IsSuccess)
                     return Result<bool>.From(getByIdResult);
 
-                if (getByIdResult.Value != null)
-                {
-                    foreach (var item in getByIdResult.Value.Tasks)
-                    {
-                        //remove project id from any tasks
-                        item.ProjectId = null;
-                        taskItemRepository.UpdateAsync(item).Wait();
-                    }
-
-                    context.Projects.Remove(getByIdResult.Value);
-                    await context.SaveChangesAsync();
-                }
+                context.Projects.Remove(getByIdResult.Value);
+                await context.SaveChangesAsync();
                 return Result<bool>.Success(true);
             }
             catch (Exception ex)

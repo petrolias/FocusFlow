@@ -70,6 +70,26 @@ namespace FocusFlow.Blazor.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateProject(Guid id, TaskItemDtoBase project)
+        {
+            try
+            {
+                var response = await GetHttpClient().PostAsJsonAsync($"api/tasks", project);
+                if (!response.IsSuccessStatusCode)
+                    return StatusCode((int)response.StatusCode, response.ReasonPhrase);
+
+                var result = await response.Content.ReadFromJsonAsync<TaskItemDtoBase>();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var message = "An unexpected error occurred.";
+                logger.LogError(ex, message);
+                return StatusCode(StatusCodes.Status500InternalServerError, message);
+            }
+
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(Guid id)
         {
