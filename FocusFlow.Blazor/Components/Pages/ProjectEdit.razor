@@ -24,25 +24,25 @@
                             <label for="description" class="form-label">Description</label>
                             <InputTextArea id="description" class="form-control" @bind-Value="Model.Description" />
                         </div>
-
+                        
                         <div class="mb-3">
                             <label class="form-label">Created By</label>
-                            <p class="form-control-plaintext">@Model.CreatedBy</p>
+                            <p class="form-control-plaintext">@Model.CreatedByInfo</p>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Updated By</label>
-                            <p class="form-control-plaintext">@Model.UpdatedBy</p>
+                            <p class="form-control-plaintext">@Model.UpdatedByInfo</p>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Created At</label>
-                            <p class="form-control-plaintext">@Model.CreatedAt.ToString("g")</p>
+                            <p class="form-control-plaintext">@Model.CreatedAtFormatted()</p>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Updated At</label>
-                            <p class="form-control-plaintext">@Model.UpdatedAt.ToString("g")</p>
+                            <p class="form-control-plaintext">@Model.UpdatedAtFormatted()</p>
                         </div>
 
                         @if (!string.IsNullOrEmpty(ErrorMessage))

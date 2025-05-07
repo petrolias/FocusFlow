@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FocusFlow.WebApi.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ProjectsController(ILogger<ProjectsController> logger, IProjectService projectService) : ControllerBase

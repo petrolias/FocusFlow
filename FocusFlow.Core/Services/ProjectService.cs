@@ -12,6 +12,7 @@ namespace FocusFlow.Core.Services
     public class ProjectService(
         ILogger<ProjectService> logger,
         IMapper mapper,
+        IUserService userService,
         IProjectRepository projectRepository) : IProjectService
     {
         public async Task<Result<IEnumerable<ProjectDto>>> GetAllAsync(bool includeTask = false)
@@ -22,7 +23,12 @@ namespace FocusFlow.Core.Services
                 if (!getAllResult.IsSuccess)
                     return Result<IEnumerable<ProjectDto>>.From(getAllResult);
 
-                var result = mapper.Map<IEnumerable<ProjectDto>>(getAllResult.Value)??new List<ProjectDto>();
+                var result = mapper.Map<IEnumerable<ProjectDto>>(getAllResult.Value);
+
+                var mapUserResult = await userService.MapUserFieldsAsync(result);
+                if (!mapUserResult.IsSuccess)
+                    return Result<IEnumerable<ProjectDto>>.From(mapUserResult);
+
                 return Result<IEnumerable<ProjectDto>>.Success(result);
             }
             catch (Exception ex)
@@ -43,6 +49,10 @@ namespace FocusFlow.Core.Services
                     return Result<ProjectDto?>.Failure(statusCode: StatusCodes.Status404NotFound);
 
                 var result = mapper.Map<ProjectDto>(getByIdResult.Value);
+                var mapUserResult = await userService.MapUserFieldsAsync(result);
+                if (!mapUserResult.IsSuccess)
+                    return Result<ProjectDto?>.From(mapUserResult);
+
                 return Result<ProjectDto?>.Success(result);
             }
             catch (Exception ex)
@@ -60,6 +70,10 @@ namespace FocusFlow.Core.Services
                     return Result<IEnumerable<ProjectDto>>.From(getFilteredResult);
 
                 var result = mapper.Map<IEnumerable<ProjectDto>>(getFilteredResult.Value);
+                var mapUserResult = await userService.MapUserFieldsAsync(result);
+                if (!mapUserResult.IsSuccess)
+                    return Result<IEnumerable<ProjectDto>>.From(mapUserResult);
+
                 return Result<IEnumerable<ProjectDto>>.Success(result);
             }
             catch (Exception ex)
@@ -81,6 +95,10 @@ namespace FocusFlow.Core.Services
                     return Result<ProjectDto>.From(addResult);
 
                 var result = mapper.Map<ProjectDto>(model);
+                var mapUserResult = await userService.MapUserFieldsAsync(result);
+                if (!mapUserResult.IsSuccess)
+                    return Result<ProjectDto>.From(mapUserResult);
+
                 return Result<ProjectDto>.Success(result);
             }
             catch (Exception ex)
@@ -111,6 +129,10 @@ namespace FocusFlow.Core.Services
                     return Result<ProjectDto>.From(updateResult);
 
                 var result = mapper.Map<ProjectDto>(model);
+                var mapUserResult = await userService.MapUserFieldsAsync(result);
+                if (!mapUserResult.IsSuccess)
+                    return Result<ProjectDto>.From(mapUserResult);
+
                 return Result<ProjectDto>.Success(result);
             }
             catch (Exception ex)

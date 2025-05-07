@@ -3,7 +3,7 @@ using FocusFlow.Abstractions.Models;
 
 namespace FocusFlow.Abstractions.Api.Shared
 {
-    public record TaskItemDtoBase : EntryRecordBase
+    public record TaskItemDtoBase 
     {
         public string Title { get; set; }
         public string? Description { get; set; }
@@ -11,12 +11,20 @@ namespace FocusFlow.Abstractions.Api.Shared
         public TaskItemStatusEnum? Status { get; set; }
         public TaskItemPriorityEnum? Priority { get; set; }
         public string? AssignedUserId { get; set; }
-        public string? AssignedUserName{ get; set; }
-        public Guid? ProjectId { get; set; }
+        public Guid? ProjectId { get; set; }        
     };
 
-    public record TaskItemDto : TaskItemDtoBase
+    public record TaskItemDto : EntryRecordBase
     {
-        public Guid Id { get; set; }
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public DateTimeOffset? DueDate { get; set; }
+        public TaskItemStatusEnum? Status { get; set; }
+        public TaskItemPriorityEnum? Priority { get; set; }
+        public string? AssignedUserId { get; set; }
+        public string? AssignedUserName { get; set; }
+        public Guid? ProjectId { get; set; }
+
+        public ProjectDtoBase? Project { get; set; }
     }
 }

@@ -12,6 +12,6 @@ namespace FocusFlow.Abstractions.Api.Shared
     {
         public string Name { get; set; }
         public string? Description { get; set; }
-        public ICollection<TaskItemDto>? Tasks { get; set; } = [];
+        public ICollection<TaskItemDto>? Tasks { get; set; } = [];        
     }
 }

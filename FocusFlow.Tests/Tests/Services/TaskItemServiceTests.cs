@@ -103,21 +103,21 @@ namespace FocusFlow.Tests.Tests.Services
         [Fact]
         public async Task AddAsync_AddsTaskItem()
         {
+            var CreatedBy = Guid.NewGuid().ToString();
             var taskItemDto = new TaskItemDtoBase
             {
                 Title = "New Task",
                 Description = "Description",
                 Status = TaskItemStatusEnum.Todo,
                 Priority = TaskItemPriorityEnum.High,
-                DueDate = DateTime.UtcNow.AddDays(7),
-                CreatedBy = Guid.NewGuid().ToString()
+                DueDate = DateTime.UtcNow.AddDays(7)
             };
-            var result = await _taskItemService.AddAsync(taskItemDto, taskItemDto.CreatedBy);
+            var result = await _taskItemService.AddAsync(taskItemDto, CreatedBy);
 
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
 
-            var expected = new { taskItemDto.Title, taskItemDto.Description, taskItemDto.Status, taskItemDto.Priority, taskItemDto.DueDate, taskItemDto.CreatedBy };
+            var expected = new { taskItemDto.Title, taskItemDto.Description, taskItemDto.Status, taskItemDto.Priority, taskItemDto.DueDate, CreatedBy };
             var actual = new { result.Value.Title, result.Value.Description, result.Value.Status, result.Value.Priority, result.Value.DueDate, result.Value.CreatedBy };
             Assert.Equivalent(expected, actual);
             Assert.True(result.Value.CreatedAt > DateTimeOffset.MinValue);
@@ -132,7 +132,8 @@ namespace FocusFlow.Tests.Tests.Services
         [Fact]
         public async Task UpdateTaskItemAsync_UpdatesTaskItem()
         {
-            var taskItem = new TaskItem { Id = Guid.NewGuid(), Title = "New Task", CreatedBy = Guid.NewGuid().ToString() };
+            var CreatedBy = Guid.NewGuid().ToString();
+            var taskItem = new TaskItem { Id = Guid.NewGuid(), Title = "New Task", CreatedBy = CreatedBy };
             _context.TaskItems.Add(taskItem);
             await _context.SaveChangesAsync();
 
@@ -142,15 +143,14 @@ namespace FocusFlow.Tests.Tests.Services
                 Description = "Updated Description",
                 Status = TaskItemStatusEnum.InProgress,
                 Priority = TaskItemPriorityEnum.Low,
-                DueDate = DateTime.UtcNow.AddDays(3),
-                CreatedBy = taskItem.CreatedBy
+                DueDate = DateTime.UtcNow.AddDays(3)
             };
 
             var result = await _taskItemService.UpdateAsync(taskItem.Id, taskItemDto, taskItem.CreatedBy);
             Assert.True(result.IsSuccess);
             Assert.NotNull(result.Value);
 
-            var expected = new { taskItemDto.Title, taskItemDto.Description, taskItemDto.Status, taskItemDto.Priority, taskItemDto.DueDate, taskItemDto.CreatedBy };
+            var expected = new { taskItemDto.Title, taskItemDto.Description, taskItemDto.Status, taskItemDto.Priority, taskItemDto.DueDate, CreatedBy };
             var actual = new { result.Value.Title, result.Value.Description, result.Value.Status, result.Value.Priority, result.Value.DueDate, result.Value.CreatedBy };
             Assert.Equivalent(expected, actual);
             Assert.Equal(result.Value.UpdatedBy, taskItem.CreatedBy);

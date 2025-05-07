@@ -2,6 +2,7 @@
 using AutoMapper;
 using FocusFlow.Abstractions.Api.Shared;
 using FocusFlow.Abstractions.Common;
+using FocusFlow.Abstractions.Models;
 using FocusFlow.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -123,6 +124,58 @@ namespace FocusFlow.Core.Services
             catch (Exception ex)
             {
                 return logger.FailureLog<IEnumerable<AppUserDto>>(LogLevel.Error, exception: ex);
+            }
+        }
+
+        /// <summary>
+        /// Used in automapper resolver
+        /// </summary>
+        public Result<AppUserDto> GetById(string id)
+        {
+            try
+            {
+                var user = userManager.Users.FirstOrDefault(x => x.Id.ToString() == id.ToString());
+                user ??= new();
+                var result = mapper.Map<AppUserDto>(user);
+                return Result<AppUserDto>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                return logger.FailureLog<AppUserDto>(LogLevel.Error, exception: ex);
+            }
+        }
+
+        /// <summary>
+        /// Maps user fields in the model to the user email
+        /// </summary>
+        public async Task<Result<bool>> MapUserFieldsAsync<TModel>(TModel model) where TModel : IEntryRecordBaseUser
+            => await MapUserFieldsAsync(new List<TModel> { model });
+
+        /// <summary>
+        /// Maps user fields in the model to the user email
+        /// </summary>
+        public async Task<Result<bool>> MapUserFieldsAsync<TModel>(IEnumerable<TModel> models) where TModel : IEntryRecordBaseUser
+        {
+            try
+            {
+                var usersResult = await this.GetAllAsync();
+                if (!usersResult.IsSuccess)
+                    return Result<bool>.From(usersResult);
+                foreach (var model in models)
+                {
+                    if (model == null)
+                        continue;
+
+                    if (model.CreatedBy != null)
+                        model.CreatedByInfo = usersResult.Value.FirstOrDefault(x => x.Id == model.CreatedBy)?.Email ?? string.Empty;
+                    if (model.UpdatedBy != null)
+                        model.UpdatedByInfo = usersResult.Value.FirstOrDefault(x => x.Id == model.UpdatedBy)?.Email ?? string.Empty;
+                }
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return logger.FailureLog<bool>(LogLevel.Error, exception: ex);
             }
         }
     }

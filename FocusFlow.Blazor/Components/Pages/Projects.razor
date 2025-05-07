@@ -15,7 +15,7 @@
         </nav>
     </div>
     <div>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" @onclick="() => NavigateToCreatePage()">
             <i class="bi bi-plus-lg"></i> Create New Project
         </button>
     </div>
@@ -85,10 +85,10 @@
                 <tr>
                     <td>@model.Name</td>
                     <td>@model.Description</td>
-                    <td>@model.CreatedBy</td>
-                    <td>@model.UpdatedBy</td>
-                    <td>@model.CreatedAt.ToString("g")</td>
-                    <td>@model.UpdatedAt.ToString("g")</td>
+                    <td>@model.CreatedByInfo</td>
+                    <td>@model.UpdatedByInfo</td>
+                    <td>@model.CreatedAtFormatted()</td>
+                    <td>@model.UpdatedAtFormatted()</td>
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-warning" @onclick="() => NavigateToEditPage(model.Id)">
@@ -174,8 +174,8 @@
     private IEnumerable<ProjectDto> FilteredModels => Models
         .Where(p => string.IsNullOrEmpty(nameFilter) || p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase))
         .Where(p => string.IsNullOrEmpty(descriptionFilter) || (p.Description?.Contains(descriptionFilter, StringComparison.OrdinalIgnoreCase) ?? false))
-        .Where(p => string.IsNullOrEmpty(createdByFilter) || p.CreatedBy.Contains(createdByFilter, StringComparison.OrdinalIgnoreCase))
-        .Where(p => string.IsNullOrEmpty(updatedByFilter) || p.UpdatedBy.Contains(updatedByFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => string.IsNullOrEmpty(createdByFilter) || p.CreatedByInfo.Contains(createdByFilter, StringComparison.OrdinalIgnoreCase))
+        .Where(p => string.IsNullOrEmpty(updatedByFilter) || p.UpdatedByInfo.Contains(updatedByFilter, StringComparison.OrdinalIgnoreCase))
         .Where(p => !createdDateFilter.HasValue || p.CreatedAt.Date == createdDateFilter.Value.Date)
         .Where(p => !updatedDateFilter.HasValue || p.UpdatedAt.Date == updatedDateFilter.Value.Date);
 
@@ -221,7 +221,7 @@
 
     protected override async Task OnInitializedAsync() => Models = await GetModelsAsync();
 
-    private void CreateModel() => NavigationManager.NavigateTo($"/projects/edit");
+    private void NavigateToCreatePage() => NavigationManager.NavigateTo($"/projects/edit");
 
 	private void NavigateToEditPage(Guid modelId) => NavigationManager.NavigateTo($"/projects/edit/{modelId}");
 
