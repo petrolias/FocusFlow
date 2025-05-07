@@ -12,17 +12,18 @@
                     <h3 class="card-title mb-4">@(IsEditMode ? "✏️ Edit Project" : "➕ Add Project")</h3>
 
                     <EditForm Model="Model" OnValidSubmit="SaveProject" FormName="editProjectForm">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
+                        <DataAnnotationsValidator />                        
 
                         <div class="mb-3">
-                            <label for="name" class="form-label">Title</label>
+                            <label for="name" class="form-label">Name</label>
                             <InputText id="name" class="form-control" @bind-Value="Model.Name" placeholder="Enter a short project title..." />
+                            <ValidationMessage For="@(() => Model.Name)" />
                         </div>
 
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
                             <InputTextArea id="description" class="form-control" @bind-Value="Model.Description" placeholder="Write a brief description of the project..." />
+                            <ValidationMessage For="@(() => Model.Description)" />
                         </div>
 
                         <div class="mb-3">
