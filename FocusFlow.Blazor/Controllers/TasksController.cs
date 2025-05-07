@@ -10,15 +10,15 @@ namespace FocusFlow.Blazor.Controllers
         IHttpClientFactory httpClientFactory) : BaseController(httpClientFactory)
     {
         [HttpGet()]
-        public async Task<ActionResult<IEnumerable<ProjectDto>>> GetTasks([FromQuery] bool includeProjects = false)
+        public async Task<ActionResult<IEnumerable<TaskItemDto>>> GetTasks()
         {
             try
             {
-                var response = await GetHttpClient().GetAsync($"api/tasks?includeProjects={includeProjects}");
+                var response = await GetHttpClient().GetAsync($"api/tasks?includeProjects={true}");
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 
-                var result = await response.Content.ReadFromJsonAsync<IEnumerable<ProjectDto>>();
+                var result = await response.Content.ReadFromJsonAsync<IEnumerable<TaskItemDto>>();
 
                 return Ok(result);
             }
@@ -31,11 +31,11 @@ namespace FocusFlow.Blazor.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TaskItemDto>> GetTasks(Guid id, [FromQuery] bool includeProjects = false)
+        public async Task<ActionResult<TaskItemDto>> GetTaskById(Guid id)
         {
             try
             {
-                var response = await GetHttpClient().GetAsync($"api/tasks/{id}?includeProjects={includeProjects}");
+                var response = await GetHttpClient().GetAsync($"api/tasks/{id}?includeProjects={true}");
                 if (!response.IsSuccessStatusCode)
                     return StatusCode((int)response.StatusCode, response.ReasonPhrase);
 

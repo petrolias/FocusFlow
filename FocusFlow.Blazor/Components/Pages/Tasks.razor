@@ -52,32 +52,30 @@
                     @bind="descriptionFilter" @bind:event="oninput" />
                 </th>
                 <th>
-                    <input type="text" class="form-control form-control-sm" placeholder="Filter created by..."
-                    @bind="createdByFilter" @bind:event="oninput" />
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter priority..."
+                    @bind="priorityFilter" @bind:event="oninput" />
                 </th>
                 <th>
-                    <input type="text" class="form-control form-control-sm" placeholder="Filter updated by..."
-                    @bind="updatedByFilter" @bind:event="oninput" />
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter status..."
+                        @bind="statusFilter" @bind:event="oninput" />
+                </th>
+                <th>
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter created by..."
+                    @bind="createdByFilter" @bind:event="oninput" />
                 </th>
                 <th>
                     <input type="date" class="form-control form-control-sm" 
                     @bind="createdDateFilter" @bind:event="oninput" />
                 </th>
-                <th>
-                    <input type="date" class="form-control form-control-sm"
-                    @bind="updatedDateFilter" @bind:event="oninput" />
-                </th>
                 <th>Actions</th>
             </tr>
             <tr>
                 <th>Title</th>
-                <th>Description</th>
-                <th>Created By</th>
+                <th>Description</th>                
                 <th>Priority</th>
-                <th>Status</th>
-                <th>Updated By</th>
-                <th>Created At</th>
-                <th>Updated At</th>
+                <th>Status</th>     
+                <th>Created By</th>
+                <th>Created At</th>                
                 <th></th>
             </tr>
         </thead>
@@ -86,13 +84,11 @@
             {
                 <tr>
                     <td>@model.Title</td>
-                    <td>@model.Description</td>
-                    <td>@model.CreatedBy</td>
+                    <td>@model.Description</td>                    
                     <td>@model.Priority</td>
                     <td>@model.Status</td>
-                    <td>@model.UpdatedBy</td>
-                    <td>@model.CreatedAt.ToString("g")</td>
-                    <td>@model.UpdatedAt.ToString("g")</td>
+                    <td>@model.CreatedByInfo</td>
+                    <td>@model.CreatedAtFormatted()</td>                    
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-warning" @onclick="() => NavigateToEditPage(model.Id)">
@@ -167,6 +163,8 @@
     private string descriptionFilter = "";
     private string createdByFilter = "";
     private string updatedByFilter = "";
+    private string priorityFilter = "";
+    private string statusFilter = "";
     private DateTime? createdDateFilter;
     private DateTime? updatedDateFilter;
 
@@ -179,9 +177,7 @@
         .Where(p => string.IsNullOrEmpty(titleFilter) || p.Title.Contains(titleFilter, StringComparison.OrdinalIgnoreCase))
         .Where(p => string.IsNullOrEmpty(descriptionFilter) || (p.Description?.Contains(descriptionFilter, StringComparison.OrdinalIgnoreCase) ?? false))
         .Where(p => string.IsNullOrEmpty(createdByFilter) || p.CreatedBy.Contains(createdByFilter, StringComparison.OrdinalIgnoreCase))
-        .Where(p => string.IsNullOrEmpty(updatedByFilter) || p.UpdatedBy.Contains(updatedByFilter, StringComparison.OrdinalIgnoreCase))
-        .Where(p => !createdDateFilter.HasValue || p.CreatedAt.Date == createdDateFilter.Value.Date)
-        .Where(p => !updatedDateFilter.HasValue || p.UpdatedAt.Date == updatedDateFilter.Value.Date);
+        .Where(p => !createdDateFilter.HasValue || p.CreatedAt.Date == createdDateFilter.Value.Date);
 
     private IEnumerable<TaskItemDto> PagedModels => FilteredModels
         .Skip((currentPage - 1) * pageSize)

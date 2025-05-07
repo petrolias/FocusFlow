@@ -24,6 +24,7 @@ namespace FocusFlow.Abstractions.Api.Shared
         public string? AssignedUserId { get; set; }
         public string? AssignedUserName { get; set; }
         public Guid? ProjectId { get; set; }
+        public string ProjectInfo() => string.IsNullOrEmpty(Project?.Name) ? "Not available" : Project.Name;
 
         public ProjectDtoBase? Project { get; set; }
     }

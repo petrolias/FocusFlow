@@ -31,7 +31,7 @@ namespace FocusFlow.Blazor.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProjectDto>> GetProject(Guid id, [FromQuery] bool includeTasks = false)
+        public async Task<ActionResult<ProjectDto>> GetProjectById(Guid id, [FromQuery] bool includeTasks = false)
         {
             try
             {
