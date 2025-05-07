@@ -16,7 +16,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthorizationMessageHandler>();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
-builder.Services.AddHttpClient(Constants.HttpClients.LocalApi, c => { c.BaseAddress = new Uri(builder.Configuration[Constants.HttpClients.LocalApi]); });
+builder.Services.AddHttpClient(Constants.HttpClients.LocalApi, c => { c.BaseAddress = new Uri(builder.Configuration[Constants.HttpClients.LocalApi]); })
+    .AddHttpMessageHandler<AuthorizationMessageHandler>();
 builder.Services
     .AddHttpClient(Constants.HttpClients.ExternalApi, c => { c.BaseAddress = new Uri(builder.Configuration[Constants.HttpClients.ExternalApi]); })
     .AddHttpMessageHandler<AuthorizationMessageHandler>();

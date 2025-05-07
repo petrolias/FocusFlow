@@ -94,7 +94,7 @@
 		}
 		catch (Exception ex)
 		{
-			ErrorMessage = $"Login failed: {ex.Message}";
+			ErrorMessage = $"{ErrorMessage} {ex.Message}";
 		}
 		finally
 		{

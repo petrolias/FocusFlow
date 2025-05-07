@@ -1,58 +1,51 @@
 @page "/projects/edit/{ProjectId:guid}"
+@rendermode InteractiveServer
 @using FocusFlow.Abstractions.Api.Shared
-
+@using FocusFlow.Blazor.Extensions
 <h3>Edit Project</h3>
 
-<EditForm Model="project" OnValidSubmit="SaveProject">
+<EditForm Model="Project" OnValidSubmit="SaveProject" FormName="editProjectForm">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <div class="form-group">
         <label for="name">Name</label>
-        <InputText id="name" class="form-control" @bind-Value="project.Name" />
+        <InputText id="name" class="form-control" @bind-Value="Project.Name" />
     </div>
 
     <div class="form-group">
         <label for="description">Description</label>
-        <InputTextArea id="description" class="form-control" @bind-Value="project.Description" />
+        <InputTextArea id="description" class="form-control" @bind-Value="Project.Description" />
     </div>
 
     <div class="form-group">
         <label>Created By</label>
-        <p class="form-control-plaintext">@project.CreatedBy</p>
+        <p class="form-control-plaintext">@Project.CreatedBy</p>
     </div>
 
     <div class="form-group">
         <label>Updated By</label>
-        <p class="form-control-plaintext">@project.UpdatedBy</p>
+        <p class="form-control-plaintext">@Project.UpdatedBy</p>
     </div>
 
     <div class="form-group">
         <label>Created At</label>
-        <p class="form-control-plaintext">@project.CreatedAt.ToString("g")</p>
+        <p class="form-control-plaintext">@Project.CreatedAt.ToString("g")</p>
     </div>
 
     <div class="form-group">
         <label>Updated At</label>
-        <p class="form-control-plaintext">@project.UpdatedAt.ToString("g")</p>
+        <p class="form-control-plaintext">@Project.UpdatedAt.ToString("g")</p>
     </div>
 
-    @* <div class="form-group"> *@
-    @*     <label for="startDate">Start Date</label> *@
-    @*     <InputDate id="startDate" class="form-control" @bind-Value="project.StartDate" /> *@
-    @* </div> *@
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+	{
+		<div class="alert alert-danger">@ErrorMessage</div>
+	}
 
-    @* <div class="form-group"> *@
-    @*     <label for="endDate">End Date</label> *@
-    @*     <InputDate id="endDate" class="form-control" @bind-Value="project.EndDate" /> *@
-    @* </div> *@
-
-    @* <div class="form-group"> *@
-    @*     <label for="status">Status</label> *@
-    @*     <InputText id="status" class="form-control" @bind-Value="project.Status" /> *@
-    @* </div> *@
-
-    <button type="submit" class="btn btn-primary">Save</button>
+	<button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+        @(IsSubmitting ? "Saving..." : "Save")
+	</button>
     <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
 </EditForm>
 
@@ -60,22 +53,44 @@
 @inject IHttpClientFactory HttpClientFactory
 @code {
     [Parameter] public Guid ProjectId { get; set; }
-    private ProjectDto project = new();
-    private HttpClient _client;
+    [SupplyParameterFromForm]
+    private ProjectDto Project { get; set; } = new ();
+    private bool IsSubmitting = false;
+    private string ErrorMessage;
 
     protected override async Task OnInitializedAsync()
-    {
-        _client = HttpClientFactory.CreateClient("MyApi");
-        project = await _client.GetFromJsonAsync<ProjectDto>($"api/projects/{ProjectId}");
+    {        
+        Project = await HttpClientFactory.LocalApi().GetFromJsonAsync<ProjectDto>($"api/projects/{ProjectId}");
     }
 
     private async Task SaveProject()
     {
-        var response = await _client.PutAsJsonAsync($"api/projects/{ProjectId}", project);
-        if (response.IsSuccessStatusCode)
-        {
-            NavigationManager.NavigateTo("/projects");
+        IsSubmitting = true;
+		ErrorMessage = null;        
+
+        try
+		{
+			var errorMessage = "Login failed. Please try again.";
+
+            var response = await HttpClientFactory.LocalApi().PutAsJsonAsync($"api/projects/{ProjectId}", Project);
+            if (response.IsSuccessStatusCode)
+            {
+                Project = await HttpClientFactory.LocalApi().GetFromJsonAsync<ProjectDto>($"api/projects/{ProjectId}");
+            }
+			else
+			{
+                ErrorMessage = response.ReasonPhrase;
+            }
         }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"{ErrorMessage} {ex.Message}";
+        }
+		finally
+		{
+			IsSubmitting = false;
+		}
+
     }
 
     private void Cancel()
