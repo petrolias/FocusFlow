@@ -16,7 +16,7 @@
         </nav>
     </div>
     <div>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" @onclick="() => NavigateToCreatePage()">
             <i class="bi bi-plus-lg"></i> Create New Task
         </button>
     </div>
@@ -283,7 +283,7 @@
 
 	protected override async Task OnInitializedAsync() => Models = await GetModelsAsync();
 
-    private void CreateModel() => NavigationManager.NavigateTo($"/tasks/edit");
+    private void NavigateToCreatePage() => NavigationManager.NavigateTo($"/tasks/edit");
 
 	private void NavigateToEditPage(Guid modelId) => NavigationManager.NavigateTo($"/tasks/edit/{modelId}");
 
