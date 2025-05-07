@@ -3,10 +3,12 @@
     public class ProjectTaskStatsDto
     {        
         public List<TaskItemDto> OverdueTasks { get; set; }        
+        public List<TaskItemDto> ToDoTasks { get; set; }        
         public Guid ProjectId { get; set; }
         public string ProjectName { get; set; }
         public int Total { get; set; }
         public int Completed { get; set; }
+        public int ToDo { get; set; }
         public int Overdue { get; set; }
     }
 }

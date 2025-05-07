@@ -32,8 +32,10 @@ namespace FocusFlow.Core.Services
                         ProjectName = item.Name,
                         Total = item.Tasks.Count(),
                         Completed = item.Tasks.Count(t => t.Status == TaskItemStatusEnum.Done),
-                        OverdueTasks = item.Tasks.Where(t => t.DueDate < DateTime.UtcNow && t.Status != TaskItemStatusEnum.Done).ToList()
+                        OverdueTasks = item.Tasks.Where(t => t.DueDate < DateTime.UtcNow && t.Status != TaskItemStatusEnum.Done).ToList(),
+                        ToDoTasks = item.Tasks.Where(t => t.Status == TaskItemStatusEnum.Todo).ToList()
                     };
+                    stats.ToDo = stats.ToDoTasks.Count();
                     stats.Overdue = stats.OverdueTasks.Count();
                     result.Add(stats);
                 }

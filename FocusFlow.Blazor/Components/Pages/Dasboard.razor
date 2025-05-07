@@ -1,7 +1,7 @@
 ﻿@page "/dashboard"
 @using FocusFlow.Abstractions.Api.Shared
 @using FocusFlow.Blazor.Extensions
-
+@rendermode InteractiveServer
 <PageTitle>Dashboard</PageTitle>
 
 <h2 class="mb-4"><i class="bi bi-bar-chart-fill"></i> Dashboard Overview</h2>
@@ -28,10 +28,10 @@ else
         @foreach (var stat in ProjectStats)
         {
             <div class="col">
-                <div class="card h-100 shadow-sm">
+                <div class="card h-100 shadow-sm border-0 hover-shadow">
                     <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">
-                            <i class="bi bi-kanban"></i> @stat.ProjectName
+                        <h5 class="card-title mb-2 text-primary" @onclick="() => NavigateToTasks(stat.ProjectId)" style="cursor:pointer;">
+                            <i class="bi bi-kanban-fill me-1"></i> @stat.ProjectName
                         </h5>
 
                         <ul class="list-group list-group-flush mt-3 mb-3">
@@ -44,17 +44,75 @@ else
                                 <span class="badge bg-success">@stat.Completed</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between">
+                                <span>To Do</span>
+                                <span class="badge bg-warning text-dark">@stat.ToDo</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
                                 <span>Overdue</span>
                                 <span class="badge bg-danger">@stat.Overdue</span>
                             </li>
                         </ul>
 
+                        <div class="mb-3">
+                            <div class="progress" style="height: 20px;">
+                                @if (stat.Total > 0)
+                                {
+                                    var completedPercent = (int)((double)stat.Completed / stat.Total * 100);
+                                    var overduePercent = (int)((double)stat.Overdue / stat.Total * 100);
+                                    var todoPercent = (int)((double)stat.ToDo / stat.Total * 100);
+                                    var unknownPercent = 100 - completedPercent - overduePercent - todoPercent;
+
+                                    <div class="progress-bar bg-success" style="width:@completedPercent%" title="Completed (@completedPercent%)">
+                                        <span class="visually-hidden">Completed</span>
+                                    </div>
+                                    <div class="progress-bar bg-danger" style="width:@overduePercent%" title="Overdue (@overduePercent%)">
+                                        <span class="visually-hidden">Overdue</span>
+                                    </div>
+                                    <div class="progress-bar bg-warning text-dark" style="width:@todoPercent%" title="To Do (@todoPercent%)">
+                                        <span class="visually-hidden">To Do</span>
+                                    </div>
+                                    @if (unknownPercent > 0)
+                                    {
+                                        <div class="progress-bar bg-secondary" style="width:@unknownPercent%" title="Other (@unknownPercent%)">
+                                            <span class="visually-hidden">Other</span>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="progress-bar bg-light text-dark" style="width:100%">No Tasks</div>
+                                }
+                            </div>
+                            <small class="text-muted d-block mt-1">Task distribution</small>
+                        </div>
+
+
                         @if (stat.OverdueTasks?.Any() == true)
                         {
                             <div>
                                 <small class="text-muted">Overdue Tasks:</small>
-                                <ul class="list-unstyled small mt-2">
-                                    @foreach (var task in stat.OverdueTasks.Take(3)) 
+                                <ul class="list-unstyled small mt-2 mb-0">
+                                    @foreach (var task in stat.OverdueTasks.Take(3))
+                                    {
+                                        <li class="text-truncate" title="@task.Title">
+                                            <i class="bi bi-exclamation-circle text-danger me-1"></i>
+                                            @task.Title
+                                        </li>
+                                    }
+                                    @if (stat.OverdueTasks.Count > 3)
+                                    {
+                                        <li class="text-muted"><em>and more...</em></li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+
+                        @if (stat.ToDoTasks?.Any() == true)
+                        {
+                            <div>
+                                <small class="text-muted">To Do Tasks:</small>
+                                <ul class="list-unstyled small mt-2 mb-0">
+                                    @foreach (var task in stat.ToDoTasks.Take(3))
                                     {
                                         <li class="text-truncate" title="@task.Title">
                                             <i class="bi bi-exclamation-circle text-danger me-1"></i>
@@ -74,9 +132,8 @@ else
         }
     </div>
 }
-
 @inject IHttpClientFactory HttpClientFactory
-
+@inject NavigationManager NavigationManager
 @code {
     private List<ProjectTaskStatsDto>? ProjectStats;
     private string? ErrorMessage;
@@ -86,7 +143,6 @@ else
         try
         {
             ErrorMessage = null;
-
             var response = await HttpClientFactory.LocalApi().GetAsync("api/dashboard/project-stats");
 
             if (!response.IsSuccessStatusCode)
@@ -97,9 +153,14 @@ else
 
             ProjectStats = await response.Content.ReadFromJsonAsync<List<ProjectTaskStatsDto>>();
         }
-        catch (Exception ex)
+        catch
         {
             ErrorMessage = "An unexpected error occurred.";
         }
+    }
+
+    private void NavigateToTasks(Guid projectId)
+    {
+        NavigationManager.NavigateTo($"/tasks/{projectId}");
     }
 }
