@@ -1,25 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FocusFlow.Core.Constants;
+﻿using System.ComponentModel.DataAnnotations;
+using FocusFlow.Abstractions.Common;
+using FocusFlow.Abstractions.Constants;
+using FocusFlow.Abstractions.Models;
 
 namespace FocusFlow.Core.Models
 {
-    public class TaskItem
+    public class TaskItem : ModelGuid, IModelGuid, IEntryBase, IValid
     {
-        public Guid Id { get; set; }
+        [Required]
+        [MaxLength(100)]
         public string Title { get; set; } = string.Empty;
+        [MaxLength(500)]
         public string? Description { get; set; }
-        public DateTime DueDate { get; set; }
-        public TaskStatus Status { get; set; }
-        public TaskPriority Priority { get; set; }
-
+        public DateTimeOffset? DueDate { get; set; }
+        public TaskItemStatusEnum? Status { get; set; }
+        public TaskItemPriorityEnum? Priority { get; set; }
         public string? AssignedUserId { get; set; }
         public AppUser? AssignedUser { get; set; }
-
-        public Guid ProjectId { get; set; }
-        public Project Project { get; set; } = default!;
+        public Guid? ProjectId { get; set; }
+        public Project? Project { get; set; }
+        public string GetUserInfo() => string.IsNullOrEmpty(AssignedUser?.Email) ? "Not available" : AssignedUser.Email;
+        public bool IsValid(out List<string> validationErrors)
+        {
+            validationErrors = [];
+            if (string.IsNullOrWhiteSpace(Title))
+                validationErrors.Add("Title is required.");
+            
+            return !validationErrors.Any();
+        }        
     }
 }

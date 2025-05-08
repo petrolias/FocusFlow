@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FocusFlow.Abstractions.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace FocusFlow.Core.Models
 {
-    internal class AppUser
+    public class AppUser : IdentityUser, IModelGuid
     {
+        public ICollection<TaskItem>? Tasks { get; set; } = [];
     }
 }

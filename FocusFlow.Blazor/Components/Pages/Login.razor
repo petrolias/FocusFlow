@@ -1,0 +1,125 @@
+﻿@page "/login"
+@page "/login/{action}"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using FocusFlow.Abstractions.Api.Shared
+@using FocusFlow.Blazor.Extensions
+@using FocusFlow.Blazor.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IHttpClientFactory HttpClientFactory
+
+<PageTitle>Login</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title mb-4 text-center">🔐 Login</h3>
+
+                    <EditForm Model="LoginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <InputText id="email" class="form-control" @bind-Value="LoginModel.Email" />
+                            <ValidationMessage For="@(() => LoginModel.Email)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <InputText id="password"
+                                class="form-control"
+                                type="@(ShowPassword ? "text" : "password")"
+                                @bind-Value="LoginModel.Password" />
+                                <button type="button"
+                                class="btn btn-outline-secondary"
+                                @onclick="() => ShowPassword = !ShowPassword"
+                                title="Toggle password visibility">
+                                    <i class="bi @(ShowPassword ? "bi-eye-slash" : "bi-eye")"></i>
+                                </button>
+                            </div>
+                            <ValidationMessage For="@(() => LoginModel.Password)" class="text-danger" />
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(ErrorMessage))
+                        {
+                            <div class="alert alert-danger" role="alert">@ErrorMessage</div>
+                        }
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                                @(IsSubmitting ? "Logging in..." : "Login")
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? action { get; set; }
+
+    [SupplyParameterFromForm]
+    private LoginDto LoginModel { get; set; } = new();
+
+    private bool IsSubmitting = false;
+    private string ErrorMessage;
+    private bool ShowPassword = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (action == "out")
+        {
+            await JS.InvokeVoidAsync("clearCookiesAndReload");
+            NavigationManager.NavigateTo("/login", forceLoad: true);
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        IsSubmitting = true;
+        ErrorMessage = null;
+
+        try
+        {
+            var errorMessage = "Login failed. Please try again.";
+            var response = await HttpClientFactory.GetTokenAsync(LoginModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();
+
+                if (tokenResponse?.Token != null)
+                {
+                    await JS.InvokeVoidAsync("setCookie", Constants.CookieAccessToken, tokenResponse.Token, 60);
+                    await JS.InvokeVoidAsync("setCookie", Constants.CookieData, LoginModel.Email, 60);
+                    NavigationManager.NavigateTo("/", forceLoad: true);
+                    return;
+                }
+
+                ErrorMessage = errorMessage;
+            }
+            else
+            {
+                ErrorMessage = await response.ReadErrorMessageAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Unexpected error: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+}

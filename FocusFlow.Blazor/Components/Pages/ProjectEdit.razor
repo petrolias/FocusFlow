@@ -1,0 +1,156 @@
+﻿@page "/projects/edit/{ModelId:guid?}"
+@rendermode InteractiveServer
+@using FocusFlow.Abstractions.Api.Shared
+@using FocusFlow.Blazor.Extensions
+<PageTitle>Edit Project</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">@(IsEditMode ? "✏️ Edit Project" : "➕ Add Project")</h3>
+
+                    <EditForm Model="Model" OnValidSubmit="SaveProject" FormName="editProjectForm">
+                        <DataAnnotationsValidator />                        
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <InputText id="name" class="form-control" @bind-Value="Model.Name" placeholder="Enter a short project title..." />
+                            <ValidationMessage For="@(() => Model.Name)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <InputTextArea id="description" class="form-control" @bind-Value="Model.Description" placeholder="Write a brief description of the project..." />
+                            <ValidationMessage For="@(() => Model.Description)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Created By</label>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-person-circle text-secondary"></i>
+                                <span>@Model.CreatedByInfo</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Updated By</label>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-arrow-repeat text-secondary"></i>
+                                <span>@Model.UpdatedByInfo</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Created At</label>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-calendar-event text-secondary"></i>
+                                <span>@Model.CreatedAtFormatted()</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Updated At</label>
+                            <div class="form-control bg-light d-flex align-items-center gap-2">
+                                <i class="bi bi-clock-history text-secondary"></i>
+                                <span>@Model.UpdatedAtFormatted()</span>
+                            </div>
+                        </div>
+
+
+                        @if (!string.IsNullOrEmpty(ErrorMessage))
+                        {
+                            <div class="alert alert-danger">@ErrorMessage</div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(SuccessMessage))
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                @SuccessMessage
+                            </div>
+                        }
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                                @(IsSubmitting ? "Saving..." : "Save")
+                            </button>
+                            <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
+@code {
+    private string Route = "api/projects";
+    private async Task<ProjectDto> GetModelAsync(Guid modelId) => await HttpClientFactory.LocalApi().GetFromJsonAsync<ProjectDto>($"{Route}/{modelId}");
+    [Parameter] public Guid? ModelId { get; set; }
+    [SupplyParameterFromForm]
+    private ProjectDto Model { get; set; } = new ();
+    private bool IsSubmitting = false;
+    private string? SuccessMessage;
+    private string ErrorMessage;
+    private bool IsEditMode => ModelId.HasValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsEditMode)
+            Model = await GetModelAsync(ModelId.Value);
+    }
+
+    private async Task SaveProject()
+    {
+        IsSubmitting = true;
+        ErrorMessage = null;
+
+        try
+        {
+            HttpResponseMessage response;
+            if (IsEditMode)
+            {
+                response = await HttpClientFactory.LocalApi().PutAsJsonAsync($"{Route}/{ModelId}", Model);
+            }
+            else
+            {
+                response = await HttpClientFactory.LocalApi().PostAsJsonAsync(Route, Model);
+            }
+
+            if (response.IsSuccessStatusCode)
+            {
+                var updated = await response.Content.ReadFromJsonAsync<ProjectDto>();
+                SuccessMessage = "Project saved successfully!";
+                StateHasChanged();
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(3000);
+                    SuccessMessage = null;
+                    await InvokeAsync(StateHasChanged);
+                });
+
+                NavigationManager.NavigateTo($"/projects/edit/{updated.Id}");
+            }
+            else
+            {
+                ErrorMessage = await response.ReadErrorMessageAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"{ErrorMessage} {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/projects");
+    }
+}

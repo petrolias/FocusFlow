@@ -1,0 +1,32 @@
+﻿@page "/"
+@inject IHttpContextAccessor HttpContextAccessor
+
+<PageTitle>Welcome</PageTitle>
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="card-title">
+                👋 Welcome @(string.IsNullOrWhiteSpace(User) ? "Guest" : User)!
+            </h1>
+
+            @if (string.IsNullOrWhiteSpace(User))
+            {
+                <p class="text-muted">We didn't recognize you. Try logging in to personalize your experience.</p>
+            }
+            else
+            {
+                <p class="text-success">Explore the FocusFlow app!</p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? User;
+
+    protected override void OnInitialized()
+    {
+        User = HttpContextAccessor.HttpContext?.Request.Cookies["data"];
+    }
+}

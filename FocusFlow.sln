@@ -1,9 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Core", "FocusFlow.Core\FocusFlow.Core.csproj", "{066DCDF0-BF2D-4EB4-AC8B-22BB7FEADAF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.WebApi", "FocusFlow.WebApi\FocusFlow.WebApi.csproj", "{09FFE641-883A-41ED-BF09-2F490B0DBD60}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Abstractions", "FocusFlow.Abstractions\FocusFlow.Abstractions.csproj", "{DF475C0C-9490-8129-5B85-C4B8EF3C4614}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Tests", "FocusFlow.Tests\FocusFlow.Tests.csproj", "{843A9CE2-FEB1-963E-2878-F32CC628673A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusFlow.Blazor", "FocusFlow.Blazor\FocusFlow.Blazor.csproj", "{21BF1D47-A674-4405-B4AA-709D1E44E0E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +28,22 @@ Global
 		{066DCDF0-BF2D-4EB4-AC8B-22BB7FEADAF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{066DCDF0-BF2D-4EB4-AC8B-22BB7FEADAF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{066DCDF0-BF2D-4EB4-AC8B-22BB7FEADAF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09FFE641-883A-41ED-BF09-2F490B0DBD60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09FFE641-883A-41ED-BF09-2F490B0DBD60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09FFE641-883A-41ED-BF09-2F490B0DBD60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09FFE641-883A-41ED-BF09-2F490B0DBD60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF475C0C-9490-8129-5B85-C4B8EF3C4614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF475C0C-9490-8129-5B85-C4B8EF3C4614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF475C0C-9490-8129-5B85-C4B8EF3C4614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF475C0C-9490-8129-5B85-C4B8EF3C4614}.Release|Any CPU.Build.0 = Release|Any CPU
+		{843A9CE2-FEB1-963E-2878-F32CC628673A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{843A9CE2-FEB1-963E-2878-F32CC628673A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{843A9CE2-FEB1-963E-2878-F32CC628673A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{843A9CE2-FEB1-963E-2878-F32CC628673A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21BF1D47-A674-4405-B4AA-709D1E44E0E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21BF1D47-A674-4405-B4AA-709D1E44E0E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21BF1D47-A674-4405-B4AA-709D1E44E0E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21BF1D47-A674-4405-B4AA-709D1E44E0E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
