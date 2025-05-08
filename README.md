@@ -72,11 +72,63 @@ dotnet ef migrations add InitialCreate --context Context --project ./FocusFlow.C
 
 ### Layered / Onion Architecture
 
-graph TD
-    A[Blazor (UI)] --> B[Web API]
-    B --> C[Core Services]
-    C --> D[EF Core Repositories]
-    C --> E[Abstractions & DTOs]
+```
+Abstraction Layer       [Abstraction]
+    Interfaces
+        Repositories
+        Services
+    Dtos Api Models    
+
+DataAccess Layer        [Core]
+    Entify Framework
+    Migrations
+    DB Models
+    History DB Models
+
+Repository Layer        [Core]
+    CRUD Operations 
+    DB Models
+    Validations
+    Identity
+        UserManager,
+        RoleManager
+    Repository Services
+        Project
+        Task
+    
+Business Services Layer  [Core]    
+    Mappings - Transformations
+    Dtos Validations
+    Services
+        User
+        Project
+        TaskItem
+        Dashboard
+
+Communication Layer REST      [WebAPI]    
+    Controllers
+        Auth
+        Users
+        Project
+        Dashboard
+    Data Transfer Object Models for CRUD Operations
+    Authorization / Authentication
+    Health Checks
+
+Presentation Layer        [Blazor]
+    User Interaction <----> Components [Razor] <----> Controllers <----> Communication Layer
+    
+    Controllers (acts as proxy with the Communication Layer)
+        Auth
+        Dashboard
+        Projects
+        Tasks
+        Users
+
+    Razor Components (presentation)
+    
+```    
+    
 
 ## Project Structure
 
